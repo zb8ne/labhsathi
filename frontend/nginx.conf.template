@@ -1,0 +1,35 @@
+server {
+    listen 80;
+    server_name _;
+    root /usr/share/nginx/html;
+    index index.html;
+
+    # GitHub issue #2: the kind demo runs with ingress disabled and the
+    # frontend defaulting to same-origin /api (see api-gateway Helm
+    # values), but nothing was actually proxying /api anywhere -- every
+    # API call 404'd. $API_PROXY_PASS is substituted by docker-entrypoint.sh
+    # from an env var at container start. Compose and Railway don't need
+    # this at all (API_BASE_URL there is an absolute cross-origin URL, so
+    # the browser calls api-gateway directly and never hits this block) --
+    # the default below is a deliberately-refused local port so an
+    # unconfigured proxy fails loudly (502) instead of silently misrouting.
+    location /api/ {
+        proxy_pass ${API_PROXY_PASS};
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # React Router client-side routing -- unknown paths fall through to
+    # index.html rather than 404ing on a hard refresh of /results or /privacy.
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    # env.js is written by docker-entrypoint.sh at container start; never
+    # cache it, or a redeploy with a new API_BASE_URL won't take effect for
+    # a client with a cached copy.
+    location = /env.js {
+        add_header Cache-Control "no-store";
+    }
+}

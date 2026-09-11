@@ -1,4 +1,4 @@
-import { defineRailway, project, service, redis, github, image, preserve } from "railway/iac";
+import { defineRailway, project, service, github, image, preserve } from "railway/iac";
 
 // Railway hosts the always-on public prototype link (per docs/adr/0001 and
 // the plan this was built from) -- decoupled from the local `kind` cluster,
@@ -27,12 +27,19 @@ export default defineRailway(() => {
     },
   });
 
-  // Managed Redis add-on rather than self-hosting -- simpler/more reliable
-  // for the public deployment specifically, a deliberate small deviation
-  // from strict 1:1 reuse of the Compose/kind setup (both of which do
-  // self-host Redis, on purpose, to keep the "cache not a datastore"
-  // persistence-off story explicit there).
-  const redisDb = redis("redis");
+  // Self-hosted, same as Compose/kind -- NOT Railway's managed Redis
+  // add-on. GitHub issue #9: the managed add-on provisions a persistent
+  // volume by default, which directly contradicts the "cache, not a
+  // datastore, no disk write" privacy claim on the one deployment
+  // (the public one) where that claim actually gets tested by a reader.
+  // No exceptions for the public target -- persistence-off is the whole
+  // point everywhere or it's not a real guarantee anywhere.
+  const redisDb = service("redis", {
+    source: image("redis:7-alpine"),
+    deploy: {
+      startCommand: 'redis-server --save "" --appendonly no',
+    },
+  });
 
   const apiGateway = service("api-gateway", {
     source: github("zb8ne/labhsathi", { rootDirectory: "/", branch: "main" }),
@@ -44,7 +51,10 @@ export default defineRailway(() => {
       // ("[object Object]:9092"), confirmed the hard way against the live
       // service after the first apply.
       KAFKA_BROKERS: "${{kafka.RAILWAY_PRIVATE_DOMAIN}}:9092",
-      REDIS_URL: redisDb.env.REDIS_URL,
+      // Self-hosted, no auth configured -- same shape as Compose's
+      // redis://redis:6379. Not the managed add-on's env.REDIS_URL
+      // accessor (that variable doesn't exist on a plain image service).
+      REDIS_URL: "redis://${{redis.RAILWAY_PRIVATE_DOMAIN}}:6379",
       PORT: "8080",
     },
     // Public domain isn't an IaC concern here -- generated post-apply via
@@ -57,7 +67,10 @@ export default defineRailway(() => {
     build: { builder: "DOCKERFILE", dockerfilePath: "services/ocr-worker/Dockerfile" },
     env: {
       KAFKA_BROKERS: "${{kafka.RAILWAY_PRIVATE_DOMAIN}}:9092",
-      REDIS_URL: redisDb.env.REDIS_URL,
+      // Self-hosted, no auth configured -- same shape as Compose's
+      // redis://redis:6379. Not the managed add-on's env.REDIS_URL
+      // accessor (that variable doesn't exist on a plain image service).
+      REDIS_URL: "redis://${{redis.RAILWAY_PRIVATE_DOMAIN}}:6379",
       KAFKA_CONSUMER_GROUP: "ocr-worker-group",
       // Set out-of-band via `railway variable set ANTHROPIC_API_KEY --stdin
       // --service ocr-worker` (piped from Doppler), never committed here.

@@ -25,6 +25,10 @@ spec:
               value: "redis://{{ include "labhsathi.name" (dict "service" "redis" "kind" "svc") }}:6379"
             - name: PORT
               value: "{{ .Values.apiGateway.port }}"
+            - name: UPLOAD_RATE_LIMIT_BURST
+              value: "{{ .Values.apiGateway.uploadRateLimit.burstSize }}"
+            - name: UPLOAD_RATE_LIMIT_PERIOD_SECS
+              value: "{{ .Values.apiGateway.uploadRateLimit.periodSeconds }}"
           ports:
             - containerPort: {{ .Values.apiGateway.port }}
           readinessProbe:

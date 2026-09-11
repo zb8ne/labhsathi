@@ -44,14 +44,24 @@ spec:
               value: "1"
             - name: CLUSTER_ID
               value: "MkU3OEVBNTcwNTJENDM2Qk"
+            # Default is 1 -- a single partition means only one consumer in
+            # a group can ever be active regardless of replica count, so
+            # the ocr-worker HPA scaling pods alone wouldn't prove any
+            # throughput increase. See docs/engineering/reliability-proof.md.
+            - name: KAFKA_NUM_PARTITIONS
+              value: "3"
           ports:
             - containerPort: 9092
             - containerPort: 9093
           readinessProbe:
             exec:
+              # kafka-broker-api-versions.sh spins up its own JVM client per
+              # invocation -- the default 1s exec-probe timeout isn't enough
+              # even once the broker itself is fully up.
               command: ["/opt/kafka/bin/kafka-broker-api-versions.sh", "--bootstrap-server", "localhost:9092"]
             initialDelaySeconds: 10
             periodSeconds: 5
+            timeoutSeconds: 10
             failureThreshold: 12
 ---
 apiVersion: v1

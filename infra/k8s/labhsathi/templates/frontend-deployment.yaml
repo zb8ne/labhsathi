@@ -25,6 +25,16 @@ spec:
             # ingress/NodePort URL for this deploy is known.
             - name: API_BASE_URL
               value: "{{ .Values.frontend.apiBaseUrl | default "/api" }}"
+            # GitHub issue #2: with ingress disabled (values-kind.yaml) and
+            # API_BASE_URL left at its same-origin "/api" default, nginx
+            # needs to actually proxy that somewhere -- the in-cluster
+            # api-gateway service, reachable by DNS name within the
+            # namespace regardless of whether it has a public
+            # domain/ingress at all. No path component on this URL --
+            # nginx forwards the full "/api/..." path unchanged only when
+            # proxy_pass itself has none (see nginx.conf.template).
+            - name: API_PROXY_PASS
+              value: "http://{{ include "labhsathi.name" (dict "service" "api-gateway" "kind" "svc") }}:{{ .Values.apiGateway.port }}"
           ports:
             - containerPort: {{ .Values.frontend.port }}
 ---

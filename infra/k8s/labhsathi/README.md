@@ -29,4 +29,19 @@ kubectl get pods -n labhsathi
 kubectl get hpa -n labhsathi
 ```
 
-To generate load against ocr-worker for the HPA demo, raise the api-gateway upload rate limit for this session first (`services/api-gateway/src/rate_limit.rs` is a ~5/hour default) rather than discovering the limit live on camera.
+## Generating load for the HPA demo
+
+`values-kind.yaml` already raises the upload rate limit for this cluster specifically (200 uploads/sec instead of the ~5/hour public-deployment default -- see `apiGateway.uploadRateLimit` in both values files and GitHub issue #5) so this doesn't need discovering live on camera.
+
+Port-forward api-gateway, then fire concurrent uploads at it with one of `docs/sample-documents/*.jpg` -- 30 requests at 8 in flight is enough to push CPU over the 70% HPA threshold and watch replicas climb:
+
+```bash
+kubectl port-forward -n labhsathi svc/labhsathi-api-gateway-svc 8080:8080 &
+
+seq 1 30 | xargs -P 8 -I{} curl -s -o /dev/null -X POST http://localhost:8080/api/documents \
+  -F "document=@../../docs/sample-documents/specimen-income-certificate.jpg"
+
+watch kubectl get hpa,pods -n labhsathi
+```
+
+`ocrWorker.maxConcurrentExtractions` (default 4, per pod) is also Helm-settable if a smaller/larger load is needed to hit the threshold predictably on the hardware being demoed on.

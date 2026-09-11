@@ -1,6 +1,8 @@
 import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useDocumentJob } from "../hooks/useDocumentJob";
+import { useLanguage } from "../lib/i18n/LanguageContext";
+import type { translations } from "../lib/i18n/translations";
 import type { ExtractedFields } from "../lib/types";
 
 interface ScanPanelProps {
@@ -8,6 +10,7 @@ interface ScanPanelProps {
 }
 
 export function ScanPanel({ onExtracted }: ScanPanelProps) {
+  const { t } = useLanguage();
   const { state, scan } = useDocumentJob();
   const inputRef = useRef<HTMLInputElement>(null);
   // Guards against firing onExtracted again on every unrelated re-render
@@ -25,29 +28,37 @@ export function ScanPanel({ onExtracted }: ScanPanelProps) {
   const handleFile = (file: File | undefined) => {
     if (!file) return;
     void scan(file);
+    // Clear the input's value so selecting the *same* file again still
+    // fires a change event -- browsers don't re-fire onChange for an
+    // unchanged value, so without this a retry-with-the-same-file would
+    // silently do nothing.
+    if (inputRef.current) inputRef.current.value = "";
   };
 
   return (
-    <div className="mb-7 rounded-2xl border border-dashed border-amber-tan bg-[#fdf4ec] px-5 py-4">
+    <div className="mb-7 rounded-2xl border border-dashed border-amber-tan bg-[#fdf4ec] px-5 py-4 dark:border-amber-tan/40 dark:bg-amber-tan/[0.06]">
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <ScanIcon />
           <div>
-            <div className="text-sm font-semibold text-ink">Scan a document to auto-fill</div>
-            <StatusLine state={state} />
+            <div className="text-sm font-semibold text-ink dark:text-dark-text">{t.scan.title}</div>
+            <StatusLine state={state} t={t} />
           </div>
         </div>
-        {state.phase === "idle" || state.phase === "degraded" ? (
+        {/* GitHub issue #3: "done" wasn't in this set, so after a
+            successful scan the button vanished for good -- no way to
+            rescan a different document or retry after a bad read. */}
+        {state.phase === "idle" || state.phase === "degraded" || state.phase === "done" ? (
           <button
             type="button"
             onClick={() => inputRef.current?.click()}
             className="whitespace-nowrap rounded-[10px] bg-terracotta px-4 py-2.5 text-sm font-semibold text-white hover:bg-terracotta-hover"
           >
-            Scan
+            {state.phase === "done" ? t.scan.buttonScanAnother : t.scan.buttonScan}
           </button>
         ) : (
           <div className="whitespace-nowrap rounded-[10px] bg-terracotta/40 px-4 py-2.5 text-sm font-semibold text-white">
-            Working&hellip;
+            {t.scan.buttonWorking}
           </div>
         )}
         <input
@@ -62,34 +73,36 @@ export function ScanPanel({ onExtracted }: ScanPanelProps) {
   );
 }
 
-function StatusLine({ state }: { state: ReturnType<typeof useDocumentJob>["state"] }) {
+function StatusLine({
+  state,
+  t,
+}: {
+  state: ReturnType<typeof useDocumentJob>["state"];
+  t: (typeof translations)["en"];
+}) {
   switch (state.phase) {
     case "idle":
       return (
-        <div className="text-xs text-[#92400e]">
-          Processed once, then discarded &mdash; <Link to="/privacy" className="underline">see how &rarr;</Link>
+        <div className="text-xs text-[#92400e] dark:text-amber-tan">
+          {t.scan.hintIdle} &mdash; <Link to="/privacy" className="underline">{t.scan.hintIdleLink}</Link>
         </div>
       );
     case "uploading":
-      return <div className="text-xs text-[#92400e]">Uploading&hellip;</div>;
+      return <div className="text-xs text-[#92400e] dark:text-amber-tan">{t.scan.hintUploading}</div>;
     case "queued":
-      return <div className="text-xs text-[#92400e]">Job submitted, waiting for a worker&hellip;</div>;
+      return <div className="text-xs text-[#92400e] dark:text-amber-tan">{t.scan.hintQueued}</div>;
     case "processing":
-      return <div className="text-xs text-[#92400e]">Extracting fields&hellip;</div>;
+      return <div className="text-xs text-[#92400e] dark:text-amber-tan">{t.scan.hintProcessing}</div>;
     case "done":
-      return <div className="text-xs text-success-text">Fields filled in below.</div>;
+      return <div className="text-xs text-success-text dark:text-success-accent">{t.scan.hintDone}</div>;
     case "degraded":
-      return (
-        <div className="text-xs text-error-text">
-          Auto-fill unavailable &mdash; fill the form manually below.
-        </div>
-      );
+      return <div className="text-xs text-error-text">{t.scan.hintDegraded}</div>;
   }
 }
 
 function ScanIcon() {
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9a3412" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-terracotta dark:text-amber-orange">
       <rect x="3" y="6" width="18" height="14" rx="2" />
       <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
       <circle cx="12" cy="13" r="3.2" />

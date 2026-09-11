@@ -2,6 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  color-scheme: light;
+}
+:root.dark {
+  color-scheme: dark;
+}
+
 body {
-  @apply bg-cream text-ink font-sans;
+  @apply bg-cream text-ink font-sans dark:bg-dark-bg dark:text-dark-text;
 }

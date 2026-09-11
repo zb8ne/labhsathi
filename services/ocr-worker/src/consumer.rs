@@ -1,5 +1,6 @@
 use crate::downsample::downsample_to_jpeg;
 use crate::extract::extract_fields_from_jpeg;
+use crate::offset_tracker::OffsetTracker;
 use crate::redis_cache;
 use labhsathi_core::events::{
     DocumentJobCompleted, DocumentJobSubmitted, ExtractedFields, JobId, JobStatus,
@@ -20,7 +21,23 @@ use tokio::sync::{Mutex, Semaphore};
 /// of pods, is the real ceiling on this service's resource use -- it's why
 /// the ADR is honest that CPU-based HPA is an imperfect scaling signal for
 /// a service whose actual bottleneck is an outbound HTTP call, not CPU.
-const MAX_CONCURRENT_EXTRACTIONS: usize = 4;
+///
+/// GitHub issue #5: was a hardcoded const, so tuning the kind HPA demo's
+/// load meant rebuilding the image. Now `MAX_CONCURRENT_EXTRACTIONS` (env,
+/// Helm-settable via ocrWorker.maxConcurrentExtractions in values.yaml).
+const DEFAULT_MAX_CONCURRENT_EXTRACTIONS: usize = 4;
+
+pub fn max_concurrent_extractions_from_env() -> usize {
+    std::env::var("MAX_CONCURRENT_EXTRACTIONS")
+        .ok()
+        .and_then(|v| v.parse().ok())
+        .unwrap_or(DEFAULT_MAX_CONCURRENT_EXTRACTIONS)
+}
+
+/// Generous but bounded -- GitHub issue #7: with no timeout at all, a
+/// single hung call to the vision API holds its semaphore permit forever,
+/// and enough of those exhaust every permit and stop the worker cold.
+const VISION_API_TIMEOUT: Duration = Duration::from_secs(45);
 
 pub fn build_consumer(brokers: &str, group_id: &str) -> StreamConsumer {
     ClientConfig::new()
@@ -28,9 +45,11 @@ pub fn build_consumer(brokers: &str, group_id: &str) -> StreamConsumer {
         .set("group.id", group_id)
         // Offsets are stored (marked ready) only after this worker has
         // published a terminal document.jobs.completed event for that
-        // message -- see process_job below. A crash mid-extraction means
-        // librdkafka never stored the offset, so the message redelivers to
-        // another consumer in the group rather than being silently lost.
+        // message AND the offset tracker confirms it closes a contiguous
+        // run (see offset_tracker.rs) -- see process_job/run below. A
+        // crash mid-extraction, or a completed-event publish that keeps
+        // failing, means librdkafka never stores that offset, so the
+        // message (and everything after it on the partition) redelivers.
         .set("enable.auto.commit", "true")
         .set("enable.auto.offset.store", "false")
         .set("auto.commit.interval.ms", "1000")
@@ -47,16 +66,29 @@ pub fn build_producer(brokers: &str) -> FutureProducer {
         .expect("failed to build Kafka producer -- check KAFKA_BROKERS")
 }
 
+/// One shared client for every vision-API call -- reqwest's client owns a
+/// connection pool, and building a fresh one per request throws that away.
+/// The timeout here is what makes GitHub issue #7's fix real.
+pub fn build_http_client() -> reqwest::Client {
+    reqwest::Client::builder()
+        .timeout(VISION_API_TIMEOUT)
+        .build()
+        .expect("failed to build reqwest client")
+}
+
 pub async fn run(
     consumer: Arc<StreamConsumer>,
     producer: Arc<FutureProducer>,
     redis: Arc<Mutex<ConnectionManager>>,
+    http_client: Arc<reqwest::Client>,
+    max_concurrent_extractions: usize,
 ) {
     consumer
         .subscribe(&[TOPIC_DOCUMENT_JOBS_SUBMITTED])
         .expect("failed to subscribe to document.jobs.submitted");
 
-    let semaphore = Arc::new(Semaphore::new(MAX_CONCURRENT_EXTRACTIONS));
+    let semaphore = Arc::new(Semaphore::new(max_concurrent_extractions));
+    let offsets = Arc::new(OffsetTracker::new());
 
     loop {
         let msg = match consumer.recv().await {
@@ -83,11 +115,23 @@ pub async fn run(
         let offset = msg.offset();
         drop(msg);
 
+        // Must happen here, synchronously, in receipt order -- see
+        // offset_tracker.rs. Every offset that reaches `complete()` below
+        // (including the malformed-message early-exit) must be registered
+        // first, or `complete()` panics.
+        offsets.register_received(partition, offset);
+
         let event: DocumentJobSubmitted = match serde_json::from_slice(&payload) {
             Ok(e) => e,
             Err(e) => {
                 tracing::error!(error = %e, "malformed document.jobs.submitted event, dropping");
-                let _ = consumer.store_offset(&topic, partition, offset);
+                // A message that can never be processed (not a transient
+                // failure) is still a terminal state for ordering purposes
+                // -- feed it through the tracker like any other completion
+                // so it doesn't permanently block everything after it.
+                for ready in offsets.complete(partition, offset) {
+                    let _ = consumer.store_offset(&topic, partition, ready);
+                }
                 continue;
             }
         };
@@ -99,26 +143,47 @@ pub async fn run(
             .expect("semaphore never closes");
         let producer = producer.clone();
         let redis = redis.clone();
+        let http_client = http_client.clone();
         let consumer_for_commit = consumer.clone();
+        let offsets = offsets.clone();
 
         tokio::spawn(async move {
-            process_job(event, &producer, &redis).await;
-            if let Err(e) = consumer_for_commit.store_offset(&topic, partition, offset) {
-                tracing::error!(error = %e, "failed to store kafka offset after processing");
+            let published = process_job(event, &producer, &redis, &http_client).await;
+
+            // Only offsets whose completed-event actually published are
+            // fed into the tracker -- a publish failure must NOT be
+            // treated as terminal, or this message (and its bytes, already
+            // gone from Redis via GETDEL) would be marked done with no
+            // record of it ever having succeeded or failed anywhere.
+            if published {
+                for ready in offsets.complete(partition, offset) {
+                    if let Err(e) = consumer_for_commit.store_offset(&topic, partition, ready) {
+                        tracing::error!(error = %e, offset = ready, "failed to store kafka offset after processing");
+                    }
+                }
+            } else {
+                tracing::error!(
+                    %partition, %offset,
+                    "document.jobs.completed publish failed -- this offset and everything \
+                     after it on this partition will redeliver on next restart"
+                );
             }
             drop(permit);
         });
     }
 }
 
-/// Always writes a Processing status, then always publishes a terminal
-/// Success/Failed event and a matching terminal status -- a job is never
-/// left in limbo regardless of where it fails.
+/// Always writes a Processing status, then always attempts to publish a
+/// terminal Success/Failed event and a matching terminal status -- a job
+/// is never left in limbo regardless of where extraction itself fails.
+/// Returns whether the completed-event publish succeeded, which is what
+/// the caller uses to decide whether this offset is safe to commit.
 async fn process_job(
     event: DocumentJobSubmitted,
     producer: &FutureProducer,
     redis: &Arc<Mutex<ConnectionManager>>,
-) {
+    http_client: &reqwest::Client,
+) -> bool {
     let job_id = event.job_id;
 
     {
@@ -135,7 +200,7 @@ async fn process_job(
         .await;
     }
 
-    let result = process_job_inner(job_id, redis).await;
+    let result = process_job_inner(job_id, redis, http_client).await;
 
     let (status, fields) = match &result {
         Ok(fields) => (JobStatus::Success, Some(fields.clone())),
@@ -148,9 +213,13 @@ async fn process_job(
         fields: fields.clone(),
         ts: now_millis(),
     };
-    if let Err(e) = publish_completed(producer, &completed).await {
-        tracing::error!(%job_id, error = %e, "failed to publish document.jobs.completed");
-    }
+    let publish_ok = match publish_completed(producer, &completed).await {
+        Ok(()) => true,
+        Err(e) => {
+            tracing::error!(%job_id, error = %e, "failed to publish document.jobs.completed");
+            false
+        }
+    };
 
     let record = match result {
         Ok(fields) => JobStatusRecord {
@@ -166,11 +235,14 @@ async fn process_job(
     };
     let mut conn = redis.lock().await;
     let _ = redis_cache::set_status(&mut conn, job_id, &record).await;
+
+    publish_ok
 }
 
 async fn process_job_inner(
     job_id: JobId,
     redis: &Arc<Mutex<ConnectionManager>>,
+    http_client: &reqwest::Client,
 ) -> Result<ExtractedFields, String> {
     let raw = {
         let mut conn = redis.lock().await;
@@ -184,7 +256,7 @@ async fn process_job_inner(
     })?;
 
     let jpeg = downsample_to_jpeg(&raw)?;
-    extract_fields_from_jpeg(&jpeg).await
+    extract_fields_from_jpeg(http_client, &jpeg).await
 }
 
 async fn publish_completed(producer: &FutureProducer, event: &DocumentJobCompleted) -> Result<(), String> {

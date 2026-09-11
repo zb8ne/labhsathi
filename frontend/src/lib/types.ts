@@ -20,16 +20,24 @@ export interface UserProfile {
   has_kutcha_house: boolean;
   is_pregnant_or_lactating_first_child: boolean;
   girl_child_age: number | null;
+  area_type: string | null; // "urban" | "rural", if known -- routes PMAY to the urban/rural program
 }
+
+export type MatchStatus = "match" | "needs_info";
 
 export interface SchemeMatch {
   id: string;
   name: string;
   authority: string;
   benefit: string;
+  status: MatchStatus;
   reason: string;
+  /** Stable UserProfile field key naming what would resolve a needs_info
+   * card (e.g. "land_holding_acres") -- null for a real match. */
+  missing_field: string | null;
   documents: string[];
   official_note: string;
+  source_url: string | null;
 }
 
 export interface MatchResponse {

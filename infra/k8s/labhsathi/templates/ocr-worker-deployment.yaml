@@ -27,6 +27,8 @@ spec:
               value: "redis://{{ include "labhsathi.name" (dict "service" "redis" "kind" "svc") }}:6379"
             - name: KAFKA_CONSUMER_GROUP
               value: "ocr-worker-group"
+            - name: MAX_CONCURRENT_EXTRACTIONS
+              value: "{{ .Values.ocrWorker.maxConcurrentExtractions }}"
           envFrom:
             # ANTHROPIC_API_KEY comes from a Secret that must already exist
             # in-namespace -- this chart never templates a Secret from
@@ -35,6 +37,6 @@ spec:
                 name: {{ .Values.secretName }}
           resources:
             requests:
-              cpu: 100m
+              cpu: {{ .Values.ocrWorker.resources.requestsCpu }}
             limits:
-              cpu: 500m
+              cpu: {{ .Values.ocrWorker.resources.limitsCpu }}

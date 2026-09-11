@@ -22,6 +22,22 @@
       window.__LABHSATHI_CONFIG__ = { apiBaseUrl: "/api" };
     </script>
     <script src="/env.js" onerror="void 0"></script>
+    <!--
+      Applied before first paint, blocking, so there's no flash of the
+      wrong theme while React hydrates -- ThemeContext reads/writes the
+      same "labhsathi:theme" key and keeps this in sync after mount.
+    -->
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem("labhsathi:theme");
+          var dark = stored === "dark" || (!stored && window.matchMedia("(prefers-color-scheme: dark)").matches);
+          if (dark) document.documentElement.classList.add("dark");
+        } catch (e) {
+          // storage/matchMedia unavailable -- default light, same as ThemeContext's fallback
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

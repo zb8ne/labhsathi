@@ -138,3 +138,103 @@ pub struct DocumentJobCompleted {
     pub fields: Option<ExtractedFields>,
     pub ts: i64,
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn bounded_string_accepts_up_to_max_len() {
+        let s = "a".repeat(BoundedString::MAX_LEN);
+        assert!(BoundedString::new(s).is_some());
+    }
+
+    #[test]
+    fn bounded_string_rejects_one_byte_over_max_len() {
+        let s = "a".repeat(BoundedString::MAX_LEN + 1);
+        assert!(BoundedString::new(s).is_none());
+    }
+
+    #[test]
+    fn bounded_string_deserialize_rejects_oversized_input() {
+        // GitHub issue #4: this is the boundary that matters for the
+        // privacy claim -- an external input (the vision API's response)
+        // that's too long to be a real field value must be rejected at
+        // the deserialization boundary, not truncated or silently accepted.
+        let too_long = "a".repeat(BoundedString::MAX_LEN + 1);
+        let json = serde_json::to_string(&too_long).unwrap();
+        let result: Result<BoundedString, _> = serde_json::from_str(&json);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn bounded_string_round_trips_through_json() {
+        let original = BoundedString::new("Goa").unwrap();
+        let json = serde_json::to_string(&original).unwrap();
+        let back: BoundedString = serde_json::from_str(&json).unwrap();
+        assert_eq!(original, back);
+    }
+
+    #[test]
+    fn extracted_fields_serializes_with_no_binary_capable_field() {
+        // Not a type-system proof (see the module doc's honest-limit note),
+        // but a regression guard: if someone ever adds a Vec<u8> or
+        // serde_json::Value field to ExtractedFields, this test's json key
+        // set no longer matches this fixed list and fails loudly.
+        let fields = ExtractedFields {
+            age: Some(35),
+            annual_income: Some(80_000),
+            state: BoundedString::new("Goa"),
+            category: BoundedString::new("obc"),
+            land_holding_acres: Some(2.0),
+            occupation: BoundedString::new("Farmer"),
+        };
+        let value: serde_json::Value = serde_json::to_value(&fields).unwrap();
+        let mut keys: Vec<&str> = value.as_object().unwrap().keys().map(String::as_str).collect();
+        keys.sort();
+        assert_eq!(
+            keys,
+            vec!["age", "annual_income", "category", "land_holding_acres", "occupation", "state"]
+        );
+    }
+
+    #[test]
+    fn document_job_submitted_round_trips_through_json() {
+        let original = DocumentJobSubmitted {
+            job_id: JobId::new(),
+            mime_type: ImageMimeType::Jpeg,
+            ts: 1_700_000_000_000,
+        };
+        let json = serde_json::to_string(&original).unwrap();
+        let back: DocumentJobSubmitted = serde_json::from_str(&json).unwrap();
+        assert_eq!(original.job_id, back.job_id);
+        assert_eq!(original.mime_type, back.mime_type);
+        assert_eq!(original.ts, back.ts);
+    }
+
+    #[test]
+    fn document_job_completed_failed_has_no_fields() {
+        let event = DocumentJobCompleted {
+            job_id: JobId::new(),
+            status: JobStatus::Failed,
+            fields: None,
+            ts: 0,
+        };
+        let json = serde_json::to_string(&event).unwrap();
+        let back: DocumentJobCompleted = serde_json::from_str(&json).unwrap();
+        assert_eq!(back.status, JobStatus::Failed);
+        assert!(back.fields.is_none());
+    }
+
+    #[test]
+    fn job_id_round_trips_through_display_and_from_str() {
+        let id = JobId::new();
+        let parsed: JobId = id.to_string().parse().unwrap();
+        assert_eq!(id, parsed);
+    }
+
+    #[test]
+    fn job_id_from_str_rejects_garbage() {
+        assert!("not-a-uuid".parse::<JobId>().is_err());
+    }
+}

@@ -3,9 +3,11 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { GradientBar } from "../components/GradientBar";
 import { Nav } from "../components/Nav";
 import { SchemeCard } from "../components/SchemeCard";
+import { useLanguage, resultsHeading, needsInfoNote } from "../lib/i18n/LanguageContext";
 import type { MatchResponse } from "../lib/types";
 
 export function ResultsScreen() {
+  const { t } = useLanguage();
   const location = useLocation();
   const navigate = useNavigate();
   const result = location.state as MatchResponse | undefined;
@@ -21,43 +23,91 @@ export function ResultsScreen() {
 
   if (!result) return null;
 
+  // matched_count from the API is the *total* rows returned, which now
+  // includes needs_info entries -- counting only real matches for the
+  // headline keeps "eligible for N schemes" honest (a needs_info card
+  // isn't a known eligibility yet, just an open question).
+  const matchCount = result.schemes.filter((s) => s.status === "match").length;
+  const needsInfoCount = result.schemes.filter((s) => s.status === "needs_info").length;
+
   return (
-    <div className="flex min-h-screen flex-col bg-cream">
+    <div className="flex min-h-screen flex-col bg-cream text-ink dark:bg-dark-bg dark:text-dark-text">
       <Nav
-        variant="light"
         right={
-          <Link to="/" className="text-[13px] text-ink-tertiary">
-            Editing answers &rarr;
+          <Link to="/" className="whitespace-nowrap text-[13px] text-ink-tertiary dark:text-dark-secondary print:hidden">
+            {t.nav.editingAnswers}
           </Link>
         }
       />
 
       <main className="flex-1 px-6 pb-14 pt-10 sm:px-14 sm:pt-12">
-        <div className="mb-8">
-          <h1 className="mb-2 font-serif text-3xl font-semibold sm:text-[34px]">
-            You may be eligible for {result.matched_count} scheme{result.matched_count === 1 ? "" : "s"}
-          </h1>
-          <p className="text-[15px] text-ink-secondary">
-            Based on what you told us — not a final determination. Each shows exactly why it matched and
-            what to bring.
-          </p>
+        <div className="mb-8 flex flex-col items-start gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h1 className="mb-2 font-serif text-3xl font-semibold sm:text-[34px]">
+              {resultsHeading(t, matchCount)}
+            </h1>
+            {needsInfoCount > 0 && (
+              <p className="mb-1 text-[13.5px] font-medium text-teal dark:text-teal-light">{needsInfoNote(t, needsInfoCount)}</p>
+            )}
+            <p className="text-[15px] text-ink-secondary dark:text-dark-secondary">{t.results.subhead}</p>
+          </div>
+          {result.schemes.length > 0 && (
+            <button type="button" onClick={printInLightMode} className="flex shrink-0 items-center gap-2 whitespace-nowrap rounded-[10px] border border-border bg-white px-4 py-2.5 text-sm font-semibold text-ink hover:bg-input-bg print:hidden dark:border-dark-border dark:bg-dark-card dark:text-dark-text dark:hover:bg-dark-border">
+              <PrintIcon />
+              {t.results.printButton}
+            </button>
+          )}
         </div>
 
         {result.schemes.length === 0 ? (
-          <p className="text-ink-secondary">
-            No matches found among the schemes in this prototype&rsquo;s database — this isn&rsquo;t
-            exhaustive, it demonstrates the matching approach.
-          </p>
+          <p className="text-ink-secondary dark:text-dark-secondary">{t.results.noMatches}</p>
         ) : (
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-            {result.schemes.map((scheme) => (
-              <SchemeCard key={scheme.id} scheme={scheme} />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 print:grid-cols-1">
+              {result.schemes.map((scheme) => (
+                <SchemeCard key={scheme.id} scheme={scheme} />
+              ))}
+            </div>
+            <p className="mt-6 text-xs text-ink-tertiary dark:text-dark-secondary print:hidden">{t.results.printNote}</p>
+          </>
         )}
       </main>
 
-      <GradientBar />
+      <div className="print:hidden">
+        <GradientBar />
+      </div>
     </div>
+  );
+}
+
+// Paper is always light regardless of on-screen theme -- printing a dark
+// background wastes ink and most printers/PDF exports don't render it
+// well anyway. Relying on Tailwind's print:/dark: cascade order to fight
+// this out per-element is fragile; instead the .dark class is removed
+// from <html> for the actual print, then restored once the print dialog
+// closes (afterprint fires whether the user prints or cancels).
+function printInLightMode() {
+  const root = document.documentElement;
+  const wasDark = root.classList.contains("dark");
+  if (!wasDark) {
+    window.print();
+    return;
+  }
+  root.classList.remove("dark");
+  const restore = () => {
+    root.classList.add("dark");
+    window.removeEventListener("afterprint", restore);
+  };
+  window.addEventListener("afterprint", restore);
+  window.print();
+}
+
+function PrintIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M6 9V2h12v7" />
+      <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+      <path d="M6 14h12v8H6z" />
+    </svg>
   );
 }

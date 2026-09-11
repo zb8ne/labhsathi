@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use std::collections::HashSet;
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct UserProfile {
@@ -18,215 +19,534 @@ pub struct UserProfile {
     pub has_kutcha_house: bool, // lives in a non-pucca / temporary dwelling
     pub is_pregnant_or_lactating_first_child: bool,
     pub girl_child_age: Option<u32>, // age of daughter, if applicable
+    pub area_type: Option<String>, // "urban" | "rural", if known -- routes PMAY to the urban/rural program
+}
+
+/// A scheme can genuinely not match, genuinely match, or -- the state the
+/// old binary Option<String> rule silently collapsed into "doesn't match"
+/// -- have a real chance depending on an answer we don't have yet (a
+/// farmer who hasn't entered a land holding shouldn't silently lose
+/// PM-KISAN). `NoMatch` isn't a wire variant: those schemes are dropped
+/// before the response is built, same as before.
+#[derive(Debug, Serialize, Clone, Copy, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum MatchStatus {
+    Match,
+    NeedsInfo,
 }
 
 #[derive(Debug, Serialize, Clone)]
 pub struct SchemeMatch {
-    pub id: &'static str,
-    pub name: &'static str,
-    pub authority: &'static str,
-    pub benefit: &'static str,
+    pub id: String,
+    pub name: String,
+    pub authority: String,
+    pub benefit: String,
+    pub status: MatchStatus,
     pub reason: String,
-    pub documents: Vec<&'static str>,
-    pub official_note: &'static str,
+    /// Stable key naming the UserProfile field that would resolve this --
+    /// only set when status is needs_info. The frontend maps this to the
+    /// actual form control to highlight/scroll to, so it stays a machine
+    /// key here rather than free text.
+    pub missing_field: Option<&'static str>,
+    pub documents: Vec<String>,
+    pub official_note: String,
+    pub source_url: Option<String>,
 }
 
-type RuleFn = fn(&UserProfile) -> Option<String>;
+/// The catalog half of the scheme-data split: everything here is a fact
+/// (name, benefit, documents, citation, review metadata) that changes
+/// without touching eligibility logic -- edited in data/schemes.json, not
+/// in Rust. `evaluate_rule` below is the other half: deterministic
+/// eligibility logic that stays compiled and testable.
+#[derive(Debug, Deserialize, Clone)]
+struct SchemeFacts {
+    id: String,
+    name: String,
+    authority: String,
+    benefit: String,
+    documents: Vec<String>,
+    official_note: String,
+    source_url: Option<String>,
+    #[allow(dead_code)] // catalog metadata -- not yet surfaced in the API response
+    review_date: String,
+    #[allow(dead_code)]
+    exclusions: Vec<String>,
+}
 
-struct Scheme {
-    id: &'static str,
-    name: &'static str,
-    authority: &'static str,
-    benefit: &'static str,
-    documents: &'static [&'static str],
-    official_note: &'static str,
-    rule: RuleFn,
+const SCHEMES_JSON: &str = include_str!("../data/schemes.json");
+
+fn load_facts() -> Vec<SchemeFacts> {
+    serde_json::from_str(SCHEMES_JSON).expect("data/schemes.json is checked in and must parse")
+}
+
+enum RawStatus {
+    Match,
+    NeedsInfo,
+    NoMatch,
+}
+
+struct RuleOutcome {
+    status: RawStatus,
+    reason: String,
+    missing_field: Option<&'static str>,
+}
+
+fn matched(reason: impl Into<String>) -> RuleOutcome {
+    RuleOutcome { status: RawStatus::Match, reason: reason.into(), missing_field: None }
+}
+fn not_matched(reason: impl Into<String>) -> RuleOutcome {
+    RuleOutcome { status: RawStatus::NoMatch, reason: reason.into(), missing_field: None }
+}
+fn needs_info(reason: impl Into<String>, field: &'static str) -> RuleOutcome {
+    RuleOutcome { status: RawStatus::NeedsInfo, reason: reason.into(), missing_field: Some(field) }
 }
 
 // NOTE ON ACCURACY: Eligibility rules below are simplified approximations of
 // real central-government scheme criteria for prototype/demo purposes. Exact
 // eligibility always depends on the latest official notification — the app
-// surfaces this schemes as *candidates worth checking*, not a final
+// surfaces these schemes as *candidates worth checking*, not a final
 // determination. See README for sources used to build this table.
-const SCHEMES: &[Scheme] = &[
-    Scheme {
-        id: "pm-kisan",
-        name: "PM-KISAN (Pradhan Mantri Kisan Samman Nidhi)",
-        authority: "Ministry of Agriculture & Farmers Welfare",
-        benefit: "₹6,000/year direct income support in 3 installments",
-        documents: &["Aadhaar card", "Land ownership records (khatauni/khasra)", "Bank passbook", "Passport-size photo"],
-        official_note: "Excludes institutional land holders and certain higher-income categories (e.g. income-tax payers, government employees) per official notification.",
-        rule: |p| {
-            if p.occupation == "farmer" && p.land_holding_acres.unwrap_or(0.0) > 0.0 {
-                Some("You reported farming as your occupation with land holdings — PM-KISAN provides direct income support to landholding farmer families.".into())
-            } else {
-                None
+fn evaluate_rule(id: &str, p: &UserProfile) -> RuleOutcome {
+    match id {
+        "pm-kisan" => {
+            if p.occupation != "farmer" {
+                return not_matched("Occupation isn't reported as farming.");
             }
-        },
-    },
-    Scheme {
-        id: "ayushman-bharat",
-        name: "Ayushman Bharat PM-JAY",
-        authority: "National Health Authority",
-        benefit: "₹5,00,000/family/year cashless health insurance",
-        documents: &["Aadhaar card", "Ration card / SECC household ID", "Income certificate"],
-        official_note: "Actual eligibility is based on SECC 2011 deprivation/occupational criteria, not income alone — verify your household on the official PM-JAY beneficiary portal.",
-        rule: |p| {
+            match p.land_holding_acres {
+                None => needs_info(
+                    "You reported farming as your occupation — tell us your land holding to check PM-KISAN eligibility.",
+                    "land_holding_acres",
+                ),
+                Some(acres) if acres > 0.0 => matched(
+                    "You reported farming as your occupation with land holdings — PM-KISAN provides direct income support to landholding farmer families.",
+                ),
+                Some(_) => not_matched("Reported land holding is zero."),
+            }
+        }
+
+        "ayushman-bharat" => {
             if p.annual_income < 250_000 {
-                Some("Your household income falls in the low-income band PM-JAY targets — worth checking your SECC beneficiary status.".into())
+                matched("Your household income falls in the low-income band PM-JAY targets — worth checking your SECC beneficiary status.")
             } else {
-                None
+                not_matched("Household income is at or above the ₹2.5L band this prototype checks.")
             }
-        },
-    },
-    Scheme {
-        id: "pmjdy",
-        name: "Pradhan Mantri Jan Dhan Yojana",
-        authority: "Department of Financial Services",
-        benefit: "Zero-balance bank account, RuPay debit card, accident & life insurance cover",
-        documents: &["Aadhaar card", "Address proof (if no Aadhaar)"],
-        official_note: "Open to any Indian resident; no income or occupation restriction.",
-        rule: |p| {
+        }
+
+        "pmjdy" => {
             if !p.has_bank_account {
-                Some("You reported not having a bank account — PM Jan Dhan Yojana gives you one with zero balance requirement plus insurance cover.".into())
+                matched("You reported not having a bank account — PM Jan Dhan Yojana gives you one with zero balance requirement plus insurance cover.")
             } else {
-                None
+                not_matched("Already reported having a bank account.")
             }
-        },
-    },
-    Scheme {
-        id: "nsap-ignoaps",
-        name: "National Old Age Pension (IGNOAPS)",
-        authority: "Ministry of Rural Development (NSAP)",
-        benefit: "Monthly pension (₹200–1000+, state top-ups vary)",
-        documents: &["Aadhaar card", "Age proof", "BPL / income certificate", "Bank passbook"],
-        official_note: "State governments top up the central amount; exact amount varies by state.",
-        rule: |p| {
+        }
+
+        "nsap-ignoaps" => {
             if p.age >= 60 && p.annual_income < 100_000 {
-                Some("You're 60+ with household income below the BPL-linked threshold this scheme targets.".into())
+                matched("You're 60+ with household income below the BPL-linked threshold this scheme targets.")
             } else {
-                None
+                not_matched("Doesn't meet the age and/or income threshold.")
             }
-        },
-    },
-    Scheme {
-        id: "nsap-igndps",
-        name: "National Disability Pension (IGNDPS)",
-        authority: "Ministry of Rural Development (NSAP)",
-        benefit: "Monthly disability pension",
-        documents: &["Aadhaar card", "Disability certificate (UDID, ≥80%)", "Income certificate"],
-        official_note: "Requires a certified disability of 80% or more from a competent medical authority.",
-        rule: |p| {
-            if p.has_disability
-                && p.disability_percentage.unwrap_or(0) >= 80
-                && p.age >= 18
-                && p.age <= 79
-                && p.annual_income < 100_000
-            {
-                Some("Your reported disability level (80%+), age band, and income match IGNDPS criteria.".into())
+        }
+
+        "nsap-ignwps" => {
+            if p.is_widow && p.age >= 40 && p.age <= 79 && p.annual_income < 100_000 {
+                matched("You reported being a widow in the 40-79 age band with income below the BPL-linked threshold this scheme targets.")
             } else {
-                None
+                not_matched("Doesn't meet the widow/age/income criteria.")
             }
-        },
-    },
-    Scheme {
-        id: "nsp-scholarship",
-        name: "National Scholarship Portal — Pre/Post-Matric Scholarship",
-        authority: "Ministry of Social Justice & Empowerment / Ministry of Minority Affairs",
-        benefit: "Tuition fee reimbursement + maintenance allowance for students",
-        documents: &["Aadhaar card", "Caste/community certificate", "Income certificate", "Previous year mark sheet", "Bank passbook"],
-        official_note: "Separate schemes and income caps apply per category (SC/ST/OBC/Minority) — check the specific scheme's cutoff on scholarships.gov.in.",
-        rule: |p| {
-            if p.is_student
-                && p.category != "general"
-                && p.annual_income < 250_000
-            {
-                Some(format!(
+        }
+
+        "nsap-igndps" => {
+            if !p.has_disability {
+                return not_matched("No disability reported.");
+            }
+            match p.disability_percentage {
+                None => needs_info(
+                    "You reported a disability — tell us the certified percentage to check IGNDPS eligibility.",
+                    "disability_percentage",
+                ),
+                Some(pct) if pct >= 80 && p.age >= 18 && p.age <= 79 && p.annual_income < 100_000 => {
+                    matched("Your reported disability level (80%+), age band, and income match IGNDPS criteria.")
+                }
+                Some(_) => not_matched("Disability percentage, age band, or income doesn't meet IGNDPS criteria."),
+            }
+        }
+
+        "nsp-scholarship" => {
+            if p.is_student && p.category != "general" && p.annual_income < 250_000 {
+                matched(format!(
                     "You're a student from the {} category with household income under ₹2.5L — several NSP scholarships target exactly this.",
                     p.category.to_uppercase()
                 ))
             } else {
-                None
+                not_matched("Not a student, general category, or income above the cap.")
             }
-        },
-    },
-    Scheme {
-        id: "sukanya-samriddhi",
-        name: "Sukanya Samriddhi Yojana",
-        authority: "Ministry of Finance",
-        benefit: "High-interest savings account for a girl child's education/marriage",
-        documents: &["Girl child's birth certificate", "Guardian's Aadhaar & PAN", "Address proof"],
-        official_note: "Account must be opened before the girl turns 10.",
-        rule: |p| {
-            if let Some(age) = p.girl_child_age {
-                if age < 10 {
-                    return Some("You have a daughter under 10 — this scheme locks in a government-backed high interest rate for her future.".into());
-                }
+        }
+
+        "sukanya-samriddhi" => {
+            // No separate "do you have a daughter" signal exists in the
+            // profile -- girl_child_age doubles as both existence and age.
+            // Treating "unset" as needs-info here would surface this
+            // scheme to every household regardless of relevance, which
+            // isn't what the missing-question UI is for. Revisit once the
+            // household-member model (deferred, own increment) exists.
+            match p.girl_child_age {
+                Some(age) if age < 10 => matched(
+                    "You have a daughter under 10 — this scheme locks in a government-backed high interest rate for her future.",
+                ),
+                _ => not_matched("No daughter under 10 reported."),
             }
-            None
-        },
-    },
-    Scheme {
-        id: "pmay",
-        name: "Pradhan Mantri Awas Yojana",
-        authority: "Ministry of Housing & Urban Affairs / Rural Development",
-        benefit: "Financial assistance / interest subsidy to build or buy a pucca house",
-        documents: &["Aadhaar card", "Income certificate", "Land documents (if owned)", "Bank passbook"],
-        official_note: "Urban (PMAY-U) and rural (PMAY-G) versions have different income slabs and application processes.",
-        rule: |p| {
-            if p.has_kutcha_house && p.annual_income < 300_000 {
-                Some("You reported living in a kutcha/temporary house with income under ₹3L — PMAY funds pucca house construction for exactly this profile.".into())
-            } else {
-                None
+        }
+
+        "pmay-urban" | "pmay-rural" => {
+            let wants = if id == "pmay-urban" { "urban" } else { "rural" };
+            if !p.has_kutcha_house || p.annual_income >= 300_000 {
+                return not_matched("Doesn't report a kutcha house under the income cap this prototype checks.");
             }
-        },
-    },
-    Scheme {
-        id: "pmmvy",
-        name: "Pradhan Mantri Matru Vandana Yojana",
-        authority: "Ministry of Women & Child Development",
-        benefit: "₹5,000 cash benefit for pregnancy/lactation (first living child)",
-        documents: &["Aadhaar card", "MCP card (Mother and Child Protection card)", "Bank passbook"],
-        official_note: "Applies to the first living child; benefit is paid in installments tied to health checkups.",
-        rule: |p| {
+            match p.area_type.as_deref() {
+                None => needs_info(
+                    "You reported a kutcha house under ₹3L income — tell us whether that's in an urban or rural area to route you to the right PMAY program.",
+                    "area_type",
+                ),
+                Some(a) if a == wants => matched(format!(
+                    "You reported living in a kutcha/temporary house in a {wants} area with income under ₹3L — {} funds pucca house construction for exactly this profile.",
+                    if wants == "urban" { "PMAY-Urban" } else { "PMAY-Gramin" }
+                )),
+                Some(_) => not_matched(format!("Reported area type doesn't match {wants}.")),
+            }
+        }
+
+        "pmmvy" => {
             if p.gender == "female" && p.is_pregnant_or_lactating_first_child {
-                Some("You indicated a first pregnancy/lactation — PMMVY provides direct cash support tied to your checkups.".into())
+                matched("You indicated a first pregnancy/lactation — PMMVY provides direct cash support tied to your checkups.")
             } else {
-                None
+                not_matched("Gender or first-pregnancy/lactation flag doesn't match.")
             }
-        },
-    },
-    Scheme {
-        id: "pm-sym",
-        name: "Pradhan Mantri Shram Yogi Maan-dhan",
-        authority: "Ministry of Labour & Employment",
-        benefit: "Monthly pension of ₹3,000 after age 60 (unorganised sector)",
-        documents: &["Aadhaar card", "Bank passbook (with IFSC)", "Mobile number"],
-        official_note: "For unorganised-sector workers aged 18–40 earning up to ₹15,000/month, not covered by EPFO/ESIC/NPS.",
-        rule: |p| {
+        }
+
+        "pm-sym" => {
             let unorganised = matches!(p.occupation.as_str(), "laborer" | "self_employed" | "homemaker");
             if unorganised && p.age >= 18 && p.age <= 40 && p.annual_income < 180_000 {
-                Some("You're in the 18–40 age band, working in the unorganised sector, within the income cap — this builds you a pension for later.".into())
+                matched("You're in the 18–40 age band, working in the unorganised sector, within the income cap — this builds you a pension for later.")
             } else {
-                None
+                not_matched("Occupation, age band, or income doesn't meet PM-SYM criteria.")
             }
-        },
-    },
-];
+        }
+
+        other => unreachable!("data/schemes.json declares scheme id `{other}` with no matching rule arm in evaluate_rule"),
+    }
+}
 
 pub fn match_schemes(profile: &UserProfile) -> Vec<SchemeMatch> {
-    SCHEMES
-        .iter()
-        .filter_map(|s| {
-            (s.rule)(profile).map(|reason| SchemeMatch {
-                id: s.id,
-                name: s.name,
-                authority: s.authority,
-                benefit: s.benefit,
-                reason,
-                documents: s.documents.to_vec(),
-                official_note: s.official_note,
+    let mut seen_missing_fields: HashSet<&'static str> = HashSet::new();
+
+    load_facts()
+        .into_iter()
+        .filter_map(|f| {
+            let outcome = evaluate_rule(&f.id, profile);
+            let status = match outcome.status {
+                RawStatus::Match => MatchStatus::Match,
+                RawStatus::NeedsInfo => {
+                    // pmay-urban and pmay-rural can both land here asking
+                    // the identical follow-up question -- only surface it
+                    // once rather than showing the same prompt twice.
+                    if let Some(field) = outcome.missing_field {
+                        if !seen_missing_fields.insert(field) {
+                            return None;
+                        }
+                    }
+                    MatchStatus::NeedsInfo
+                }
+                RawStatus::NoMatch => return None,
+            };
+            Some(SchemeMatch {
+                id: f.id,
+                name: f.name,
+                authority: f.authority,
+                benefit: f.benefit,
+                status,
+                reason: outcome.reason,
+                missing_field: outcome.missing_field,
+                documents: f.documents,
+                official_note: f.official_note,
+                source_url: f.source_url,
             })
         })
         .collect()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Matches nothing by construction -- every test below starts here and
+    /// flips only the fields relevant to the one scheme under test, so a
+    /// match can only be attributed to the field actually being tested.
+    fn base_profile() -> UserProfile {
+        UserProfile {
+            age: 30,
+            annual_income: 1_000_000,
+            occupation: "salaried".into(),
+            state: "Goa".into(),
+            gender: "male".into(),
+            has_disability: false,
+            disability_percentage: None,
+            land_holding_acres: None,
+            family_size: 4,
+            is_widow: false,
+            category: "general".into(),
+            is_student: false,
+            has_bank_account: true,
+            has_kutcha_house: false,
+            is_pregnant_or_lactating_first_child: false,
+            girl_child_age: None,
+            area_type: None,
+        }
+    }
+
+    fn matches(p: &UserProfile) -> Vec<SchemeMatch> {
+        match_schemes(p)
+    }
+
+    fn has(matches: &[SchemeMatch], id: &str) -> bool {
+        matches.iter().any(|m| m.id == id)
+    }
+
+    fn find<'a>(matches: &'a [SchemeMatch], id: &str) -> &'a SchemeMatch {
+        matches.iter().find(|m| m.id == id).unwrap_or_else(|| panic!("expected `{id}` in the response, got {matches:?}"))
+    }
+
+    #[test]
+    fn base_profile_matches_nothing() {
+        assert_eq!(matches(&base_profile()).len(), 0);
+    }
+
+    #[test]
+    fn pm_kisan_requires_farming_occupation_and_land_holding() {
+        let mut p = base_profile();
+        p.occupation = "farmer".into();
+        p.land_holding_acres = Some(2.0);
+        let m = matches(&p);
+        assert!(has(&m, "pm-kisan"));
+        assert_eq!(find(&m, "pm-kisan").status, MatchStatus::Match);
+
+        // boundary: the rule is `> 0.0`, not `>= 0.0`
+        p.land_holding_acres = Some(0.0);
+        assert!(!has(&matches(&p), "pm-kisan"));
+    }
+
+    #[test]
+    fn pm_kisan_farmer_without_land_holding_needs_info_not_silent_rejection() {
+        // The bug this replaces: land_holding_acres.unwrap_or(0.0) used to
+        // make an unanswered field indistinguishable from "zero land," so
+        // a farmer who just hadn't filled it in silently lost PM-KISAN.
+        let mut p = base_profile();
+        p.occupation = "farmer".into();
+        p.land_holding_acres = None;
+        let m = matches(&p);
+        let entry = find(&m, "pm-kisan");
+        assert_eq!(entry.status, MatchStatus::NeedsInfo);
+        assert_eq!(entry.missing_field, Some("land_holding_acres"));
+    }
+
+    #[test]
+    fn ayushman_bharat_income_boundary_is_exclusive() {
+        let mut p = base_profile();
+        p.annual_income = 249_999;
+        assert!(has(&matches(&p), "ayushman-bharat"));
+
+        p.annual_income = 250_000; // rule is `< 250_000`
+        assert!(!has(&matches(&p), "ayushman-bharat"));
+    }
+
+    #[test]
+    fn pmjdy_matches_only_without_a_bank_account() {
+        let mut p = base_profile();
+        p.has_bank_account = false;
+        assert!(has(&matches(&p), "pmjdy"));
+
+        p.has_bank_account = true;
+        assert!(!has(&matches(&p), "pmjdy"));
+    }
+
+    #[test]
+    fn ignoaps_age_boundary_is_inclusive_at_60() {
+        let mut p = base_profile();
+        p.age = 60;
+        p.annual_income = 99_999;
+        assert!(has(&matches(&p), "nsap-ignoaps"));
+
+        p.age = 59;
+        assert!(!has(&matches(&p), "nsap-ignoaps"));
+    }
+
+    #[test]
+    fn ignwps_requires_widow_and_the_40_to_79_age_band() {
+        let mut p = base_profile();
+        p.is_widow = true;
+        p.annual_income = 99_999;
+        p.age = 40;
+        assert!(has(&matches(&p), "nsap-ignwps"));
+        p.age = 79;
+        assert!(has(&matches(&p), "nsap-ignwps"));
+
+        p.age = 39;
+        assert!(!has(&matches(&p), "nsap-ignwps"), "below the band");
+        p.age = 80;
+        assert!(!has(&matches(&p), "nsap-ignwps"), "above the band");
+
+        p.age = 50;
+        p.is_widow = false;
+        assert!(!has(&matches(&p), "nsap-ignwps"), "not a widow");
+    }
+
+    #[test]
+    fn igndps_requires_80_percent_disability_in_the_18_to_79_age_band() {
+        let mut p = base_profile();
+        p.has_disability = true;
+        p.disability_percentage = Some(80);
+        p.age = 40;
+        p.annual_income = 99_999;
+        let m = matches(&p);
+        assert!(has(&m, "nsap-igndps"));
+        assert_eq!(find(&m, "nsap-igndps").status, MatchStatus::Match);
+
+        // boundary: the rule is `>= 80`
+        p.disability_percentage = Some(79);
+        assert!(!has(&matches(&p), "nsap-igndps"));
+    }
+
+    #[test]
+    fn igndps_disability_without_percentage_needs_info() {
+        let mut p = base_profile();
+        p.has_disability = true;
+        p.disability_percentage = None;
+        let m = matches(&p);
+        let entry = find(&m, "nsap-igndps");
+        assert_eq!(entry.status, MatchStatus::NeedsInfo);
+        assert_eq!(entry.missing_field, Some("disability_percentage"));
+    }
+
+    #[test]
+    fn igndps_no_disability_reported_is_not_needs_info() {
+        // has_disability is a checkbox, not an optional field -- left
+        // unchecked means "no," not "unknown," so this must stay a plain
+        // non-match rather than asking a percentage question nobody needs.
+        let p = base_profile();
+        assert!(!has(&matches(&p), "nsap-igndps"));
+    }
+
+    #[test]
+    fn nsp_scholarship_requires_non_general_category_and_income_under_2_5l() {
+        let mut p = base_profile();
+        p.is_student = true;
+        p.category = "obc".into();
+        p.annual_income = 249_999;
+        assert!(has(&matches(&p), "nsp-scholarship"));
+
+        p.category = "general".into();
+        assert!(!has(&matches(&p), "nsp-scholarship"), "category must not be general");
+    }
+
+    #[test]
+    fn sukanya_samriddhi_daughter_age_boundary_is_exclusive_at_10() {
+        let mut p = base_profile();
+        p.girl_child_age = Some(9);
+        assert!(has(&matches(&p), "sukanya-samriddhi"));
+
+        p.girl_child_age = Some(10); // rule is `< 10`
+        assert!(!has(&matches(&p), "sukanya-samriddhi"));
+    }
+
+    #[test]
+    fn sukanya_samriddhi_unset_age_is_not_needs_info() {
+        // Deliberately not surfaced as needs-info -- see the comment on
+        // this rule arm for why (no existence signal separate from age).
+        let p = base_profile();
+        assert!(!has(&matches(&p), "sukanya-samriddhi"));
+    }
+
+    #[test]
+    fn pmay_splits_into_distinct_urban_and_rural_programs() {
+        let mut p = base_profile();
+        p.has_kutcha_house = true;
+        p.annual_income = 299_999;
+
+        p.area_type = Some("urban".into());
+        let m = matches(&p);
+        assert!(has(&m, "pmay-urban"));
+        assert!(!has(&m, "pmay-rural"));
+        assert_eq!(find(&m, "pmay-urban").status, MatchStatus::Match);
+
+        p.area_type = Some("rural".into());
+        let m = matches(&p);
+        assert!(has(&m, "pmay-rural"));
+        assert!(!has(&m, "pmay-urban"));
+
+        p.annual_income = 300_000; // rule is `< 300_000`
+        assert!(!has(&matches(&p), "pmay-rural"));
+    }
+
+    #[test]
+    fn pmay_unknown_area_type_asks_once_not_twice() {
+        let mut p = base_profile();
+        p.has_kutcha_house = true;
+        p.annual_income = 299_999;
+        p.area_type = None;
+
+        let m = matches(&p);
+        let pmay_entries: Vec<_> = m.iter().filter(|s| s.id.starts_with("pmay-")).collect();
+        assert_eq!(pmay_entries.len(), 1, "urban and rural share the same missing question -- must not show it twice");
+        assert_eq!(pmay_entries[0].status, MatchStatus::NeedsInfo);
+        assert_eq!(pmay_entries[0].missing_field, Some("area_type"));
+    }
+
+    #[test]
+    fn pmmvy_requires_female_gender_not_just_the_pregnancy_flag() {
+        let mut p = base_profile();
+        p.gender = "female".into();
+        p.is_pregnant_or_lactating_first_child = true;
+        assert!(has(&matches(&p), "pmmvy"));
+
+        p.gender = "male".into();
+        assert!(!has(&matches(&p), "pmmvy"), "gender gates this rule, not just the flag");
+    }
+
+    #[test]
+    fn pm_sym_requires_unorganised_occupation_18_to_40_age_band_and_income_under_1_8l() {
+        let mut p = base_profile();
+        p.occupation = "laborer".into();
+        p.age = 40;
+        p.annual_income = 179_999;
+        assert!(has(&matches(&p), "pm-sym"));
+
+        p.age = 41; // rule is `<= 40`
+        assert!(!has(&matches(&p), "pm-sym"));
+    }
+
+    #[test]
+    fn multiple_independent_matches_dont_interfere_with_each_other() {
+        let mut p = base_profile();
+        p.occupation = "farmer".into();
+        p.land_holding_acres = Some(1.0);
+        p.has_bank_account = false;
+        p.annual_income = 50_000;
+        let m = matches(&p);
+        assert!(has(&m, "pm-kisan"));
+        assert!(has(&m, "pmjdy"));
+        assert!(has(&m, "ayushman-bharat"));
+    }
+
+    #[test]
+    fn every_catalog_entry_has_a_rule_arm() {
+        // evaluate_rule panics on an unknown id -- this test forces the
+        // panic to surface at test time (for every entry, not just
+        // whichever ones happen to match a specific test's profile)
+        // instead of a live 500 the first time someone adds a scheme to
+        // schemes.json without a matching Rust arm.
+        let p = base_profile();
+        for f in load_facts() {
+            let _ = evaluate_rule(&f.id, &p);
+        }
+    }
 }

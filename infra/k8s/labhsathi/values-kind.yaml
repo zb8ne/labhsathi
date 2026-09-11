@@ -6,6 +6,26 @@
 apiGateway:
   service:
     type: NodePort
+  # GitHub issue #5: the default ~5/hour anti-abuse limit (the real
+  # public-deployment posture) makes generating enough load to trigger the
+  # HPA demo essentially impossible. Raised here, deliberately, only for
+  # this ephemeral demo cluster -- decided ahead of time rather than
+  # discovered live while recording. See the README in this directory for
+  # the actual load command.
+  uploadRateLimit:
+    burstSize: 200
+    periodSeconds: 1
+
+ocrWorker:
+  resources:
+    # docs/adr/0001 is upfront that CPU is an honestly-imperfect proxy here
+    # -- the real bottleneck is the outbound vision-API call, not decode
+    # CPU. A production-sized 100m request never crosses 70% utilization
+    # under any load this demo can generate against a tiny specimen image.
+    # Lowered only for this ephemeral cluster so the *same* decode/resize
+    # work that's genuinely there is enough to demonstrate the HPA firing.
+    requestsCpu: 15m
+    limitsCpu: 500m
 
 frontend:
   service:
