@@ -1,2 +1,11 @@
 /target
 .env
+.env.doppler
+
+# frontend
+/frontend/node_modules
+/frontend/dist
+
+# local dev secrets download from doppler
+infra/docker/.env.doppler
+/frontend/tsconfig.tsbuildinfo

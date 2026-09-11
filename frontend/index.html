@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LabhSathi</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap"
+      rel="stylesheet"
+    />
+    <!--
+      Runtime (not build-time) config. Vite env vars are baked in at build
+      time, which would mean a separate image per deploy target (Compose /
+      kind / Railway). Instead the container entrypoint (infra or
+      docker/entrypoint.sh) writes this file from an env var at container
+      start, so one built image works everywhere. Falls back to same-origin
+      "/api" if nothing overwrote it (matches the Vite dev proxy).
+    -->
+    <script>
+      window.__LABHSATHI_CONFIG__ = { apiBaseUrl: "/api" };
+    </script>
+    <script src="/env.js" onerror="void 0"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
