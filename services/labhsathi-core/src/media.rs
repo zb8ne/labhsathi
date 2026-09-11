@@ -3,10 +3,19 @@
 //! API's `media_type` after fetching the bytes back out of Redis).
 
 use crate::events::ImageMimeType;
+use std::io::Cursor;
 
 /// Hard ceiling on a raw upload. Base64 inflates by ~4/3 and the vision API
 /// caps a request at 32 MB, so 20 MB of image is the practical limit.
 pub const MAX_IMAGE_BYTES: usize = 20 * 1024 * 1024;
+
+/// Ceiling on decoded pixel count -- ~50 megapixels, generous for any real
+/// photo (phone cameras top out well under this) but far below what a
+/// decompression bomb claims. A few hundred bytes of compressed PNG/GIF
+/// can declare dimensions that decode into gigabytes of pixel data; this
+/// check reads only the header (no full decode) so it's cheap to run on
+/// every upload before anything expensive happens.
+pub const MAX_DECODED_PIXELS: u64 = 50_000_000;
 
 impl ImageMimeType {
     pub fn as_str(&self) -> &'static str {
@@ -49,8 +58,31 @@ pub fn detect_media_type(bytes: &[u8], claimed: &str) -> Result<ImageMimeType, S
     ))
 }
 
-/// Validates size + sniffs type in one call — the check every upload path
-/// (api-gateway's HTTP handler) should run before writing anything to Redis.
+/// Reads just enough of the header to know the decoded width/height,
+/// without decoding any pixel data -- safe to run even on a hostile input.
+fn check_decoded_dimensions(bytes: &[u8]) -> Result<(), String> {
+    let (width, height) = image::ImageReader::new(Cursor::new(bytes))
+        .with_guessed_format()
+        .map_err(|e| format!("could not read image header: {e}"))?
+        .into_dimensions()
+        .map_err(|_| "Could not read this image's dimensions.".to_string())?;
+
+    let pixels = u64::from(width) * u64::from(height);
+    if pixels > MAX_DECODED_PIXELS {
+        return Err(format!(
+            "This image decodes to {width}x{height} ({:.0} megapixels), which is above the {:.0} megapixel limit.",
+            pixels as f64 / 1_000_000.0,
+            MAX_DECODED_PIXELS as f64 / 1_000_000.0
+        ));
+    }
+    Ok(())
+}
+
+/// Validates size, sniffs type, and rejects decompression bombs -- the
+/// check every upload path (api-gateway's HTTP handler) should run before
+/// writing anything to Redis. Order matters: size and type are checked
+/// first since they're free; the dimension check (a header parse) only
+/// runs on something that already looks like a plausible image.
 pub fn validate_upload(bytes: &[u8], claimed_content_type: &str) -> Result<ImageMimeType, String> {
     if bytes.is_empty() {
         return Err("Uploaded file was empty.".to_string());
@@ -62,5 +94,7 @@ pub fn validate_upload(bytes: &[u8], claimed_content_type: &str) -> Result<Image
             MAX_IMAGE_BYTES / (1024 * 1024)
         ));
     }
-    detect_media_type(bytes, claimed_content_type)
+    let mime_type = detect_media_type(bytes, claimed_content_type)?;
+    check_decoded_dimensions(bytes)?;
+    Ok(mime_type)
 }

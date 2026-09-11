@@ -34,6 +34,15 @@ fn extraction_schema() -> serde_json::Value {
 /// by the caller and go out of scope with it -- nothing here writes them
 /// anywhere but this one outbound request body.
 ///
+/// Takes a `&reqwest::Client` rather than constructing one per call --
+/// reqwest's client owns a connection pool, and building a fresh one per
+/// request throws that away every time. The caller builds one client at
+/// startup (see consumer.rs) with a request timeout configured; without
+/// one, GitHub issue #7: a hung call never returns, and since extraction
+/// runs under a bounded semaphore (MAX_CONCURRENT_EXTRACTIONS permits),
+/// enough hung calls exhaust every permit and the worker stops making
+/// progress on anything, forever.
+///
 /// Model/param choices are deliberate, not defaults:
 /// - claude-haiku-4-5, not a larger model -- this is pure structured
 ///   extraction with no reasoning required, and Haiku is far cheaper.
@@ -44,7 +53,10 @@ fn extraction_schema() -> serde_json::Value {
 ///   supported on Haiku 4.5 (the docs available while building this only
 ///   confirmed it for Fable 5.1) -- don't ship an unverified beta flag.
 ///   TODO(verify): check this against the live API before re-adding.
-pub async fn extract_fields_from_jpeg(jpeg_bytes: &[u8]) -> Result<ExtractedFields, String> {
+pub async fn extract_fields_from_jpeg(
+    client: &reqwest::Client,
+    jpeg_bytes: &[u8],
+) -> Result<ExtractedFields, String> {
     let api_key = std::env::var("ANTHROPIC_API_KEY")
         .map_err(|_| "ANTHROPIC_API_KEY not set in environment".to_string())?;
 
@@ -75,7 +87,6 @@ pub async fn extract_fields_from_jpeg(jpeg_bytes: &[u8]) -> Result<ExtractedFiel
         }]
     });
 
-    let client = reqwest::Client::new();
     let resp = client
         .post("https://api.anthropic.com/v1/messages")
         .header("x-api-key", api_key)
@@ -84,7 +95,13 @@ pub async fn extract_fields_from_jpeg(jpeg_bytes: &[u8]) -> Result<ExtractedFiel
         .json(&body)
         .send()
         .await
-        .map_err(|e| format!("request failed: {e}"))?;
+        .map_err(|e| {
+            if e.is_timeout() {
+                "vision API request timed out".to_string()
+            } else {
+                format!("request failed: {e}")
+            }
+        })?;
 
     let status = resp.status();
     let parsed: serde_json::Value = resp
