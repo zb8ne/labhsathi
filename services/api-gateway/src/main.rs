@@ -7,6 +7,7 @@ mod state;
 use axum::extract::DefaultBodyLimit;
 use axum::routing::{get, post};
 use axum::Router;
+use std::net::SocketAddr;
 use labhsathi_core::media::MAX_IMAGE_BYTES;
 use redis::aio::ConnectionManager;
 use state::AppState;
@@ -51,7 +52,7 @@ async fn main() {
     let app = Router::new()
         .route("/api/health", get(health))
         .route("/api/match", post(routes::match_handler))
-        .route("/api/documents/{job_id}", get(routes::documents_status_handler))
+        .route("/api/documents/:job_id", get(routes::documents_status_handler))
         .merge(upload_routes)
         .with_state(app_state)
         .layer(CorsLayer::permissive())
@@ -61,7 +62,17 @@ async fn main() {
     let addr = format!("0.0.0.0:{port}");
     let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
     tracing::info!("api-gateway listening on http://{addr}");
-    axum::serve(listener, app).await.unwrap();
+    // SmartIpKeyExtractor (rate_limit.rs) falls back to the raw connection's
+    // peer address when there's no X-Forwarded-For/X-Real-IP header (e.g.
+    // curl direct to this port, no proxy in front) -- that fallback only
+    // works if ConnectInfo is actually in the request extensions, which
+    // requires opting in here.
+    axum::serve(
+        listener,
+        app.into_make_service_with_connect_info::<SocketAddr>(),
+    )
+    .await
+    .unwrap();
 }
 
 async fn health() -> &'static str {

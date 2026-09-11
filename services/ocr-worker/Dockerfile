@@ -3,7 +3,7 @@
 # path-local labhsathi-core crate, both outside this directory.
 FROM rust:1-slim-bookworm AS builder
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    pkg-config libssl-dev librdkafka-dev \
+    build-essential pkg-config libssl-dev librdkafka-dev \
     && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY Cargo.toml Cargo.lock ./
