@@ -25,6 +25,11 @@ export function ScanPanel({ onExtracted }: ScanPanelProps) {
   const handleFile = (file: File | undefined) => {
     if (!file) return;
     void scan(file);
+    // Clear the input's value so selecting the *same* file again still
+    // fires a change event -- browsers don't re-fire onChange for an
+    // unchanged value, so without this a retry-with-the-same-file would
+    // silently do nothing.
+    if (inputRef.current) inputRef.current.value = "";
   };
 
   return (
@@ -37,13 +42,16 @@ export function ScanPanel({ onExtracted }: ScanPanelProps) {
             <StatusLine state={state} />
           </div>
         </div>
-        {state.phase === "idle" || state.phase === "degraded" ? (
+        {/* GitHub issue #3: "done" wasn't in this set, so after a
+            successful scan the button vanished for good -- no way to
+            rescan a different document or retry after a bad read. */}
+        {state.phase === "idle" || state.phase === "degraded" || state.phase === "done" ? (
           <button
             type="button"
             onClick={() => inputRef.current?.click()}
             className="whitespace-nowrap rounded-[10px] bg-terracotta px-4 py-2.5 text-sm font-semibold text-white hover:bg-terracotta-hover"
           >
-            Scan
+            {state.phase === "done" ? "Scan another" : "Scan"}
           </button>
         ) : (
           <div className="whitespace-nowrap rounded-[10px] bg-terracotta/40 px-4 py-2.5 text-sm font-semibold text-white">

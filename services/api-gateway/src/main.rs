@@ -44,10 +44,16 @@ async fn main() {
         redis: Arc::new(Mutex::new(redis_conn)),
     };
 
+    let rate_limit_config = rate_limit::UploadRateLimitConfig::from_env();
+    tracing::info!(
+        burst_size = rate_limit_config.burst_size,
+        period_secs = rate_limit_config.period_secs,
+        "upload rate limit configured"
+    );
     let upload_routes = Router::new()
         .route("/api/documents", post(routes::documents_upload_handler))
         .layer(DefaultBodyLimit::max(MAX_IMAGE_BYTES))
-        .layer(rate_limit::upload_rate_limit_layer());
+        .layer(rate_limit::upload_rate_limit_layer(&rate_limit_config));
 
     let app = Router::new()
         .route("/api/health", get(health))

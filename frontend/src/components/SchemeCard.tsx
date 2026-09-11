@@ -3,14 +3,18 @@ import type { SchemeMatch } from "../lib/types";
 export function SchemeCard({ scheme }: { scheme: SchemeMatch }) {
   return (
     <div className="flex flex-col gap-4 rounded-2xl border border-border bg-white p-6">
-      <div className="flex items-start justify-between gap-3">
+      {/* GitHub issue #3: a long benefit string (e.g. "₹5,00,000/family/year
+          cashless health insurance") with a nowrap badge in a row that
+          never wraps forced horizontal overflow on phone widths. Stacks
+          below sm; the badge itself is also allowed to wrap once stacked. */}
+      <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
         <div>
           <div className="mb-1.5 text-[11px] font-bold uppercase tracking-wide text-terracotta">
             {scheme.authority}
           </div>
           <div className="font-serif text-lg font-semibold">{scheme.name}</div>
         </div>
-        <div className="whitespace-nowrap rounded-full border border-success-border bg-success-bg px-3 py-1.5 text-xs font-semibold text-success-text">
+        <div className="rounded-full border border-success-border bg-success-bg px-3 py-1.5 text-xs font-semibold text-success-text sm:whitespace-nowrap">
           {scheme.benefit}
         </div>
       </div>

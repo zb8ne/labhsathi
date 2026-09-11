@@ -36,7 +36,12 @@ async fn main() {
         .expect("failed to connect to redis -- check REDIS_URL");
     let redis = Arc::new(Mutex::new(redis_conn));
     let http_client = Arc::new(consumer::build_http_client());
+    let max_concurrent_extractions = consumer::max_concurrent_extractions_from_env();
 
-    tracing::info!(group = %group_id, "ocr-worker started, consuming document.jobs.submitted");
-    consumer::run(kafka_consumer, kafka_producer, redis, http_client).await;
+    tracing::info!(
+        group = %group_id,
+        max_concurrent_extractions,
+        "ocr-worker started, consuming document.jobs.submitted"
+    );
+    consumer::run(kafka_consumer, kafka_producer, redis, http_client, max_concurrent_extractions).await;
 }

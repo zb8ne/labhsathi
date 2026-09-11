@@ -21,7 +21,18 @@ use tokio::sync::{Mutex, Semaphore};
 /// of pods, is the real ceiling on this service's resource use -- it's why
 /// the ADR is honest that CPU-based HPA is an imperfect scaling signal for
 /// a service whose actual bottleneck is an outbound HTTP call, not CPU.
-const MAX_CONCURRENT_EXTRACTIONS: usize = 4;
+///
+/// GitHub issue #5: was a hardcoded const, so tuning the kind HPA demo's
+/// load meant rebuilding the image. Now `MAX_CONCURRENT_EXTRACTIONS` (env,
+/// Helm-settable via ocrWorker.maxConcurrentExtractions in values.yaml).
+const DEFAULT_MAX_CONCURRENT_EXTRACTIONS: usize = 4;
+
+pub fn max_concurrent_extractions_from_env() -> usize {
+    std::env::var("MAX_CONCURRENT_EXTRACTIONS")
+        .ok()
+        .and_then(|v| v.parse().ok())
+        .unwrap_or(DEFAULT_MAX_CONCURRENT_EXTRACTIONS)
+}
 
 /// Generous but bounded -- GitHub issue #7: with no timeout at all, a
 /// single hung call to the vision API holds its semaphore permit forever,
@@ -70,12 +81,13 @@ pub async fn run(
     producer: Arc<FutureProducer>,
     redis: Arc<Mutex<ConnectionManager>>,
     http_client: Arc<reqwest::Client>,
+    max_concurrent_extractions: usize,
 ) {
     consumer
         .subscribe(&[TOPIC_DOCUMENT_JOBS_SUBMITTED])
         .expect("failed to subscribe to document.jobs.submitted");
 
-    let semaphore = Arc::new(Semaphore::new(MAX_CONCURRENT_EXTRACTIONS));
+    let semaphore = Arc::new(Semaphore::new(max_concurrent_extractions));
     let offsets = Arc::new(OffsetTracker::new());
 
     loop {
