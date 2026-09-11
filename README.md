@@ -1,86 +1,76 @@
-# Scheme Setu
+# LabhSathi (लाभ साथी — "benefit companion")
 
 **Track:** Jan Jeevan (Bit N Build Hackathon 2026)
 
+**Know what you're entitled to.**
+
 ## Problem
 
-Most Indians eligible for central welfare schemes (PM-KISAN, Ayushman Bharat,
-old-age/disability pension, scholarships, housing assistance, etc.) never
-claim them. The barrier isn't willingness — it's that eligibility rules are
-scattered across dozens of scheme PDFs and portals, and nobody translates
-"my situation" into "here's what you qualify for and what to bring."
-Multiple field studies on scheme awareness among rural/urban poor and
-elderly populations report large gaps between eligibility and actual
-enrollment (see Sources below).
+Most Indians eligible for central welfare schemes (PM-KISAN, Ayushman Bharat, old-age/disability pension, scholarships, housing assistance, etc.) never claim them. The barrier isn't willingness — it's that eligibility rules are scattered across dozens of scheme PDFs and portals, and nobody translates "my situation" into "here's what you qualify for and what to bring." Multiple field studies on scheme awareness among rural/urban poor and elderly populations report large gaps between eligibility and actual enrollment (see Sources below).
 
-On top of that, the standard advice ("upload your Aadhaar/income proof to
-this portal") asks people to hand over sensitive documents to yet another
-system, which is itself a trust barrier for a population already wary of
-data misuse.
+On top of that, the standard advice ("upload your Aadhaar/income proof to this portal") asks people to hand over sensitive documents to yet another system, which is itself a trust barrier for a population already wary of data misuse.
 
 ## Solution
 
-Scheme Setu is a two-step web app:
+LabhSathi is a two-step flow:
 
-1. **Structured self-assessment** — a short form (age, income, occupation,
-   category, disability status, land holding, etc.) is evaluated against a
-   curated eligibility-rules table for ten real central government schemes.
-   Matches come back with a plain-language reason, the benefit, and the
-   exact documents needed.
-2. **Optional document auto-fill, privacy-first** — instead of storing
-   uploaded ID/income/land documents, the app sends the image once to a
-   vision model to extract only the handful of structured fields the form
-   needs, returns them, and **discards the image immediately**. Nothing
-   about the document — not the image, not OCR text, not a hash — is
-   written to disk, logged, or persisted anywhere. This is the app's core
-   differentiator: scheme discovery without a new place for your ID to live.
+1. **Structured self-assessment** — a short form (age, income, occupation, category, disability status, land holding, etc.) is evaluated against a curated eligibility-rules table for central government schemes. Matches come back with a plain-language reason, the benefit, and the exact documents needed.
+2. **Optional document auto-fill, privacy-first** — instead of storing uploaded ID/income/land documents, the app extracts only the handful of structured fields the form needs from a one-time vision-API read, then discards the image. Nothing about the document — not the image, not OCR text, not a hash — is written to disk, logged, or persisted anywhere.
 
-## Why this design
+## Architecture
 
-- **Rule-based matching, not black-box ML** — eligibility determinations
-  for government benefits should be explainable. Every match shows exactly
-  which fact triggered it.
-- **Zero data retention by construction** — there's no database, no file
-  storage, and no field in the codebase where a document or its extracted
-  contents outlives a single request. This is easy to verify by reading
-  `src/ocr.rs`.
-- **Scales as a rules table, not a rewrite** — adding a new scheme means
-  adding one entry to `src/schemes.rs`; the matching engine doesn't change.
+An event-driven system, not a single request/response call, because the privacy claim needs to be structurally enforced rather than asserted:
+
+```
+frontend (React) ──▶ api-gateway (Rust/Axum) ──▶ Kafka: document.jobs.submitted ──▶ ocr-worker (Rust)
+                            │                                                              │
+                            └── Redis (60s image handoff, 300s status) ◀────────────────────┘
+                                                                    │
+                                                       Kafka: document.jobs.completed
+```
+
+- **api-gateway** — synchronous eligibility matching; document uploads write to Redis with a 60s TTL and publish to `document.jobs.submitted` (no image data in the event), returning a `job_id` immediately.
+- **ocr-worker** — Kafka consumer group, fetches the image from Redis by `job_id` (deleted on read, not just on TTL), downsamples it, calls the vision API once, publishes `document.jobs.completed`. Stateless and horizontally scaled — this is the service the k8s HPA targets.
+- **labhsathi-core** — the shared Rust domain crate: the eligibility rule engine and the Kafka event schemas. The event schemas have no field capable of holding image bytes, enforced by the struct definitions themselves — see [`docs/adr/0001-event-driven-document-pipeline.md`](docs/adr/0001-event-driven-document-pipeline.md) for the full reasoning, including the honest limits on that claim.
+- **Kafka** (single-broker KRaft) and **Redis** (ephemeral handoff cache, persistence off even in dev) connect the two services.
+
+See [`docs/CONVENTIONS.md`](docs/CONVENTIONS.md) for naming rules and [`infra/k8s/labhsathi/README.md`](infra/k8s/labhsathi/README.md) for the Helm chart / Kubernetes deployment.
 
 ## Tech stack
 
-- **Backend:** Rust (Axum, Tokio)
-- **Vision/OCR:** Anthropic Claude API (vision), called per-request, never persisted
-- **Frontend:** Static HTML/CSS/vanilla JS (no build step, keeps the demo simple and fast to load)
-- **Data:** In-memory Rust rule table (no database — nothing to leak)
+- **Backend:** Rust (Axum, Tokio, rdkafka, redis-rs)
+- **Frontend:** React + TypeScript + Tailwind (Vite)
+- **Event backbone:** Apache Kafka (KRaft mode)
+- **Cache:** Redis (ephemeral handoff only — see the ADR for why this distinction is load-bearing, not cosmetic)
+- **Vision/OCR:** Anthropic Claude API (vision), called once per document, never persisted
+- **Local dev:** Docker Compose (`infra/docker/docker-compose.yml`)
+- **Deployment:** Kubernetes via Helm (`infra/k8s/labhsathi`)
 
 ## Running it
 
+**Local dev (Docker Compose):**
+
 ```bash
-# 1. Set your Anthropic API key (only needed for the document auto-fill feature —
-#    the core matching form works without it)
-export ANTHROPIC_API_KEY=sk-ant-...
-
-# 2. Build & run
-cargo run
-
-# 3. Open http://localhost:8080
+export ANTHROPIC_API_KEY=sk-ant-...   # only needed for document auto-fill; matching works without it
+cd infra/docker
+docker compose up --build
 ```
 
-> This project was scaffolded and code-reviewed with Claude's help; it has
-> not been `cargo build`-verified in the assistant's sandbox because that
-> sandbox has no network access to crates.io. Run `cargo build` locally
-> first thing — fix any dependency-version drift before you start
-> iterating, since crate versions will have moved since this was written.
+Frontend: http://localhost:5173 · api-gateway: http://localhost:8080
 
-## Scope & honesty note (for judges)
+**Without Docker**, each service can run standalone against a local Kafka + Redis:
 
-The scheme database here (10 schemes) is a demonstration set, not
-exhaustive — a production version would ingest more schemes and keep them
-current against official notifications. Eligibility rules are simplified
-approximations of real criteria; the app frames matches as "worth checking,"
-not a final determination, and links the relevant document list so users
-can verify on the official portal.
+```bash
+cargo run -p api-gateway   # KAFKA_BROKERS / REDIS_URL / PORT env vars, see .env.example
+cargo run -p ocr-worker    # + ANTHROPIC_API_KEY
+cd frontend && npm install && npm run dev
+```
+
+## Scope & honesty note
+
+The scheme database here is a demonstration set, not exhaustive — a production version would ingest the full central + state catalog and keep it current against official notifications. Eligibility rules are simplified approximations of real criteria; the app frames matches as "worth checking," not a final determination, and lists the relevant documents so you can verify on the official portal before relying on a match.
+
+The event-driven pipeline is real and running, not a diagram — but read [`docs/adr/0001`](docs/adr/0001-event-driven-document-pipeline.md) for exactly where the guarantees are solid (no field anywhere can hold image bytes) versus where they're honestly bounded (a free-text field is length-capped, not literally typed-impossible to misuse).
 
 ## Sources used while building this
 
@@ -95,5 +85,5 @@ can verify on the official portal.
 - Ingest the full central + state scheme catalog (data.gov.in has partial APIs)
 - Multi-language form (most affected users are not English-first)
 - SMS/WhatsApp front-end for low-smartphone-literacy users
-- On-device (WASM) document field extraction to remove even the single
-  network hop to the vision API
+- KEDA-based (consumer-lag) autoscaling for ocr-worker in production — see `infra/k8s/labhsathi/values-prod.yaml`
+- 3-broker Kafka for production durability — see the ADR
