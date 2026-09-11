@@ -1,0 +1,134 @@
+[
+  {
+    "id": "pm-kisan",
+    "name": "PM-KISAN (Pradhan Mantri Kisan Samman Nidhi)",
+    "authority": "Ministry of Agriculture & Farmers Welfare",
+    "benefit": "₹6,000/year direct income support in 3 installments",
+    "documents": ["Aadhaar card", "Land ownership records (khatauni/khasra)", "Bank passbook", "Passport-size photo"],
+    "official_note": "Excludes institutional land holders and certain higher-income categories (e.g. income-tax payers, government employees) per official notification.",
+    "source_url": "https://pmkisan.gov.in",
+    "review_date": "2026-09-11",
+    "exclusions": ["Institutional land holders", "Income-tax payers (most categories)", "Constitutional post holders and serving/retired government employees above Group D"]
+  },
+  {
+    "id": "ayushman-bharat",
+    "name": "Ayushman Bharat PM-JAY",
+    "authority": "National Health Authority",
+    "benefit": "₹5,00,000/family/year cashless health insurance",
+    "documents": ["Aadhaar card", "Ration card / SECC household ID", "Income certificate"],
+    "official_note": "Actual eligibility is based on SECC 2011 deprivation/occupational criteria, not income alone — verify your household on the official PM-JAY beneficiary portal.",
+    "source_url": null,
+    "review_date": "2026-09-11",
+    "exclusions": ["Households already covered by ESIC/CGHS in most states", "Households not on the SECC 2011 deprivation list"]
+  },
+  {
+    "id": "pmjdy",
+    "name": "Pradhan Mantri Jan Dhan Yojana",
+    "authority": "Department of Financial Services",
+    "benefit": "Zero-balance bank account, RuPay debit card, accident & life insurance cover",
+    "documents": ["Aadhaar card", "Address proof (if no Aadhaar)"],
+    "official_note": "Open to any Indian resident; no income or occupation restriction.",
+    "source_url": "https://pmjdy.gov.in",
+    "review_date": "2026-09-11",
+    "exclusions": []
+  },
+  {
+    "id": "nsap-ignoaps",
+    "name": "National Old Age Pension (IGNOAPS)",
+    "authority": "Ministry of Rural Development (NSAP)",
+    "benefit": "Monthly pension (₹200–1000+, state top-ups vary)",
+    "documents": ["Aadhaar card", "Age proof", "BPL / income certificate", "Bank passbook"],
+    "official_note": "State governments top up the central amount; exact amount varies by state.",
+    "source_url": null,
+    "review_date": "2026-09-11",
+    "exclusions": ["Households above the state's BPL-linked income threshold"]
+  },
+  {
+    "id": "nsap-ignwps",
+    "name": "National Widow Pension (IGNWPS)",
+    "authority": "Ministry of Rural Development (NSAP)",
+    "benefit": "Monthly pension (₹300+, state top-ups vary)",
+    "documents": ["Aadhaar card", "Age proof", "Husband's death certificate", "BPL / income certificate", "Bank passbook"],
+    "official_note": "Covers widows aged 40-79 in most states; some states transition beneficiaries to IGNOAPS at 60 instead -- check your state's rule.",
+    "source_url": null,
+    "review_date": "2026-09-11",
+    "exclusions": ["Widows outside the 40-79 age band in most states", "Households above the BPL-linked threshold"]
+  },
+  {
+    "id": "nsap-igndps",
+    "name": "National Disability Pension (IGNDPS)",
+    "authority": "Ministry of Rural Development (NSAP)",
+    "benefit": "Monthly disability pension",
+    "documents": ["Aadhaar card", "Disability certificate (UDID, ≥80%)", "Income certificate"],
+    "official_note": "Requires a certified disability of 80% or more from a competent medical authority.",
+    "source_url": null,
+    "review_date": "2026-09-11",
+    "exclusions": ["Disability certified below 80%", "Age outside 18-79"]
+  },
+  {
+    "id": "nsp-scholarship",
+    "name": "National Scholarship Portal — Pre/Post-Matric Scholarship",
+    "authority": "Ministry of Social Justice & Empowerment / Ministry of Minority Affairs",
+    "benefit": "Tuition fee reimbursement + maintenance allowance for students",
+    "documents": ["Aadhaar card", "Caste/community certificate", "Income certificate", "Previous year mark sheet", "Bank passbook"],
+    "official_note": "This entry bundles several category-specific NSP programs (SC/ST/OBC/Minority), each with its own income cap and exact benefit — check the specific scheme's cutoff on scholarships.gov.in. Not yet split into per-category catalog entries; see docs/adr for why.",
+    "source_url": "https://scholarships.gov.in",
+    "review_date": "2026-09-11",
+    "exclusions": ["General category (not covered by these specific programs)", "Household income above the specific program's cap"]
+  },
+  {
+    "id": "sukanya-samriddhi",
+    "name": "Sukanya Samriddhi Yojana",
+    "authority": "Ministry of Finance",
+    "benefit": "High-interest savings account for a girl child's education/marriage",
+    "documents": ["Girl child's birth certificate", "Guardian's Aadhaar & PAN", "Address proof"],
+    "official_note": "Account must be opened before the girl turns 10.",
+    "source_url": null,
+    "review_date": "2026-09-11",
+    "exclusions": ["Daughter aged 10 or older"]
+  },
+  {
+    "id": "pmay-urban",
+    "name": "Pradhan Mantri Awas Yojana — Urban (PMAY-U)",
+    "authority": "Ministry of Housing & Urban Affairs",
+    "benefit": "Financial assistance / interest subsidy to build or buy a pucca house in an urban area",
+    "documents": ["Aadhaar card", "Income certificate", "Land documents (if owned)", "Bank passbook"],
+    "official_note": "Urban income slabs and application process differ from the rural counterpart (PMAY-G) — this entry covers urban areas only.",
+    "source_url": "https://pmaymis.gov.in",
+    "review_date": "2026-09-11",
+    "exclusions": ["Rural residence (see PMAY-Gramin instead)", "Household already owns a pucca house"]
+  },
+  {
+    "id": "pmay-rural",
+    "name": "Pradhan Mantri Awas Yojana — Gramin (PMAY-G)",
+    "authority": "Ministry of Rural Development",
+    "benefit": "Financial assistance to build or buy a pucca house in a rural area",
+    "documents": ["Aadhaar card", "Income certificate", "Land documents (if owned)", "Bank passbook", "MGNREGA job card (if held)"],
+    "official_note": "Rural income slabs and beneficiary-selection process (SECC-based) differ from the urban counterpart (PMAY-U) — this entry covers rural areas only.",
+    "source_url": null,
+    "review_date": "2026-09-11",
+    "exclusions": ["Urban residence (see PMAY-Urban instead)", "Household already owns a pucca house"]
+  },
+  {
+    "id": "pmmvy",
+    "name": "Pradhan Mantri Matru Vandana Yojana",
+    "authority": "Ministry of Women & Child Development",
+    "benefit": "₹5,000 cash benefit for pregnancy/lactation (first living child)",
+    "documents": ["Aadhaar card", "MCP card (Mother and Child Protection card)", "Bank passbook"],
+    "official_note": "Applies to the first living child; benefit is paid in installments tied to health checkups.",
+    "source_url": "https://pmmvy.wcd.gov.in",
+    "review_date": "2026-09-11",
+    "exclusions": ["Second or later child", "Male applicants"]
+  },
+  {
+    "id": "pm-sym",
+    "name": "Pradhan Mantri Shram Yogi Maan-dhan",
+    "authority": "Ministry of Labour & Employment",
+    "benefit": "Monthly pension of ₹3,000 after age 60 (unorganised sector)",
+    "documents": ["Aadhaar card", "Bank passbook (with IFSC)", "Mobile number"],
+    "official_note": "For unorganised-sector workers aged 18–40 earning up to ₹15,000/month, not covered by EPFO/ESIC/NPS.",
+    "source_url": "https://maandhan.in",
+    "review_date": "2026-09-11",
+    "exclusions": ["Age outside 18-40 at enrollment", "Already covered by EPFO/ESIC/NPS", "Organised-sector employment"]
+  }
+]
