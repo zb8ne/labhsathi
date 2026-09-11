@@ -1,16 +1,29 @@
-[package]
-name = "scheme_setu"
-version = "0.1.0"
-edition = "2021"
+[workspace]
+resolver = "2"
+members = [
+    "services/labhsathi-core",
+    "services/api-gateway",
+    "services/ocr-worker",
+]
 
-[dependencies]
-axum = { version = "0.7", features = ["multipart"] }
-tokio = { version = "1", features = ["full"] }
+[workspace.dependencies]
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+tokio = { version = "1", features = ["full"] }
+axum = { version = "0.7", features = ["multipart"] }
+tower = "0.5"
 tower-http = { version = "0.5", features = ["fs", "cors", "trace"] }
 reqwest = { version = "0.12", features = ["json"] }
 base64 = "0.22"
+uuid = { version = "1", features = ["v4", "serde"] }
 tracing = "0.1"
 tracing-subscriber = "0.3"
 dotenvy = "0.15"
+# Dynamic-links against the system librdkafka (pacman: librdkafka) via
+# pkg-config -- avoids the cmake-build feature, which needs a `cmake`
+# binary this machine doesn't have.
+rdkafka = { version = "0.36", features = ["tokio"] }
+redis = { version = "0.27", features = ["tokio-comp", "connection-manager"] }
+governor = "0.6"
+image = "0.25"
+tower_governor = "0.4"
