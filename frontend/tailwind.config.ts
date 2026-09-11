@@ -4,6 +4,7 @@ import type { Config } from "tailwindcss";
 // visual identity artboards -- see docs/CONVENTIONS.md if these ever need
 // to change; don't introduce a second ad-hoc palette in a component.
 export default {
+  darkMode: "class",
   content: ["./index.html", "./src/**/*.{ts,tsx}"],
   theme: {
     extend: {

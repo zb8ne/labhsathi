@@ -31,11 +31,10 @@ export function ResultsScreen() {
   const needsInfoCount = result.schemes.filter((s) => s.status === "needs_info").length;
 
   return (
-    <div className="flex min-h-screen flex-col bg-cream">
+    <div className="flex min-h-screen flex-col bg-cream text-ink dark:bg-dark-bg dark:text-dark-text">
       <Nav
-        variant="light"
         right={
-          <Link to="/" className="whitespace-nowrap text-[13px] text-ink-tertiary print:hidden">
+          <Link to="/" className="whitespace-nowrap text-[13px] text-ink-tertiary dark:text-dark-secondary print:hidden">
             {t.nav.editingAnswers}
           </Link>
         }
@@ -48,16 +47,12 @@ export function ResultsScreen() {
               {resultsHeading(t, matchCount)}
             </h1>
             {needsInfoCount > 0 && (
-              <p className="mb-1 text-[13.5px] font-medium text-teal">{needsInfoNote(t, needsInfoCount)}</p>
+              <p className="mb-1 text-[13.5px] font-medium text-teal dark:text-teal-light">{needsInfoNote(t, needsInfoCount)}</p>
             )}
-            <p className="text-[15px] text-ink-secondary">{t.results.subhead}</p>
+            <p className="text-[15px] text-ink-secondary dark:text-dark-secondary">{t.results.subhead}</p>
           </div>
           {result.schemes.length > 0 && (
-            <button
-              type="button"
-              onClick={() => window.print()}
-              className="flex shrink-0 items-center gap-2 whitespace-nowrap rounded-[10px] border border-border bg-white px-4 py-2.5 text-sm font-semibold text-ink hover:bg-input-bg print:hidden"
-            >
+            <button type="button" onClick={printInLightMode} className="flex shrink-0 items-center gap-2 whitespace-nowrap rounded-[10px] border border-border bg-white px-4 py-2.5 text-sm font-semibold text-ink hover:bg-input-bg print:hidden dark:border-dark-border dark:bg-dark-card dark:text-dark-text dark:hover:bg-dark-border">
               <PrintIcon />
               {t.results.printButton}
             </button>
@@ -65,7 +60,7 @@ export function ResultsScreen() {
         </div>
 
         {result.schemes.length === 0 ? (
-          <p className="text-ink-secondary">{t.results.noMatches}</p>
+          <p className="text-ink-secondary dark:text-dark-secondary">{t.results.noMatches}</p>
         ) : (
           <>
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 print:grid-cols-1">
@@ -73,7 +68,7 @@ export function ResultsScreen() {
                 <SchemeCard key={scheme.id} scheme={scheme} />
               ))}
             </div>
-            <p className="mt-6 text-xs text-ink-tertiary print:hidden">{t.results.printNote}</p>
+            <p className="mt-6 text-xs text-ink-tertiary dark:text-dark-secondary print:hidden">{t.results.printNote}</p>
           </>
         )}
       </main>
@@ -85,9 +80,31 @@ export function ResultsScreen() {
   );
 }
 
+// Paper is always light regardless of on-screen theme -- printing a dark
+// background wastes ink and most printers/PDF exports don't render it
+// well anyway. Relying on Tailwind's print:/dark: cascade order to fight
+// this out per-element is fragile; instead the .dark class is removed
+// from <html> for the actual print, then restored once the print dialog
+// closes (afterprint fires whether the user prints or cancels).
+function printInLightMode() {
+  const root = document.documentElement;
+  const wasDark = root.classList.contains("dark");
+  if (!wasDark) {
+    window.print();
+    return;
+  }
+  root.classList.remove("dark");
+  const restore = () => {
+    root.classList.add("dark");
+    window.removeEventListener("afterprint", restore);
+  };
+  window.addEventListener("afterprint", restore);
+  window.print();
+}
+
 function PrintIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1c1917" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <path d="M6 9V2h12v7" />
       <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
       <path d="M6 14h12v8H6z" />

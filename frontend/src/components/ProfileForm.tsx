@@ -193,7 +193,7 @@ export function ProfileForm({ extractedFields, sampleTrigger, focusField, onSubm
         e.preventDefault();
         onSubmit(profile);
       }}
-      className="rounded-[20px] border border-border bg-white p-7 shadow-[0_1px_2px_rgba(28,25,23,0.04),0_12px_32px_-12px_rgba(28,25,23,0.10)]"
+      className="rounded-[20px] border border-border bg-white p-7 shadow-[0_1px_2px_rgba(28,25,23,0.04),0_12px_32px_-12px_rgba(28,25,23,0.10)] dark:border-dark-border dark:bg-dark-card dark:shadow-none"
     >
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
         <Field label={t.form.age} id="age">
@@ -378,10 +378,10 @@ export function ProfileForm({ extractedFields, sampleTrigger, focusField, onSubm
       <button
         type="submit"
         disabled={submitting}
-        className="mt-7 flex w-full items-center justify-center gap-2 rounded-xl bg-ink px-4 py-4 text-[15px] font-semibold text-cream hover:bg-ink/90 disabled:opacity-60"
+        className="mt-7 flex w-full items-center justify-center gap-2 rounded-xl bg-ink px-4 py-4 text-[15px] font-semibold text-cream hover:bg-ink/90 disabled:opacity-60 dark:bg-dark-text dark:text-dark-bg dark:hover:bg-dark-text/90"
       >
         {submitting ? t.form.submitting : t.form.submit}
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#faf7f2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M5 12h14M13 5l7 7-7 7" />
         </svg>
       </button>
@@ -390,16 +390,17 @@ export function ProfileForm({ extractedFields, sampleTrigger, focusField, onSubm
 }
 
 function inputClass(fromScan: boolean, highlighted: boolean): string {
-  const base = "rounded-[10px] border bg-input-bg px-3.5 py-3 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-terracotta/40";
+  const base =
+    "rounded-[10px] border bg-input-bg px-3.5 py-3 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-terracotta/40 dark:bg-dark-bg dark:text-dark-text";
   if (highlighted) return `${base} border-terracotta ring-2 ring-terracotta/50`;
-  if (fromScan) return `${base} border-teal bg-teal-light/10`;
-  return `${base} border-border`;
+  if (fromScan) return `${base} border-teal bg-teal-light/10 dark:bg-teal-light/[0.08]`;
+  return `${base} border-border dark:border-dark-border`;
 }
 
 function Field({ label, id, children }: { label: string; id: string; children: React.ReactNode }) {
   return (
     <label htmlFor={`field-${id}`} className="flex flex-col gap-2">
-      <span className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-ink-secondary">
+      <span className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-ink-secondary dark:text-dark-secondary">
         {label}
       </span>
       {children}
@@ -417,7 +418,7 @@ function Pill({
   onChange: (v: boolean) => void;
 }) {
   return (
-    <label className="flex items-center gap-2 rounded-full border border-border bg-input-bg px-3.5 py-2 text-[13px] text-ink-muted">
+    <label className="flex items-center gap-2 rounded-full border border-border bg-input-bg px-3.5 py-2 text-[13px] text-ink-muted dark:border-dark-border dark:bg-dark-bg dark:text-dark-secondary">
       <input
         type="checkbox"
         checked={checked}

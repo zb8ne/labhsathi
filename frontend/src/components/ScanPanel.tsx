@@ -36,12 +36,12 @@ export function ScanPanel({ onExtracted }: ScanPanelProps) {
   };
 
   return (
-    <div className="mb-7 rounded-2xl border border-dashed border-amber-tan bg-[#fdf4ec] px-5 py-4">
+    <div className="mb-7 rounded-2xl border border-dashed border-amber-tan bg-[#fdf4ec] px-5 py-4 dark:border-amber-tan/40 dark:bg-amber-tan/[0.06]">
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <ScanIcon />
           <div>
-            <div className="text-sm font-semibold text-ink">{t.scan.title}</div>
+            <div className="text-sm font-semibold text-ink dark:text-dark-text">{t.scan.title}</div>
             <StatusLine state={state} t={t} />
           </div>
         </div>
@@ -83,18 +83,18 @@ function StatusLine({
   switch (state.phase) {
     case "idle":
       return (
-        <div className="text-xs text-[#92400e]">
+        <div className="text-xs text-[#92400e] dark:text-amber-tan">
           {t.scan.hintIdle} &mdash; <Link to="/privacy" className="underline">{t.scan.hintIdleLink}</Link>
         </div>
       );
     case "uploading":
-      return <div className="text-xs text-[#92400e]">{t.scan.hintUploading}</div>;
+      return <div className="text-xs text-[#92400e] dark:text-amber-tan">{t.scan.hintUploading}</div>;
     case "queued":
-      return <div className="text-xs text-[#92400e]">{t.scan.hintQueued}</div>;
+      return <div className="text-xs text-[#92400e] dark:text-amber-tan">{t.scan.hintQueued}</div>;
     case "processing":
-      return <div className="text-xs text-[#92400e]">{t.scan.hintProcessing}</div>;
+      return <div className="text-xs text-[#92400e] dark:text-amber-tan">{t.scan.hintProcessing}</div>;
     case "done":
-      return <div className="text-xs text-success-text">{t.scan.hintDone}</div>;
+      return <div className="text-xs text-success-text dark:text-success-accent">{t.scan.hintDone}</div>;
     case "degraded":
       return <div className="text-xs text-error-text">{t.scan.hintDegraded}</div>;
   }
@@ -102,7 +102,7 @@ function StatusLine({
 
 function ScanIcon() {
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9a3412" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-terracotta dark:text-amber-orange">
       <rect x="3" y="6" width="18" height="14" rx="2" />
       <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
       <circle cx="12" cy="13" r="3.2" />

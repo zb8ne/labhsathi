@@ -55,8 +55,8 @@ export function SchemeCard({ scheme }: { scheme: SchemeMatch }) {
 
   return (
     <div
-      className={`flex flex-col gap-4 rounded-2xl border bg-white p-6 break-inside-avoid print:border-ink-tertiary ${
-        needsInfo ? "border-teal-light" : "border-border"
+      className={`flex flex-col gap-4 rounded-2xl border bg-white p-6 break-inside-avoid dark:bg-dark-card print:border-ink-tertiary ${
+        needsInfo ? "border-teal-light dark:border-teal/40" : "border-border dark:border-dark-border"
       }`}
     >
       {/* GitHub issue #3: a long benefit string (e.g. "₹5,00,000/family/year
@@ -65,48 +65,48 @@ export function SchemeCard({ scheme }: { scheme: SchemeMatch }) {
           below sm; the badge itself is also allowed to wrap once stacked. */}
       <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
         <div>
-          <div className="mb-1.5 text-[11px] font-bold uppercase tracking-wide text-terracotta">
+          <div className="mb-1.5 text-[11px] font-bold uppercase tracking-wide text-terracotta dark:text-amber-orange">
             {localized.authority}
           </div>
           <div className="font-serif text-lg font-semibold">{localized.name}</div>
         </div>
-        <div className="rounded-full border border-success-border bg-success-bg px-3 py-1.5 text-xs font-semibold text-success-text sm:whitespace-nowrap">
+        <div className="rounded-full border border-success-border bg-success-bg px-3 py-1.5 text-xs font-semibold text-success-text dark:border-success-border/30 dark:bg-success-bg/10 dark:text-success-accent sm:whitespace-nowrap">
           {localized.benefit}
         </div>
       </div>
 
       {needsInfo ? (
-        <div className="flex flex-col gap-2.5 rounded-[10px] border-l-[3px] border-teal bg-teal-light/10 px-4 py-3.5 print:border print:bg-transparent">
+        <div className="flex flex-col gap-2.5 rounded-[10px] border-l-[3px] border-teal bg-teal-light/10 px-4 py-3.5 dark:bg-teal-light/[0.06] print:border print:bg-transparent">
           <div className="flex items-start gap-3">
-            <span className="mt-0.5 shrink-0 rounded-full border border-teal-light bg-white px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-teal">
+            <span className="mt-0.5 shrink-0 rounded-full border border-teal-light bg-white px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-teal dark:border-teal/40 dark:bg-dark-card dark:text-teal-light">
               {t.results.badgeNeedsInfo}
             </span>
-            <span className="text-[13.5px] leading-relaxed text-ink-muted">{localized.reason}</span>
+            <span className="text-[13.5px] leading-relaxed text-ink-muted dark:text-dark-secondary">{localized.reason}</span>
           </div>
           {scheme.missing_field && (
             <button
               type="button"
               onClick={() => navigate("/", { state: { focusField: scheme.missing_field } })}
-              className="self-start text-xs font-semibold text-teal hover:underline print:hidden"
+              className="self-start text-xs font-semibold text-teal hover:underline dark:text-teal-light print:hidden"
             >
               {t.results.answerThis}
             </button>
           )}
         </div>
       ) : (
-        <div className="flex items-start gap-3 rounded-[10px] border-l-[3px] border-amber-tan bg-input-bg px-4 py-3.5 print:border print:bg-transparent">
+        <div className="flex items-start gap-3 rounded-[10px] border-l-[3px] border-amber-tan bg-input-bg px-4 py-3.5 dark:bg-dark-bg print:border print:bg-transparent">
           {/* "Worth checking," not "strong match" -- these are simplified
               rules against a demo scheme set, and the wording should never
               overstate that (product review note this session). */}
-          <span className="mt-0.5 shrink-0 rounded-full bg-badge-bg px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#92400e]">
+          <span className="mt-0.5 shrink-0 rounded-full bg-badge-bg px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#92400e] dark:bg-amber-tan/10 dark:text-amber-tan">
             {t.results.badgeWorthChecking}
           </span>
-          <span className="text-[13.5px] leading-relaxed text-ink-muted">{localized.reason}</span>
+          <span className="text-[13.5px] leading-relaxed text-ink-muted dark:text-dark-secondary">{localized.reason}</span>
         </div>
       )}
 
       <div>
-        <div className="mb-2 text-[11px] font-bold uppercase tracking-wide text-ink-tertiary">
+        <div className="mb-2 text-[11px] font-bold uppercase tracking-wide text-ink-tertiary dark:text-dark-secondary">
           {t.results.documentsNeeded}
         </div>
         <div className="flex flex-wrap gap-1.5">
@@ -121,8 +121,8 @@ export function SchemeCard({ scheme }: { scheme: SchemeMatch }) {
                 title={has ? t.results.documentHave : t.results.documentNeed}
                 className={`flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-xs transition-colors print:border print:bg-transparent ${
                   has
-                    ? "bg-success-bg text-success-text border border-success-border"
-                    : "bg-[#f5f5f4] text-ink-muted border border-transparent"
+                    ? "bg-success-bg text-success-text border border-success-border dark:bg-success-bg/10 dark:text-success-accent dark:border-success-border/30"
+                    : "bg-[#f5f5f4] text-ink-muted border border-transparent dark:bg-dark-bg dark:text-dark-secondary"
                 }`}
               >
                 <CheckDot has={has} />
@@ -133,7 +133,7 @@ export function SchemeCard({ scheme }: { scheme: SchemeMatch }) {
         </div>
       </div>
 
-      <p className="text-xs text-ink-tertiary">{localized.official_note}</p>
+      <p className="text-xs text-ink-tertiary dark:text-dark-secondary">{localized.official_note}</p>
 
       {!needsInfo &&
         (localized.source_url ? (
@@ -141,19 +141,19 @@ export function SchemeCard({ scheme }: { scheme: SchemeMatch }) {
             href={localized.source_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="-mt-1 text-xs font-semibold text-terracotta hover:underline"
+            className="-mt-1 text-xs font-semibold text-terracotta hover:underline dark:text-amber-orange"
           >
             {t.results.officialSource}
           </a>
         ) : (
-          <p className="-mt-1 text-xs text-ink-tertiary">{t.results.applyFallback}</p>
+          <p className="-mt-1 text-xs text-ink-tertiary dark:text-dark-secondary">{t.results.applyFallback}</p>
         ))}
     </div>
   );
 }
 
 function CheckDot({ has }: { has: boolean }) {
-  if (!has) return <span className="h-3 w-3 shrink-0 rounded-full border border-ink-tertiary/40" />;
+  if (!has) return <span className="h-3 w-3 shrink-0 rounded-full border border-ink-tertiary/40 dark:border-dark-secondary/50" />;
   return (
     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
       <path d="M20 6 9 17l-5-5" />

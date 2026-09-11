@@ -42,37 +42,37 @@ export function MainScreen() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-cream">
-      <Nav variant="light" />
+    <div className="flex min-h-screen flex-col bg-cream text-ink dark:bg-dark-bg dark:text-dark-text">
+      <Nav />
 
       <main className="flex flex-1 flex-col gap-12 px-6 py-10 sm:flex-row sm:px-14 sm:py-14">
         <div className="sm:w-[420px] sm:flex-shrink-0">
-          <div className="mb-6 inline-block rounded-full border border-badge-border bg-badge-bg px-3 py-1.5 text-xs font-semibold tracking-wide text-[#92400e]">
+          <div className="mb-6 inline-block rounded-full border border-badge-border bg-badge-bg px-3 py-1.5 text-xs font-semibold tracking-wide text-[#92400e] dark:border-amber-tan/30 dark:bg-amber-tan/10 dark:text-amber-tan">
             {t.main.tagline}
           </div>
           <h1 className="mb-5 font-serif text-4xl font-semibold leading-[1.05] tracking-tight sm:text-[52px]">
             {t.main.headlineLine1}
             <br />
-            <span className="italic text-terracotta">{t.main.headlineEmphasis}</span>
+            <span className="italic text-terracotta dark:text-amber-orange">{t.main.headlineEmphasis}</span>
           </h1>
-          <p className="mb-4 max-w-[38ch] text-[17px] leading-relaxed text-ink-muted">{t.main.subhead}</p>
+          <p className="mb-4 max-w-[38ch] text-[17px] leading-relaxed text-ink-muted dark:text-dark-secondary">{t.main.subhead}</p>
           <button
             type="button"
             onClick={() => setSampleTrigger((n) => n + 1)}
-            className="mb-8 text-sm font-semibold text-terracotta underline decoration-amber-tan decoration-2 underline-offset-4 hover:text-terracotta-hover"
+            className="mb-8 text-sm font-semibold text-terracotta underline decoration-amber-tan decoration-2 underline-offset-4 hover:text-terracotta-hover dark:text-amber-orange dark:hover:text-amber-tan"
           >
             {t.main.sampleShortcut}
           </button>
 
-          <div className="flex flex-col gap-4 border-t border-border pt-7">
+          <div className="flex flex-col gap-4 border-t border-border pt-7 dark:border-dark-border">
             {steps.map((step, i) => (
               <div key={step.title} className="flex items-start gap-3.5">
-                <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-ink text-[13px] font-bold text-cream">
+                <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-ink text-[13px] font-bold text-cream dark:bg-dark-text dark:text-dark-bg">
                   {i + 1}
                 </div>
                 <div>
                   <div className="text-sm font-semibold">{step.title}</div>
-                  <div className="text-[13px] text-ink-tertiary">{step.body}</div>
+                  <div className="text-[13px] text-ink-tertiary dark:text-dark-secondary">{step.body}</div>
                 </div>
               </div>
             ))}
