@@ -1,0 +1,481 @@
+<title>LabhSathi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap"
+  rel="stylesheet"
+/>
+<style>
+  :root {
+    --bg: #faf7f2;
+    --ink: #1c1917;
+    --ink-2: #57534e;
+    --ink-3: #78716c;
+    --border: #e7e0d4;
+    --card: #fffdf9;
+    --terracotta: #9a3412;
+    --terracotta-hover: #7c2d12;
+    --amber: #fbbf24;
+    --amber-2: #fb923c;
+    --tan: #d6a679;
+    --teal: #0f766e;
+    --teal-light: #5eead4;
+    --success-bg: #ecfdf5;
+    --success-border: #a7f3d0;
+    --success-text: #065f46;
+    --dot: #d8cfc0;
+    --dot-active: var(--terracotta);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #1c1917;
+      --ink: #faf7f2;
+      --ink-2: #d6d3d1;
+      --ink-3: #a8a29e;
+      --border: #383230;
+      --card: #241f1c;
+      --success-bg: #0f2e22;
+      --success-border: #2d5147;
+      --success-text: #6ee7b7;
+      --dot: #4a433d;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #1c1917;
+    --ink: #faf7f2;
+    --ink-2: #d6d3d1;
+    --ink-3: #a8a29e;
+    --border: #383230;
+    --card: #241f1c;
+    --success-bg: #0f2e22;
+    --success-border: #2d5147;
+    --success-text: #6ee7b7;
+    --dot: #4a433d;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3 { font-family: "Newsreader", Georgia, serif; text-wrap: balance; margin: 0; }
+  em { font-style: italic; color: var(--terracotta); }
+  code, .mono { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+
+  .deck {
+    scroll-snap-type: y mandatory;
+    overflow-y: auto;
+    height: 100dvh;
+  }
+  .slide {
+    scroll-snap-align: start;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding: clamp(64px, 12vh, 128px) clamp(28px, 6vw, 96px) clamp(28px, 6vw, 96px);
+    position: relative;
+    border-bottom: 1px solid var(--border);
+  }
+  .slide:first-child { justify-content: center; padding-top: clamp(28px, 6vw, 96px); }
+  .slide-inner { max-width: 980px; margin: 0 auto; width: 100%; }
+  .eyebrow {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--terracotta);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .eyebrow .n { font-family: "IBM Plex Mono"; color: var(--ink-3); font-weight: 500; }
+
+  .bar {
+    height: 5px;
+    width: 72px;
+    border-radius: 3px;
+    background: linear-gradient(90deg, var(--terracotta), var(--amber-2), var(--teal));
+    margin: 20px 0 0;
+  }
+
+  /* nav */
+  .navdots {
+    position: fixed;
+    right: clamp(14px, 3vw, 36px);
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 20;
+  }
+  .navdots button {
+    width: 9px; height: 9px; border-radius: 50%;
+    border: none; padding: 0; cursor: pointer;
+    background: var(--dot);
+    transition: background 0.2s, transform 0.2s;
+  }
+  .navdots button.active { background: var(--dot-active); transform: scale(1.35); }
+  .navdots button:focus-visible { outline: 2px solid var(--terracotta); outline-offset: 3px; }
+
+  .counter {
+    position: fixed;
+    left: clamp(14px, 3vw, 36px);
+    bottom: 20px;
+    font-family: "IBM Plex Mono";
+    font-size: 12px;
+    color: var(--ink-3);
+    z-index: 20;
+    background: var(--bg);
+    padding: 2px 6px;
+  }
+
+  .progress {
+    position: fixed; top: 0; left: 0; height: 3px;
+    background: linear-gradient(90deg, var(--terracotta), var(--amber-2), var(--teal));
+    z-index: 30; transition: width 0.25s ease;
+  }
+
+  .logo {
+    width: 34px; height: 34px; border-radius: 9px;
+    background: var(--terracotta); color: #faf7f2;
+    display: flex; align-items: center; justify-content: center;
+    font-family: "Newsreader"; font-weight: 600; font-size: 18px;
+    flex-shrink: 0;
+  }
+  .brand { display: flex; align-items: center; gap: 11px; }
+  .brand span { font-family: "Newsreader"; font-weight: 600; font-size: 19px; }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 720px) { .grid2 { grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 22px;
+  }
+  .card h3 { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+  .card p { font-size: 13.5px; color: var(--ink-2); line-height: 1.55; margin: 0; }
+
+  .pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    border-radius: 999px; padding: 5px 12px; font-size: 11.5px; font-weight: 600;
+    border: 1px solid var(--success-border); background: var(--success-bg); color: var(--success-text);
+  }
+  .dot-sm { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+  ul.plain { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+  ul.plain li { display: flex; gap: 14px; align-items: flex-start; }
+  .num {
+    font-family: "IBM Plex Mono"; font-size: 12px; font-weight: 600;
+    color: var(--terracotta); width: 22px; flex-shrink: 0; padding-top: 3px;
+  }
+  ul.plain h4 { font-size: 15px; font-weight: 600; margin: 0 0 3px; }
+  ul.plain p { margin: 0; font-size: 13.5px; color: var(--ink-2); line-height: 1.5; }
+
+  /* architecture diagram */
+  .pipeline {
+    display: flex; align-items: center; gap: 0; flex-wrap: wrap;
+    margin-top: 28px;
+  }
+  .node {
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 14px 16px; font-size: 12.5px; text-align: center; min-width: 118px;
+  }
+  .node .t { font-weight: 600; font-size: 13px; margin-bottom: 2px; }
+  .node .s { color: var(--ink-3); font-size: 11px; }
+  .node.accent { border-color: var(--teal); }
+  .arrow { color: var(--ink-3); font-size: 18px; padding: 0 8px; flex-shrink: 0; }
+  .sidecar {
+    margin-top: 14px; display: flex; align-items: center; gap: 10px;
+    font-size: 12px; color: var(--ink-3);
+  }
+  .sidecar .node { border-style: dashed; }
+
+  .schema {
+    margin-top: 22px; border-radius: 12px; border: 1px solid var(--border);
+    background: var(--card); padding: 14px 18px; font-family: "IBM Plex Mono";
+    font-size: 12.5px; color: var(--ink-2); display: flex; align-items: center;
+    gap: 12px; flex-wrap: wrap;
+  }
+  .schema .k { color: var(--terracotta); font-weight: 600; font-size: 10.5px; text-transform: uppercase; letter-spacing: .06em; }
+  .schema .tag {
+    border: 1px solid #7c2d2d; background: #3f1d1d; color: #fca5a5;
+    border-radius: 999px; padding: 3px 9px; font-size: 10.5px;
+  }
+  @media (prefers-color-scheme: light) { .schema .tag { border-color: #fca5a5; background: #fef2f2; color: #7c2d2d; } }
+  :root[data-theme="light"] .schema .tag { border-color: #fca5a5; background: #fef2f2; color: #7c2d2d; }
+
+  .metric-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 26px; }
+  @media (max-width: 720px) { .metric-grid { grid-template-columns: 1fr 1fr; } }
+  .metric { border-left: 3px solid var(--terracotta); padding-left: 12px; }
+  .metric .v { font-family: "IBM Plex Mono"; font-weight: 600; font-size: 22px; }
+  .metric .l { font-size: 11.5px; color: var(--ink-3); margin-top: 3px; line-height: 1.4; }
+
+  .kv { display: flex; flex-direction: column; gap: 10px; margin-top: 22px; }
+  .kv-row { display: flex; gap: 16px; align-items: baseline; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+  .kv-row .k { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-3); width: 130px; flex-shrink: 0; }
+  .kv-row .val { font-size: 14px; }
+  .kv-row a { color: var(--terracotta); text-decoration: none; font-weight: 600; }
+  .kv-row a:hover { text-decoration: underline; }
+
+  .tagchips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+  .tagchips span {
+    font-size: 11.5px; padding: 5px 11px; border-radius: 999px;
+    background: var(--card); border: 1px solid var(--border); color: var(--ink-2);
+  }
+
+  .honest {
+    margin-top: 20px; border-left: 3px solid var(--amber-2);
+    background: var(--card); border-radius: 0 10px 10px 0;
+    padding: 12px 16px; font-size: 12.5px; color: var(--ink-2); line-height: 1.55;
+    max-width: 640px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .navdots button, .progress { transition: none; }
+  }
+</style>
+
+<div class="progress" id="progress" style="width: 16.6%"></div>
+<div class="counter" id="counter">01 / 06</div>
+<nav class="navdots" id="navdots" aria-label="Slide navigation">
+  <button aria-label="Slide 1" class="active"></button>
+  <button aria-label="Slide 2"></button>
+  <button aria-label="Slide 3"></button>
+  <button aria-label="Slide 4"></button>
+  <button aria-label="Slide 5"></button>
+  <button aria-label="Slide 6"></button>
+</nav>
+
+<div class="deck" id="deck">
+
+  <!-- 1: Cover -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="brand">
+        <div class="logo">ल</div>
+        <span>LabhSathi</span>
+      </div>
+      <div class="bar"></div>
+      <h1 style="font-size: clamp(38px, 6vw, 64px); font-weight: 600; margin-top: 28px; line-height: 1.08;">
+        Know what<br /><em>you're entitled to.</em>
+      </h1>
+      <p style="font-size: 16px; color: var(--ink-2); max-width: 56ch; margin-top: 20px; line-height: 1.6;">
+        A welfare-scheme eligibility matcher for India's central government schemes —
+        answer a few questions or scan a document, and get back exactly which
+        schemes you're worth checking against, and what to bring.
+      </p>
+      <div style="margin-top: 30px; display:flex; gap: 10px; flex-wrap: wrap;">
+        <span class="pill"><span class="dot-sm"></span>Jan Jeevan track</span>
+        <span class="pill" style="border-color:var(--border); background:transparent; color:var(--ink-3);">Bit N Build Hackathon 2026</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2: Problem -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="eyebrow"><span class="n">01</span> The problem</div>
+      <h2 style="font-size: clamp(26px, 4vw, 38px); font-weight: 600;">
+        India runs dozens of central welfare schemes.<br />Finding the ones you qualify for isn't the citizen's job to solve alone.
+      </h2>
+      <div class="grid2" style="margin-top: 34px;">
+        <div class="card">
+          <h3>Scattered across ministries</h3>
+          <p>PM-KISAN sits with Agriculture, PM-JAY with the National Health Authority, PMMVY with Women & Child Development — each on its own portal, its own eligibility PDF, its own document list.</p>
+        </div>
+        <div class="card">
+          <h3>Eligibility reads like legal text</h3>
+          <p>Income slabs, category carve-outs, SECC 2011 criteria, state-specific top-ups — a household usually has to already know a scheme exists before it can check whether it qualifies.</p>
+        </div>
+        <div class="card">
+          <h3>The document, not the form, is the blocker</h3>
+          <p>Income certificates, land records, caste certificates — people show up without the right paperwork, or don't apply because they're not sure what's required until they're already in line.</p>
+        </div>
+        <div class="card">
+          <h3>"Never store my documents"</h3>
+          <p>Any tool that asks someone to upload an ID or income certificate is asking for trust it hasn't earned — most don't say what happens to that image after the read.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3: Product -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="eyebrow"><span class="n">02</span> What LabhSathi does</div>
+      <h2 style="font-size: clamp(26px, 4vw, 38px); font-weight: 600;">Three steps, in either language.</h2>
+      <ul class="plain" style="margin-top: 30px;">
+        <li>
+          <span class="num">01</span>
+          <div>
+            <h4>Tell us your situation — or scan a document</h4>
+            <p>Income, occupation, family, category, land holding. Or scan an income certificate / ID and let extraction fill in what it can read — the form stays live underneath either way.</p>
+          </div>
+        </li>
+        <li>
+          <span class="num">02</span>
+          <div>
+            <h4>Matched against real scheme rules</h4>
+            <p>PM-KISAN, Ayushman Bharat, PMJDY, NSAP pensions, NSP scholarships, Sukanya Samriddhi, PMAY, PMMVY, PM-SYM — 11 schemes today, each with its own eligibility rule, not a keyword match.</p>
+          </div>
+        </li>
+        <li>
+          <span class="num">03</span>
+          <div>
+            <h4>A document checklist, and an honest badge</h4>
+            <p>Every match says <em style="font-style:normal; color:var(--terracotta); font-weight:600;">"Worth checking,"</em> never "approved" — plus exactly why it matched, and what to bring. Verified links to the official government portal where we could actually confirm one exists.</p>
+          </div>
+        </li>
+      </ul>
+      <div class="tagchips">
+        <span>English + हिन्दी</span>
+        <span>11 schemes, rule-based</span>
+        <span>Manual form always available</span>
+        <span>Sample household shortcut</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4: Architecture -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="eyebrow"><span class="n">03</span> How it's actually built</div>
+      <h2 style="font-size: clamp(26px, 4vw, 38px); font-weight: 600;">
+        The scan pipeline is event-driven, not a synchronous call that blocks the request.
+      </h2>
+      <div class="pipeline">
+        <div class="node accent"><div class="t">React + Tailwind</div><div class="s">frontend</div></div>
+        <div class="arrow">→</div>
+        <div class="node accent"><div class="t">api-gateway</div><div class="s">Rust / Axum</div></div>
+        <div class="arrow">→</div>
+        <div class="node"><div class="t">Kafka (KRaft)</div><div class="s">document.jobs.*</div></div>
+        <div class="arrow">→</div>
+        <div class="node accent"><div class="t">ocr-worker</div><div class="s">Rust, scales independently</div></div>
+        <div class="arrow">→</div>
+        <div class="node"><div class="t">Claude Vision</div><div class="s">claude-haiku-4-5</div></div>
+      </div>
+      <div class="sidecar">
+        <div class="node">Redis</div>
+        <span>ephemeral handoff cache only — <code>--save ""</code>, two keys, two TTLs, never a datastore</span>
+      </div>
+      <div class="schema">
+        <span class="k">document.jobs.completed</span>
+        <span>{ job_id, fields: { age, income, state, category }, ts }</span>
+        <span class="tag">image: never a field</span>
+      </div>
+      <p style="margin-top: 16px; font-size: 12.5px; color: var(--ink-3); max-width: 60ch;">
+        The privacy guarantee is structural: the event schema has no <code>Vec&lt;u8&gt;</code>
+        and no free-form JSON, so an image can't leak into a log line or a queue message —
+        not because the code remembers to delete it, but because there's nowhere in the
+        type for it to go.
+      </p>
+    </div>
+  </section>
+
+  <!-- 5: Proof -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="eyebrow"><span class="n">04</span> Proof, not claims</div>
+      <h2 style="font-size: clamp(26px, 4vw, 38px); font-weight: 600;">Every line below was actually run this build, not asserted.</h2>
+      <div class="metric-grid">
+        <div class="metric"><div class="v">30 / 30</div><div class="l">Rust unit tests passing — eligibility boundaries, event schema, upload validation</div></div>
+        <div class="metric"><div class="v">1 → 2</div><div class="l">ocr-worker replicas, HPA-scaled live under real vision-API load in a local Kubernetes cluster</div></div>
+        <div class="metric"><div class="v">3</div><div class="l">deploy targets working: Railway (public, always-on), Docker Compose, kind + Helm</div></div>
+        <div class="metric"><div class="v">6 / 11</div><div class="l">scheme citation links live-verified against the real government portal before being added</div></div>
+        <div class="metric"><div class="v">0</div><div class="l">plaintext secrets in the repo — Doppler-managed everywhere, Kubernetes Secrets referenced by name only</div></div>
+        <div class="metric"><div class="v">2</div><div class="l">languages fully wired end to end — English and Hindi, including form labels and scheme data</div></div>
+      </div>
+      <div class="honest">
+        <strong style="color: var(--ink);">Scope, stated plainly:</strong> eligibility rules are simplified approximations
+        of real scheme criteria, built for this prototype — every result reads
+        "worth checking," and the document checklist points to the official
+        source when we could confirm a live one. Not a substitute for the
+        actual notification.
+      </div>
+    </div>
+  </section>
+
+  <!-- 6: Status -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="eyebrow"><span class="n">05</span> Try it</div>
+      <h2 style="font-size: clamp(26px, 4vw, 38px); font-weight: 600;">Live now, not a mockup.</h2>
+      <div class="kv">
+        <div class="kv-row">
+          <div class="k">Live app</div>
+          <div class="val"><a href="https://frontend-production-4a46.up.railway.app" target="_blank" rel="noopener noreferrer">frontend-production-4a46.up.railway.app</a></div>
+        </div>
+        <div class="kv-row">
+          <div class="k">Source</div>
+          <div class="val"><a href="https://github.com/zb8ne/labhsathi" target="_blank" rel="noopener noreferrer">github.com/zb8ne/labhsathi</a></div>
+        </div>
+        <div class="kv-row">
+          <div class="k">Stack</div>
+          <div class="val" style="color: var(--ink-2); font-size: 13px;">React · Tailwind · Rust (Axum) · Kafka · Redis · Docker · Kubernetes / Helm · Claude API</div>
+        </div>
+        <div class="kv-row">
+          <div class="k">Next up</div>
+          <div class="val" style="color: var(--ink-2); font-size: 13px;">Wider scheme coverage with more verified citations · Hindi for the dynamically-generated match reasons</div>
+        </div>
+      </div>
+      <div class="bar" style="margin-top: 34px;"></div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+  (function () {
+    var deck = document.getElementById('deck');
+    var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+    var dots = Array.prototype.slice.call(document.querySelectorAll('#navdots button'));
+    var counter = document.getElementById('counter');
+    var progress = document.getElementById('progress');
+    var total = slides.length;
+
+    function pad(n) { return n < 10 ? '0' + n : '' + n; }
+
+    function setActive(i) {
+      dots.forEach(function (d, idx) { d.classList.toggle('active', idx === i); });
+      counter.textContent = pad(i + 1) + ' / ' + pad(total);
+      progress.style.width = ((i + 1) / total) * 100 + '%';
+    }
+
+    dots.forEach(function (d, idx) {
+      d.addEventListener('click', function () {
+        slides[idx].scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+
+    var io = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting) {
+            setActive(slides.indexOf(e.target));
+          }
+        });
+      },
+      { root: deck, threshold: 0.6 }
+    );
+    slides.forEach(function (s) { io.observe(s); });
+
+    document.addEventListener('keydown', function (e) {
+      var current = dots.findIndex(function (d) { return d.classList.contains('active'); });
+      if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === 'PageDown') {
+        if (current < total - 1) slides[current + 1].scrollIntoView({ behavior: 'smooth' });
+        e.preventDefault();
+      } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        if (current > 0) slides[current - 1].scrollIntoView({ behavior: 'smooth' });
+        e.preventDefault();
+      }
+    });
+  })();
+</script>
