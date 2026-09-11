@@ -28,7 +28,7 @@ export function ResultsScreen() {
       <Nav
         variant="light"
         right={
-          <Link to="/" className="text-[13px] text-ink-tertiary">
+          <Link to="/" className="whitespace-nowrap text-[13px] text-ink-tertiary">
             {t.nav.editingAnswers}
           </Link>
         }

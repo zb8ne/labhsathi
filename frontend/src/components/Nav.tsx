@@ -14,15 +14,18 @@ export function Nav({ variant, right }: NavProps) {
   const isDark = variant === "dark";
   return (
     <div
-      className={`flex items-center justify-between px-6 py-5 sm:px-14 ${
+      className={`flex items-center justify-between gap-3 px-6 py-5 sm:px-14 ${
         isDark ? "" : "border-b border-border"
       }`}
     >
-      <Link to="/" className="flex items-center gap-3">
+      <Link to="/" className="flex shrink-0 items-center gap-3">
         <Logo />
-        <span className="font-serif text-xl font-semibold sm:text-[22px]">LabhSathi</span>
+        {/* Wordmark hidden below sm: the icon alone plus a `right` slot
+            (e.g. Results' "Editing answers" link) collides with it on a
+            360px-class phone otherwise -- verified by screenshot. */}
+        <span className="hidden font-serif text-xl font-semibold sm:inline sm:text-[22px]">LabhSathi</span>
       </Link>
-      <div className="flex items-center gap-6">
+      <div className="flex items-center gap-3 sm:gap-6">
         {right ?? (
           <>
             <span className={`hidden text-sm font-medium sm:inline ${isDark ? "text-dark-secondary" : "text-ink-secondary"}`}>
