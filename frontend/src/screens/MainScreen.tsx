@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { GradientBar } from "../components/GradientBar";
 import { Nav } from "../components/Nav";
 import { ProfileForm } from "../components/ProfileForm";
@@ -17,6 +17,10 @@ export function MainScreen() {
   // rather than truthiness -- the sample can be requested more than once.
   const [sampleTrigger, setSampleTrigger] = useState(0);
   const navigate = useNavigate();
+  // Set when arriving here via a needs_info scheme's "Answer this" link on
+  // the results screen -- see ResultsScreen's navigate() call.
+  const location = useLocation();
+  const focusField = (location.state as { focusField?: string } | null)?.focusField ?? null;
 
   const steps = [
     { title: t.main.step1Title, body: t.main.step1Body },
@@ -80,6 +84,7 @@ export function MainScreen() {
           <ProfileForm
             extractedFields={extractedFields}
             sampleTrigger={sampleTrigger}
+            focusField={focusField}
             onSubmit={handleSubmit}
             submitting={submitting}
           />

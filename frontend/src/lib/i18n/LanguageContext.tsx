@@ -56,3 +56,10 @@ export function resultsHeading(t: (typeof translations)["en"], count: number): s
   const template = count === 1 ? t.results.heading_one : t.results.heading_other;
   return template.replace("{{count}}", String(count));
 }
+
+/** Same singular/plural split for the "N more need info" line -- only
+ * rendered by the caller when count > 0. */
+export function needsInfoNote(t: (typeof translations)["en"], count: number): string {
+  const template = count === 1 ? t.results.needsInfoNote_one : t.results.needsInfoNote_other;
+  return template.replace("{{count}}", String(count));
+}

@@ -39,6 +39,10 @@ describe("ProfileForm auto-fill merge", () => {
     // back-navigation state loss) -- clear it so tests don't leak state
     // into each other via the initial-load path.
     sessionStorage.clear();
+    // jsdom doesn't implement scrollIntoView -- the focusField behavior
+    // calls it, so stub it out rather than let every test using that path
+    // throw "not implemented".
+    Element.prototype.scrollIntoView = vi.fn();
   });
 
   it("fills an untouched field from a scan result", () => {
@@ -114,5 +118,89 @@ describe("ProfileForm auto-fill merge", () => {
     // even a field the user already typed into.
     expect(screen.getByLabelText("Age")).toHaveValue(45);
     expect(screen.getByLabelText("State")).toHaveValue("Goa");
+  });
+});
+
+describe("ProfileForm OCR normalization", () => {
+  beforeEach(() => {
+    sessionStorage.clear();
+    Element.prototype.scrollIntoView = vi.fn();
+  });
+
+  it("normalizes a recognized-but-differently-worded occupation into the exact dropdown value", () => {
+    const { rerender } = renderForm();
+
+    // EXTRACTED.occupation is "Laborer" (capitalized, not the dropdown's
+    // exact "laborer" value) -- the normalizer must still land on it.
+    rerender(
+      <LanguageProvider>
+        <ProfileForm extractedFields={EXTRACTED} sampleTrigger={0} onSubmit={vi.fn()} submitting={false} />
+      </LanguageProvider>,
+    );
+
+    expect(screen.getByLabelText("Occupation")).toHaveValue("laborer");
+    expect(screen.getByLabelText("Category")).toHaveValue("sc");
+  });
+
+  it("leaves the field alone rather than guessing when the extracted wording isn't recognized", () => {
+    const { rerender } = renderForm();
+    const before = (screen.getByLabelText("Occupation") as HTMLSelectElement).value;
+
+    rerender(
+      <LanguageProvider>
+        <ProfileForm
+          extractedFields={{ ...EXTRACTED, occupation: "Freelance Astrologer" }}
+          sampleTrigger={0}
+          onSubmit={vi.fn()}
+          submitting={false}
+        />
+      </LanguageProvider>,
+    );
+
+    // Never injected as free text into a <select> that has no such option.
+    expect(screen.getByLabelText("Occupation")).toHaveValue(before);
+  });
+
+  it("marks a scan-filled field visually, then clears that mark the moment the user edits it", () => {
+    const { rerender } = renderForm();
+
+    rerender(
+      <LanguageProvider>
+        <ProfileForm extractedFields={EXTRACTED} sampleTrigger={0} onSubmit={vi.fn()} submitting={false} />
+      </LanguageProvider>,
+    );
+
+    const stateInput = screen.getByLabelText("State");
+    expect(stateInput.className).toMatch(/border-teal/);
+
+    fireEvent.change(stateInput, { target: { value: "Karnataka" } });
+    expect(stateInput.className).not.toMatch(/border-teal/);
+  });
+});
+
+describe("ProfileForm area_type field", () => {
+  beforeEach(() => {
+    sessionStorage.clear();
+    Element.prototype.scrollIntoView = vi.fn();
+  });
+
+  it("only shows the area-type question once the kutcha-house pill is checked", () => {
+    renderForm();
+    expect(screen.queryByLabelText("Area type (for housing schemes)")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByLabelText("Lives in a kutcha house"));
+    expect(screen.getByLabelText("Area type (for housing schemes)")).toBeInTheDocument();
+  });
+});
+
+describe("ProfileForm focusField navigation", () => {
+  beforeEach(() => {
+    sessionStorage.clear();
+    Element.prototype.scrollIntoView = vi.fn();
+  });
+
+  it("focuses and highlights the field named by focusField on mount", () => {
+    renderForm({ focusField: "land_holding_acres" });
+    expect(screen.getByLabelText("Land holding (acres, if any)")).toHaveFocus();
   });
 });
