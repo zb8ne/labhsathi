@@ -347,7 +347,7 @@
   <!-- 4: Architecture -->
   <section class="slide">
     <div class="slide-inner">
-      <div class="eyebrow"><span class="n">03</span> How it's actually built</div>
+      <div class="eyebrow"><span class="n">03</span> Tech &amp; implementation</div>
       <h2 style="font-size: clamp(26px, 4vw, 38px); font-weight: 600;">
         The scan pipeline is event-driven, not a synchronous call that blocks the request.
       </h2>
@@ -377,13 +377,19 @@
         not because the code remembers to delete it, but because there's nowhere in the
         type for it to go.
       </p>
+      <p style="margin-top: 10px; font-size: 12.5px; color: var(--ink-3); max-width: 60ch;">
+        Deployment topology mirrors this split: a Helm chart puts each piece in its own
+        Deployment (namespace <code>labhsathi</code>), with ocr-worker behind an HPA that
+        watches CPU by default and a documented KEDA/consumer-lag upgrade path for
+        production — verified live on a local <code>kind</code> cluster, not just written.
+      </p>
     </div>
   </section>
 
-  <!-- 5: Proof -->
+  <!-- 5: Feasibility -->
   <section class="slide">
     <div class="slide-inner">
-      <div class="eyebrow"><span class="n">04</span> Proof, not claims</div>
+      <div class="eyebrow"><span class="n">04</span> Feasibility, scalability &amp; impact</div>
       <h2 style="font-size: clamp(26px, 4vw, 38px); font-weight: 600;">Every line below was actually run this build, not asserted.</h2>
       <div class="metric-grid">
         <div class="metric"><div class="v">30 / 30</div><div class="l">Rust unit tests passing — eligibility boundaries, event schema, upload validation</div></div>
@@ -393,6 +399,13 @@
         <div class="metric"><div class="v">0</div><div class="l">plaintext secrets in the repo — Doppler-managed everywhere, Kubernetes Secrets referenced by name only</div></div>
         <div class="metric"><div class="v">2</div><div class="l">languages fully wired end to end — English and Hindi, including form labels and scheme data</div></div>
       </div>
+      <p style="margin-top: 24px; font-size: 13.5px; color: var(--ink-2); max-width: 62ch; line-height: 1.6;">
+        The scale story is the point of the architecture, not a slide filler: OCR is the
+        one genuinely expensive, spiky part of this product — a real vision-API call per
+        document — and it's the one part built to scale independently of everything else,
+        instead of being a blocking step inside the same request that serves the rest of
+        the app.
+      </p>
       <div class="honest">
         <strong style="color: var(--ink);">Scope, stated plainly:</strong> eligibility rules are simplified approximations
         of real scheme criteria, built for this prototype — every result reads
@@ -403,10 +416,10 @@
     </div>
   </section>
 
-  <!-- 6: Status -->
+  <!-- 6: Prototype & future scope -->
   <section class="slide">
     <div class="slide-inner">
-      <div class="eyebrow"><span class="n">05</span> Try it</div>
+      <div class="eyebrow"><span class="n">05</span> Prototype &amp; future scope</div>
       <h2 style="font-size: clamp(26px, 4vw, 38px); font-weight: 600;">Live now, not a mockup.</h2>
       <div class="kv">
         <div class="kv-row">
@@ -422,8 +435,8 @@
           <div class="val" style="color: var(--ink-2); font-size: 13px;">React · Tailwind · Rust (Axum) · Kafka · Redis · Docker · Kubernetes / Helm · Claude API</div>
         </div>
         <div class="kv-row">
-          <div class="k">Next up</div>
-          <div class="val" style="color: var(--ink-2); font-size: 13px;">Wider scheme coverage with more verified citations · Hindi for the dynamically-generated match reasons</div>
+          <div class="k">Future scope</div>
+          <div class="val" style="color: var(--ink-2); font-size: 13px;">Wider scheme coverage with more verified citations · Hindi for the dynamically-generated match reasons · state-level schemes alongside central ones · KEDA consumer-lag autoscaling in place of the CPU-based demo default</div>
         </div>
       </div>
       <div class="bar" style="margin-top: 34px;"></div>
