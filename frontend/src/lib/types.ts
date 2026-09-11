@@ -30,6 +30,7 @@ export interface SchemeMatch {
   reason: string;
   documents: string[];
   official_note: string;
+  source_url: string | null;
 }
 
 export interface MatchResponse {

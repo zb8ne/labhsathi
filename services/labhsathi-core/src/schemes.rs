@@ -29,6 +29,7 @@ pub struct SchemeMatch {
     pub reason: String,
     pub documents: Vec<&'static str>,
     pub official_note: &'static str,
+    pub source_url: Option<&'static str>,
 }
 
 type RuleFn = fn(&UserProfile) -> Option<String>;
@@ -40,6 +41,13 @@ struct Scheme {
     benefit: &'static str,
     documents: &'static [&'static str],
     official_note: &'static str,
+    // ZB8-12: only set when a live WebFetch against the exact domain
+    // returned a real government page during this pass (see docs/adr for
+    // the check log) -- `None` for schemes where the expected .gov.in/
+    // .nic.in domain timed out or failed DNS from this environment, since
+    // a wrong citation is worse than no citation. Don't fill these in from
+    // memory alone; re-verify live before adding one.
+    source_url: Option<&'static str>,
     rule: RuleFn,
 }
 
@@ -56,6 +64,7 @@ const SCHEMES: &[Scheme] = &[
         benefit: "₹6,000/year direct income support in 3 installments",
         documents: &["Aadhaar card", "Land ownership records (khatauni/khasra)", "Bank passbook", "Passport-size photo"],
         official_note: "Excludes institutional land holders and certain higher-income categories (e.g. income-tax payers, government employees) per official notification.",
+        source_url: Some("https://pmkisan.gov.in"),
         rule: |p| {
             if p.occupation == "farmer" && p.land_holding_acres.unwrap_or(0.0) > 0.0 {
                 Some("You reported farming as your occupation with land holdings — PM-KISAN provides direct income support to landholding farmer families.".into())
@@ -71,6 +80,10 @@ const SCHEMES: &[Scheme] = &[
         benefit: "₹5,00,000/family/year cashless health insurance",
         documents: &["Aadhaar card", "Ration card / SECC household ID", "Income certificate"],
         official_note: "Actual eligibility is based on SECC 2011 deprivation/occupational criteria, not income alone — verify your household on the official PM-JAY beneficiary portal.",
+        // pmjay.gov.in timed out from this environment during verification
+        // (not a DNS failure) -- plausibly a real, correct domain, but not
+        // confirmed live. Leaving unset rather than citing it unverified.
+        source_url: None,
         rule: |p| {
             if p.annual_income < 250_000 {
                 Some("Your household income falls in the low-income band PM-JAY targets — worth checking your SECC beneficiary status.".into())
@@ -86,6 +99,7 @@ const SCHEMES: &[Scheme] = &[
         benefit: "Zero-balance bank account, RuPay debit card, accident & life insurance cover",
         documents: &["Aadhaar card", "Address proof (if no Aadhaar)"],
         official_note: "Open to any Indian resident; no income or occupation restriction.",
+        source_url: Some("https://pmjdy.gov.in"),
         rule: |p| {
             if !p.has_bank_account {
                 Some("You reported not having a bank account — PM Jan Dhan Yojana gives you one with zero balance requirement plus insurance cover.".into())
@@ -101,6 +115,11 @@ const SCHEMES: &[Scheme] = &[
         benefit: "Monthly pension (₹200–1000+, state top-ups vary)",
         documents: &["Aadhaar card", "Age proof", "BPL / income certificate", "Bank passbook"],
         official_note: "State governments top up the central amount; exact amount varies by state.",
+        // nsap.nic.in failed DNS resolution from this environment during
+        // verification (not just a timeout) -- stronger signal it may
+        // have moved or been decommissioned, so no citation rather than a
+        // guess. Same for the other two NSAP entries below.
+        source_url: None,
         rule: |p| {
             if p.age >= 60 && p.annual_income < 100_000 {
                 Some("You're 60+ with household income below the BPL-linked threshold this scheme targets.".into())
@@ -116,6 +135,7 @@ const SCHEMES: &[Scheme] = &[
         benefit: "Monthly pension (₹300+, state top-ups vary)",
         documents: &["Aadhaar card", "Age proof", "Husband's death certificate", "BPL / income certificate", "Bank passbook"],
         official_note: "Covers widows aged 40-79 in most states; some states transition beneficiaries to IGNOAPS at 60 instead -- check your state's rule.",
+        source_url: None,
         rule: |p| {
             if p.is_widow && p.age >= 40 && p.age <= 79 && p.annual_income < 100_000 {
                 Some("You reported being a widow in the 40-79 age band with income below the BPL-linked threshold this scheme targets.".into())
@@ -131,6 +151,7 @@ const SCHEMES: &[Scheme] = &[
         benefit: "Monthly disability pension",
         documents: &["Aadhaar card", "Disability certificate (UDID, ≥80%)", "Income certificate"],
         official_note: "Requires a certified disability of 80% or more from a competent medical authority.",
+        source_url: None,
         rule: |p| {
             if p.has_disability
                 && p.disability_percentage.unwrap_or(0) >= 80
@@ -151,6 +172,7 @@ const SCHEMES: &[Scheme] = &[
         benefit: "Tuition fee reimbursement + maintenance allowance for students",
         documents: &["Aadhaar card", "Caste/community certificate", "Income certificate", "Previous year mark sheet", "Bank passbook"],
         official_note: "Separate schemes and income caps apply per category (SC/ST/OBC/Minority) — check the specific scheme's cutoff on scholarships.gov.in.",
+        source_url: Some("https://scholarships.gov.in"),
         rule: |p| {
             if p.is_student
                 && p.category != "general"
@@ -172,6 +194,10 @@ const SCHEMES: &[Scheme] = &[
         benefit: "High-interest savings account for a girl child's education/marriage",
         documents: &["Girl child's birth certificate", "Guardian's Aadhaar & PAN", "Address proof"],
         official_note: "Account must be opened before the girl turns 10.",
+        // nsiindia.gov.in returned a TLS certificate error from this
+        // environment during verification -- not confirming a citation
+        // off an untrusted cert.
+        source_url: None,
         rule: |p| {
             if let Some(age) = p.girl_child_age {
                 if age < 10 {
@@ -188,6 +214,9 @@ const SCHEMES: &[Scheme] = &[
         benefit: "Financial assistance / interest subsidy to build or buy a pucca house",
         documents: &["Aadhaar card", "Income certificate", "Land documents (if owned)", "Bank passbook"],
         official_note: "Urban (PMAY-U) and rural (PMAY-G) versions have different income slabs and application processes.",
+        // Urban portal only -- the rural counterpart (PMAY-G, pmayg.nic.in)
+        // wasn't separately verified this pass.
+        source_url: Some("https://pmaymis.gov.in"),
         rule: |p| {
             if p.has_kutcha_house && p.annual_income < 300_000 {
                 Some("You reported living in a kutcha/temporary house with income under ₹3L — PMAY funds pucca house construction for exactly this profile.".into())
@@ -203,6 +232,7 @@ const SCHEMES: &[Scheme] = &[
         benefit: "₹5,000 cash benefit for pregnancy/lactation (first living child)",
         documents: &["Aadhaar card", "MCP card (Mother and Child Protection card)", "Bank passbook"],
         official_note: "Applies to the first living child; benefit is paid in installments tied to health checkups.",
+        source_url: Some("https://pmmvy.wcd.gov.in"),
         rule: |p| {
             if p.gender == "female" && p.is_pregnant_or_lactating_first_child {
                 Some("You indicated a first pregnancy/lactation — PMMVY provides direct cash support tied to your checkups.".into())
@@ -218,6 +248,7 @@ const SCHEMES: &[Scheme] = &[
         benefit: "Monthly pension of ₹3,000 after age 60 (unorganised sector)",
         documents: &["Aadhaar card", "Bank passbook (with IFSC)", "Mobile number"],
         official_note: "For unorganised-sector workers aged 18–40 earning up to ₹15,000/month, not covered by EPFO/ESIC/NPS.",
+        source_url: Some("https://maandhan.in"),
         rule: |p| {
             let unorganised = matches!(p.occupation.as_str(), "laborer" | "self_employed" | "homemaker");
             if unorganised && p.age >= 18 && p.age <= 40 && p.annual_income < 180_000 {
@@ -241,6 +272,7 @@ pub fn match_schemes(profile: &UserProfile) -> Vec<SchemeMatch> {
                 reason,
                 documents: s.documents.to_vec(),
                 official_note: s.official_note,
+                source_url: s.source_url,
             })
         })
         .collect()

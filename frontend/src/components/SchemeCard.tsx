@@ -48,6 +48,21 @@ export function SchemeCard({ scheme }: { scheme: SchemeMatch }) {
       </div>
 
       <p className="text-xs text-ink-tertiary">{localized.official_note}</p>
+
+      {/* ZB8-12: only rendered when the backend actually has a
+          live-verified government URL for this scheme -- most don't yet
+          (see schemes.rs), so this is deliberately absent on most cards
+          rather than a placeholder link. */}
+      {localized.source_url && (
+        <a
+          href={localized.source_url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="-mt-1 text-xs font-semibold text-terracotta hover:underline"
+        >
+          {t.results.officialSource}
+        </a>
+      )}
     </div>
   );
 }

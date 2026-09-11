@@ -92,6 +92,7 @@ export const translations = {
       noMatches: "No matches found among the schemes in this prototype's database — this isn't exhaustive, it demonstrates the matching approach.",
       documentsNeeded: "Documents needed",
       badgeWorthChecking: "Worth checking",
+      officialSource: "Official source →",
     },
     privacy: {
       kicker: "How your document is handled",
@@ -194,6 +195,7 @@ export const translations = {
       noMatches: "इस प्रोटोटाइप के डेटाबेस में कोई मेल खाती योजना नहीं मिली — यह सूची पूरी नहीं है, यह सिर्फ़ मिलान का तरीका दिखाती है।",
       documentsNeeded: "ज़रूरी दस्तावेज़",
       badgeWorthChecking: "जांचने लायक",
+      officialSource: "आधिकारिक स्रोत →",
     },
     privacy: {
       kicker: "आपके दस्तावेज़ के साथ क्या होता है",
