@@ -49,9 +49,13 @@ spec:
             - containerPort: 9093
           readinessProbe:
             exec:
+              # kafka-broker-api-versions.sh spins up its own JVM client per
+              # invocation -- the default 1s exec-probe timeout isn't enough
+              # even once the broker itself is fully up.
               command: ["/opt/kafka/bin/kafka-broker-api-versions.sh", "--bootstrap-server", "localhost:9092"]
             initialDelaySeconds: 10
             periodSeconds: 5
+            timeoutSeconds: 10
             failureThreshold: 12
 ---
 apiVersion: v1

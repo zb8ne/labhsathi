@@ -37,6 +37,6 @@ spec:
                 name: {{ .Values.secretName }}
           resources:
             requests:
-              cpu: 100m
+              cpu: {{ .Values.ocrWorker.resources.requestsCpu }}
             limits:
-              cpu: 500m
+              cpu: {{ .Values.ocrWorker.resources.limitsCpu }}

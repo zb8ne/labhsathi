@@ -28,6 +28,13 @@ apiGateway:
 ocrWorker:
   replicas: 1
   maxConcurrentExtractions: 4
+  resources:
+    # A real production sizing, measured off actual decode/resize cost --
+    # the vision-API call itself is the bottleneck (I/O, not CPU), so this
+    # request is deliberately generous. See values-kind.yaml for why the
+    # kind demo overrides it down.
+    requestsCpu: 100m
+    limitsCpu: 500m
   autoscaling:
     # "hpa" (default, CPU-based, needs nothing beyond stock k8s) or "keda"
     # (consumer-lag-based, the documented production upgrade -- see
