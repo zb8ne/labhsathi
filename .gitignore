@@ -9,3 +9,4 @@
 # local dev secrets download from doppler
 infra/docker/.env.doppler
 /frontend/tsconfig.tsbuildinfo
+/node_modules
