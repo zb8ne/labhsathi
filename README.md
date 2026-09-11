@@ -58,6 +58,21 @@ docker compose up --build
 
 Frontend: http://localhost:5173 · api-gateway: http://localhost:8080
 
+## Testing
+
+```bash
+cargo test --workspace          # rule engine, event schemas, media validation, kafka offset ordering
+cd frontend && npm test         # auto-fill's no-overwrite behavior
+```
+
+`cargo test --workspace` skips three Redis integration tests (`services/api-gateway/src/redis_cache.rs`) that need a live Redis -- Compose's own `redis` service isn't published to the host by default, so point one at localhost first:
+
+```bash
+docker run --rm -d --name redis-test -p 6379:6379 redis:7-alpine
+cargo test -p api-gateway -- --ignored   # REDIS_URL defaults to redis://localhost:6379
+docker stop redis-test
+```
+
 **Without Docker**, each service can run standalone against a local Kafka + Redis:
 
 ```bash

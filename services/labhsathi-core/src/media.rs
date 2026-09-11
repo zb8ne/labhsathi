@@ -98,3 +98,89 @@ pub fn validate_upload(bytes: &[u8], claimed_content_type: &str) -> Result<Image
     check_decoded_dimensions(bytes)?;
     Ok(mime_type)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use image::{ImageBuffer, ImageFormat, Rgb};
+
+    /// A tiny real PNG (valid pixel data, small dimensions) for happy-path
+    /// tests -- built with the `image` crate rather than hand-authored
+    /// bytes, so a change to the encoder can't silently desync the fixture
+    /// from what a real upload actually looks like.
+    fn tiny_png() -> Vec<u8> {
+        let img: ImageBuffer<Rgb<u8>, _> = ImageBuffer::from_fn(4, 4, |_, _| Rgb([255, 0, 0]));
+        let mut buf = Vec::new();
+        img.write_to(&mut std::io::Cursor::new(&mut buf), ImageFormat::Png).unwrap();
+        buf
+    }
+
+    #[test]
+    fn detect_media_type_reads_real_magic_bytes() {
+        assert_eq!(detect_media_type(&tiny_png(), "image/png").unwrap(), ImageMimeType::Png);
+    }
+
+    #[test]
+    fn detect_media_type_is_authoritative_over_claimed_header() {
+        // The sniff wins even when the client claims something else --
+        // this is real PNG data with a lying Content-Type.
+        assert_eq!(
+            detect_media_type(&tiny_png(), "application/octet-stream").unwrap(),
+            ImageMimeType::Png
+        );
+    }
+
+    #[test]
+    fn detect_media_type_rejects_heic_with_a_specific_message() {
+        // Minimal ISO-BMFF "ftyp" box header, enough to trigger the HEIC
+        // detection path without needing a full valid HEIC file.
+        let heic_like = b"\x00\x00\x00\x18ftypheic\x00\x00\x00\x00";
+        let err = detect_media_type(heic_like, "image/heic").unwrap_err();
+        assert!(err.contains("HEIC"), "expected a HEIC-specific message, got: {err}");
+    }
+
+    #[test]
+    fn detect_media_type_rejects_unrecognized_bytes() {
+        let err = detect_media_type(b"not an image at all", "text/plain").unwrap_err();
+        assert!(err.contains("text/plain"));
+    }
+
+    #[test]
+    fn validate_upload_rejects_empty() {
+        assert!(validate_upload(&[], "image/png").is_err());
+    }
+
+    #[test]
+    fn validate_upload_rejects_over_byte_limit() {
+        let oversized = vec![0xFFu8; MAX_IMAGE_BYTES + 1];
+        let err = validate_upload(&oversized, "image/jpeg").unwrap_err();
+        assert!(err.contains("MB"));
+    }
+
+    #[test]
+    fn validate_upload_accepts_a_real_small_png() {
+        assert_eq!(validate_upload(&tiny_png(), "image/png").unwrap(), ImageMimeType::Png);
+    }
+
+    #[test]
+    fn validate_upload_rejects_a_real_decompression_bomb() {
+        // GitHub issue #6, reproduced for real rather than asserted in the
+        // abstract: an 8000x8000 solid-color PNG decodes to 64 megapixels
+        // (over MAX_DECODED_PIXELS) but PNG's DEFLATE compression crushes
+        // a single flat color down to a few KB on disk -- exactly the
+        // small-file/huge-decode shape a decompression bomb has, built
+        // with the real encoder rather than hand-crafted bytes.
+        let bomb: ImageBuffer<Rgb<u8>, _> = ImageBuffer::from_fn(8000, 8000, |_, _| Rgb([10, 10, 10]));
+        let mut buf = Vec::new();
+        bomb.write_to(&mut std::io::Cursor::new(&mut buf), ImageFormat::Png).unwrap();
+
+        // Raw pixel data for this image would be 8000*8000*3 = 192MB; the
+        // compressed file is a small fraction of that (still under
+        // MAX_IMAGE_BYTES, so it's the dimension check, not the byte-size
+        // check, that has to catch it) -- that gap is the actual bomb shape.
+        assert!(buf.len() < MAX_IMAGE_BYTES, "must pass the byte-size check to prove the dimension check is what catches it");
+
+        let err = validate_upload(&buf, "image/png").unwrap_err();
+        assert!(err.contains("megapixel"), "expected a megapixel-limit rejection, got: {err}");
+    }
+}

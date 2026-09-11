@@ -245,3 +245,187 @@ pub fn match_schemes(profile: &UserProfile) -> Vec<SchemeMatch> {
         })
         .collect()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Matches nothing by construction -- every test below starts here and
+    /// flips only the fields relevant to the one scheme under test, so a
+    /// match can only be attributed to the field actually being tested.
+    fn base_profile() -> UserProfile {
+        UserProfile {
+            age: 30,
+            annual_income: 1_000_000,
+            occupation: "salaried".into(),
+            state: "Goa".into(),
+            gender: "male".into(),
+            has_disability: false,
+            disability_percentage: None,
+            land_holding_acres: None,
+            family_size: 4,
+            is_widow: false,
+            category: "general".into(),
+            is_student: false,
+            has_bank_account: true,
+            has_kutcha_house: false,
+            is_pregnant_or_lactating_first_child: false,
+            girl_child_age: None,
+        }
+    }
+
+    fn matched_ids(p: &UserProfile) -> Vec<&'static str> {
+        match_schemes(p).into_iter().map(|m| m.id).collect()
+    }
+
+    #[test]
+    fn base_profile_matches_nothing() {
+        assert_eq!(matched_ids(&base_profile()), Vec::<&str>::new());
+    }
+
+    #[test]
+    fn pm_kisan_requires_farming_occupation_and_land_holding() {
+        let mut p = base_profile();
+        p.occupation = "farmer".into();
+        p.land_holding_acres = Some(2.0);
+        assert!(matched_ids(&p).contains(&"pm-kisan"));
+
+        // boundary: the rule is `> 0.0`, not `>= 0.0`
+        p.land_holding_acres = Some(0.0);
+        assert!(!matched_ids(&p).contains(&"pm-kisan"));
+    }
+
+    #[test]
+    fn ayushman_bharat_income_boundary_is_exclusive() {
+        let mut p = base_profile();
+        p.annual_income = 249_999;
+        assert!(matched_ids(&p).contains(&"ayushman-bharat"));
+
+        p.annual_income = 250_000; // rule is `< 250_000`
+        assert!(!matched_ids(&p).contains(&"ayushman-bharat"));
+    }
+
+    #[test]
+    fn pmjdy_matches_only_without_a_bank_account() {
+        let mut p = base_profile();
+        p.has_bank_account = false;
+        assert!(matched_ids(&p).contains(&"pmjdy"));
+
+        p.has_bank_account = true;
+        assert!(!matched_ids(&p).contains(&"pmjdy"));
+    }
+
+    #[test]
+    fn ignoaps_age_boundary_is_inclusive_at_60() {
+        let mut p = base_profile();
+        p.age = 60;
+        p.annual_income = 99_999;
+        assert!(matched_ids(&p).contains(&"nsap-ignoaps"));
+
+        p.age = 59;
+        assert!(!matched_ids(&p).contains(&"nsap-ignoaps"));
+    }
+
+    #[test]
+    fn ignwps_requires_widow_and_the_40_to_79_age_band() {
+        let mut p = base_profile();
+        p.is_widow = true;
+        p.annual_income = 99_999;
+        p.age = 40;
+        assert!(matched_ids(&p).contains(&"nsap-ignwps"));
+        p.age = 79;
+        assert!(matched_ids(&p).contains(&"nsap-ignwps"));
+
+        p.age = 39;
+        assert!(!matched_ids(&p).contains(&"nsap-ignwps"), "below the band");
+        p.age = 80;
+        assert!(!matched_ids(&p).contains(&"nsap-ignwps"), "above the band");
+
+        p.age = 50;
+        p.is_widow = false;
+        assert!(!matched_ids(&p).contains(&"nsap-ignwps"), "not a widow");
+    }
+
+    #[test]
+    fn igndps_requires_80_percent_disability_in_the_18_to_79_age_band() {
+        let mut p = base_profile();
+        p.has_disability = true;
+        p.disability_percentage = Some(80);
+        p.age = 40;
+        p.annual_income = 99_999;
+        assert!(matched_ids(&p).contains(&"nsap-igndps"));
+
+        // boundary: the rule is `>= 80`
+        p.disability_percentage = Some(79);
+        assert!(!matched_ids(&p).contains(&"nsap-igndps"));
+    }
+
+    #[test]
+    fn nsp_scholarship_requires_non_general_category_and_income_under_2_5l() {
+        let mut p = base_profile();
+        p.is_student = true;
+        p.category = "obc".into();
+        p.annual_income = 249_999;
+        assert!(matched_ids(&p).contains(&"nsp-scholarship"));
+
+        p.category = "general".into();
+        assert!(!matched_ids(&p).contains(&"nsp-scholarship"), "category must not be general");
+    }
+
+    #[test]
+    fn sukanya_samriddhi_daughter_age_boundary_is_exclusive_at_10() {
+        let mut p = base_profile();
+        p.girl_child_age = Some(9);
+        assert!(matched_ids(&p).contains(&"sukanya-samriddhi"));
+
+        p.girl_child_age = Some(10); // rule is `< 10`
+        assert!(!matched_ids(&p).contains(&"sukanya-samriddhi"));
+    }
+
+    #[test]
+    fn pmay_requires_kutcha_house_and_income_under_3l() {
+        let mut p = base_profile();
+        p.has_kutcha_house = true;
+        p.annual_income = 299_999;
+        assert!(matched_ids(&p).contains(&"pmay"));
+
+        p.annual_income = 300_000; // rule is `< 300_000`
+        assert!(!matched_ids(&p).contains(&"pmay"));
+    }
+
+    #[test]
+    fn pmmvy_requires_female_gender_not_just_the_pregnancy_flag() {
+        let mut p = base_profile();
+        p.gender = "female".into();
+        p.is_pregnant_or_lactating_first_child = true;
+        assert!(matched_ids(&p).contains(&"pmmvy"));
+
+        p.gender = "male".into();
+        assert!(!matched_ids(&p).contains(&"pmmvy"), "gender gates this rule, not just the flag");
+    }
+
+    #[test]
+    fn pm_sym_requires_unorganised_occupation_18_to_40_age_band_and_income_under_1_8l() {
+        let mut p = base_profile();
+        p.occupation = "laborer".into();
+        p.age = 40;
+        p.annual_income = 179_999;
+        assert!(matched_ids(&p).contains(&"pm-sym"));
+
+        p.age = 41; // rule is `<= 40`
+        assert!(!matched_ids(&p).contains(&"pm-sym"));
+    }
+
+    #[test]
+    fn multiple_independent_matches_dont_interfere_with_each_other() {
+        let mut p = base_profile();
+        p.occupation = "farmer".into();
+        p.land_holding_acres = Some(1.0);
+        p.has_bank_account = false;
+        p.annual_income = 50_000;
+        let ids = matched_ids(&p);
+        assert!(ids.contains(&"pm-kisan"));
+        assert!(ids.contains(&"pmjdy"));
+        assert!(ids.contains(&"ayushman-bharat"));
+    }
+}
