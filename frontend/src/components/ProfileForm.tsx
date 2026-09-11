@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import type { ExtractedFields, UserProfile } from "../lib/types";
+import { useLanguage } from "../lib/i18n/LanguageContext";
+
+const STORAGE_KEY = "labhsathi:profile";
 
 const DEFAULT_PROFILE: UserProfile = {
   age: 0,
@@ -23,18 +26,74 @@ const DEFAULT_PROFILE: UserProfile = {
   girl_child_age: null,
 };
 
+/** An explicit, obvious shortcut for trying the product without typing --
+ * a landholding farmer, deliberately (not just "farmer"), since PM-KISAN
+ * specifically requires land holding, not occupation alone (a correction
+ * from this session's product review). Matches several real schemes so
+ * the results screen has something to show. */
+const SAMPLE_PROFILE: UserProfile = {
+  age: 45,
+  annual_income: 80_000,
+  occupation: "farmer",
+  state: "Goa",
+  gender: "male",
+  has_disability: false,
+  disability_percentage: null,
+  land_holding_acres: 2.0,
+  family_size: 4,
+  is_widow: false,
+  category: "obc",
+  is_student: false,
+  has_bank_account: false,
+  has_kutcha_house: true,
+  is_pregnant_or_lactating_first_child: false,
+  girl_child_age: null,
+};
+
+function loadPersistedProfile(): UserProfile {
+  try {
+    const raw = sessionStorage.getItem(STORAGE_KEY);
+    if (raw) return { ...DEFAULT_PROFILE, ...JSON.parse(raw) };
+  } catch {
+    // corrupt/blocked storage -- fall through to defaults rather than crash
+  }
+  return DEFAULT_PROFILE;
+}
+
 interface ProfileFormProps {
   extractedFields: ExtractedFields | null;
+  /** Incremented by MainScreen each time "try a sample household" is
+   * clicked -- watched by reference-change, not truthiness, so the same
+   * sample can be requested more than once in one session. */
+  sampleTrigger: number;
   onSubmit: (profile: UserProfile) => void;
   submitting: boolean;
 }
 
-export function ProfileForm({ extractedFields, onSubmit, submitting }: ProfileFormProps) {
-  const [profile, setProfile] = useState<UserProfile>(DEFAULT_PROFILE);
+export function ProfileForm({ extractedFields, sampleTrigger, onSubmit, submitting }: ProfileFormProps) {
+  const { t } = useLanguage();
+  const [profile, setProfile] = useState<UserProfile>(loadPersistedProfile);
   // Fields the user has actually typed into -- auto-fill only ever writes
   // into fields NOT in this set, so a scan can never clobber what someone
   // already entered by hand, no matter the order the two happen in.
   const touched = useRef<Set<keyof UserProfile>>(new Set());
+  const lastSampleTrigger = useRef(sampleTrigger);
+
+  // Persisted to sessionStorage (not lifted to MainScreen/localStorage) --
+  // fixes a real bug from this session's product review: "Editing
+  // answers →" navigates away from "/" and back, which unmounts and
+  // remounts this component, silently discarding everything typed.
+  // sessionStorage survives that remount without needing a bigger state
+  // lift, and clears itself when the tab closes rather than persisting
+  // someone else's income figures indefinitely on a shared machine.
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
+    } catch {
+      // best-effort -- a failed write just means this session's answers
+      // don't survive a back-navigation, not worth surfacing to the user
+    }
+  }, [profile]);
 
   useEffect(() => {
     if (!extractedFields) return;
@@ -54,6 +113,16 @@ export function ProfileForm({ extractedFields, onSubmit, submitting }: ProfileFo
     });
   }, [extractedFields]);
 
+  // An explicit user action, not a background merge -- replaces the whole
+  // profile and clears "touched" so the sample isn't silently blocked by
+  // a stray earlier edit, unlike the scan auto-fill above.
+  useEffect(() => {
+    if (sampleTrigger === lastSampleTrigger.current) return;
+    lastSampleTrigger.current = sampleTrigger;
+    touched.current.clear();
+    setProfile(SAMPLE_PROFILE);
+  }, [sampleTrigger]);
+
   function set<K extends keyof UserProfile>(key: K, value: UserProfile[K]) {
     touched.current.add(key);
     setProfile((prev) => ({ ...prev, [key]: value }));
@@ -68,7 +137,7 @@ export function ProfileForm({ extractedFields, onSubmit, submitting }: ProfileFo
       className="rounded-[20px] border border-border bg-white p-7 shadow-[0_1px_2px_rgba(28,25,23,0.04),0_12px_32px_-12px_rgba(28,25,23,0.10)]"
     >
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-        <Field label="Age">
+        <Field label={t.form.age}>
           <input
             type="number"
             min={0}
@@ -79,7 +148,7 @@ export function ProfileForm({ extractedFields, onSubmit, submitting }: ProfileFo
             className={inputClass}
           />
         </Field>
-        <Field label="Annual household income (₹)">
+        <Field label={t.form.income}>
           <input
             type="number"
             min={0}
@@ -89,46 +158,43 @@ export function ProfileForm({ extractedFields, onSubmit, submitting }: ProfileFo
             className={inputClass}
           />
         </Field>
-        <Field label="Occupation">
+        <Field label={t.form.occupation}>
           <select
             value={profile.occupation}
             onChange={(e) => set("occupation", e.target.value)}
             className={inputClass}
           >
-            <option value="farmer">Farmer</option>
-            <option value="laborer">Laborer / unorganised worker</option>
-            <option value="self_employed">Self-employed</option>
-            <option value="salaried">Salaried</option>
-            <option value="unemployed">Unemployed</option>
-            <option value="student">Student</option>
-            <option value="homemaker">Homemaker</option>
-            <option value="retired">Retired</option>
+            {Object.entries(t.form.occupationOptions).map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
           </select>
         </Field>
-        <Field label="State">
+        <Field label={t.form.state}>
           <input
             type="text"
             required
-            placeholder="e.g. Goa"
+            placeholder={t.form.statePlaceholder}
             value={profile.state}
             onChange={(e) => set("state", e.target.value)}
             className={inputClass}
           />
         </Field>
-        <Field label="Category">
+        <Field label={t.form.category}>
           <select
             value={profile.category}
             onChange={(e) => set("category", e.target.value)}
             className={inputClass}
           >
-            <option value="general">General</option>
-            <option value="sc">SC</option>
-            <option value="st">ST</option>
-            <option value="obc">OBC</option>
-            <option value="minority">Minority</option>
+            {Object.entries(t.form.categoryOptions).map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
           </select>
         </Field>
-        <Field label="Family size">
+        <Field label={t.form.familySize}>
           <input
             type="number"
             min={1}
@@ -138,18 +204,20 @@ export function ProfileForm({ extractedFields, onSubmit, submitting }: ProfileFo
             className={inputClass}
           />
         </Field>
-        <Field label="Gender">
+        <Field label={t.form.gender}>
           <select
             value={profile.gender}
             onChange={(e) => set("gender", e.target.value)}
             className={inputClass}
           >
-            <option value="female">Female</option>
-            <option value="male">Male</option>
-            <option value="other">Other</option>
+            {Object.entries(t.form.genderOptions).map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
           </select>
         </Field>
-        <Field label="Land holding (acres, if any)">
+        <Field label={t.form.landHolding}>
           <input
             type="number"
             min={0}
@@ -159,7 +227,7 @@ export function ProfileForm({ extractedFields, onSubmit, submitting }: ProfileFo
             className={inputClass}
           />
         </Field>
-        <Field label="Daughter's age, if applicable">
+        <Field label={t.form.daughterAge}>
           <input
             type="number"
             min={0}
@@ -173,25 +241,25 @@ export function ProfileForm({ extractedFields, onSubmit, submitting }: ProfileFo
 
       <div className="mt-5 flex flex-wrap gap-2.5">
         <Pill
-          label="Has a certified disability"
+          label={t.form.pillDisability}
           checked={profile.has_disability}
           onChange={(v) => set("has_disability", v)}
         />
         <Pill
-          label="Lives in a kutcha house"
+          label={t.form.pillKutcha}
           checked={profile.has_kutcha_house}
           onChange={(v) => set("has_kutcha_house", v)}
         />
-        <Pill label="Currently a student" checked={profile.is_student} onChange={(v) => set("is_student", v)} />
+        <Pill label={t.form.pillStudent} checked={profile.is_student} onChange={(v) => set("is_student", v)} />
         <Pill
-          label="No bank account"
+          label={t.form.pillNoBankAccount}
           checked={!profile.has_bank_account}
           onChange={(v) => set("has_bank_account", !v)}
         />
-        <Pill label="Widow" checked={profile.is_widow} onChange={(v) => set("is_widow", v)} />
+        <Pill label={t.form.pillWidow} checked={profile.is_widow} onChange={(v) => set("is_widow", v)} />
         {profile.gender === "female" && (
           <Pill
-            label="Pregnant or lactating (first child)"
+            label={t.form.pillPregnant}
             checked={profile.is_pregnant_or_lactating_first_child}
             onChange={(v) => set("is_pregnant_or_lactating_first_child", v)}
           />
@@ -200,7 +268,7 @@ export function ProfileForm({ extractedFields, onSubmit, submitting }: ProfileFo
 
       {profile.has_disability && (
         <div className="mt-4 max-w-xs">
-          <Field label="Disability percentage">
+          <Field label={t.form.disabilityPercentage}>
             <input
               type="number"
               min={0}
@@ -220,7 +288,7 @@ export function ProfileForm({ extractedFields, onSubmit, submitting }: ProfileFo
         disabled={submitting}
         className="mt-7 flex w-full items-center justify-center gap-2 rounded-xl bg-ink px-4 py-4 text-[15px] font-semibold text-cream hover:bg-ink/90 disabled:opacity-60"
       >
-        {submitting ? "Finding your schemes…" : "Find my schemes"}
+        {submitting ? t.form.submitting : t.form.submit}
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#faf7f2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M5 12h14M13 5l7 7-7 7" />
         </svg>

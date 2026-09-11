@@ -1,6 +1,8 @@
 import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useDocumentJob } from "../hooks/useDocumentJob";
+import { useLanguage } from "../lib/i18n/LanguageContext";
+import type { translations } from "../lib/i18n/translations";
 import type { ExtractedFields } from "../lib/types";
 
 interface ScanPanelProps {
@@ -8,6 +10,7 @@ interface ScanPanelProps {
 }
 
 export function ScanPanel({ onExtracted }: ScanPanelProps) {
+  const { t } = useLanguage();
   const { state, scan } = useDocumentJob();
   const inputRef = useRef<HTMLInputElement>(null);
   // Guards against firing onExtracted again on every unrelated re-render
@@ -38,8 +41,8 @@ export function ScanPanel({ onExtracted }: ScanPanelProps) {
         <div className="flex items-center gap-3">
           <ScanIcon />
           <div>
-            <div className="text-sm font-semibold text-ink">Scan a document to auto-fill</div>
-            <StatusLine state={state} />
+            <div className="text-sm font-semibold text-ink">{t.scan.title}</div>
+            <StatusLine state={state} t={t} />
           </div>
         </div>
         {/* GitHub issue #3: "done" wasn't in this set, so after a
@@ -51,11 +54,11 @@ export function ScanPanel({ onExtracted }: ScanPanelProps) {
             onClick={() => inputRef.current?.click()}
             className="whitespace-nowrap rounded-[10px] bg-terracotta px-4 py-2.5 text-sm font-semibold text-white hover:bg-terracotta-hover"
           >
-            {state.phase === "done" ? "Scan another" : "Scan"}
+            {state.phase === "done" ? t.scan.buttonScanAnother : t.scan.buttonScan}
           </button>
         ) : (
           <div className="whitespace-nowrap rounded-[10px] bg-terracotta/40 px-4 py-2.5 text-sm font-semibold text-white">
-            Working&hellip;
+            {t.scan.buttonWorking}
           </div>
         )}
         <input
@@ -70,28 +73,30 @@ export function ScanPanel({ onExtracted }: ScanPanelProps) {
   );
 }
 
-function StatusLine({ state }: { state: ReturnType<typeof useDocumentJob>["state"] }) {
+function StatusLine({
+  state,
+  t,
+}: {
+  state: ReturnType<typeof useDocumentJob>["state"];
+  t: (typeof translations)["en"];
+}) {
   switch (state.phase) {
     case "idle":
       return (
         <div className="text-xs text-[#92400e]">
-          Processed once, then discarded &mdash; <Link to="/privacy" className="underline">see how &rarr;</Link>
+          {t.scan.hintIdle} &mdash; <Link to="/privacy" className="underline">{t.scan.hintIdleLink}</Link>
         </div>
       );
     case "uploading":
-      return <div className="text-xs text-[#92400e]">Uploading&hellip;</div>;
+      return <div className="text-xs text-[#92400e]">{t.scan.hintUploading}</div>;
     case "queued":
-      return <div className="text-xs text-[#92400e]">Job submitted, waiting for a worker&hellip;</div>;
+      return <div className="text-xs text-[#92400e]">{t.scan.hintQueued}</div>;
     case "processing":
-      return <div className="text-xs text-[#92400e]">Extracting fields&hellip;</div>;
+      return <div className="text-xs text-[#92400e]">{t.scan.hintProcessing}</div>;
     case "done":
-      return <div className="text-xs text-success-text">Fields filled in below.</div>;
+      return <div className="text-xs text-success-text">{t.scan.hintDone}</div>;
     case "degraded":
-      return (
-        <div className="text-xs text-error-text">
-          Auto-fill unavailable &mdash; fill the form manually below.
-        </div>
-      );
+      return <div className="text-xs text-error-text">{t.scan.hintDegraded}</div>;
   }
 }
 

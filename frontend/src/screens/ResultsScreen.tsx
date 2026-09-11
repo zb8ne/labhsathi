@@ -3,9 +3,11 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { GradientBar } from "../components/GradientBar";
 import { Nav } from "../components/Nav";
 import { SchemeCard } from "../components/SchemeCard";
+import { useLanguage, resultsHeading } from "../lib/i18n/LanguageContext";
 import type { MatchResponse } from "../lib/types";
 
 export function ResultsScreen() {
+  const { t } = useLanguage();
   const location = useLocation();
   const navigate = useNavigate();
   const result = location.state as MatchResponse | undefined;
@@ -27,7 +29,7 @@ export function ResultsScreen() {
         variant="light"
         right={
           <Link to="/" className="text-[13px] text-ink-tertiary">
-            Editing answers &rarr;
+            {t.nav.editingAnswers}
           </Link>
         }
       />
@@ -35,19 +37,13 @@ export function ResultsScreen() {
       <main className="flex-1 px-6 pb-14 pt-10 sm:px-14 sm:pt-12">
         <div className="mb-8">
           <h1 className="mb-2 font-serif text-3xl font-semibold sm:text-[34px]">
-            You may be eligible for {result.matched_count} scheme{result.matched_count === 1 ? "" : "s"}
+            {resultsHeading(t, result.matched_count)}
           </h1>
-          <p className="text-[15px] text-ink-secondary">
-            Based on what you told us — not a final determination. Each shows exactly why it matched and
-            what to bring.
-          </p>
+          <p className="text-[15px] text-ink-secondary">{t.results.subhead}</p>
         </div>
 
         {result.schemes.length === 0 ? (
-          <p className="text-ink-secondary">
-            No matches found among the schemes in this prototype&rsquo;s database — this isn&rsquo;t
-            exhaustive, it demonstrates the matching approach.
-          </p>
+          <p className="text-ink-secondary">{t.results.noMatches}</p>
         ) : (
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
             {result.schemes.map((scheme) => (
