@@ -44,6 +44,12 @@ spec:
               value: "1"
             - name: CLUSTER_ID
               value: "MkU3OEVBNTcwNTJENDM2Qk"
+            # Default is 1 -- a single partition means only one consumer in
+            # a group can ever be active regardless of replica count, so
+            # the ocr-worker HPA scaling pods alone wouldn't prove any
+            # throughput increase. See docs/engineering/reliability-proof.md.
+            - name: KAFKA_NUM_PARTITIONS
+              value: "3"
           ports:
             - containerPort: 9092
             - containerPort: 9093

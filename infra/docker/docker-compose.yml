@@ -20,6 +20,12 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+      # Default is 1 -- a single partition means only ONE consumer in
+      # a group can ever be active regardless of replica count, so
+      # scaling ocr-worker pods alone would prove nothing about
+      # throughput. 3 partitions lets up to 3 consumers actually run
+      # in parallel. See docs/engineering/reliability-proof.md.
+      KAFKA_NUM_PARTITIONS: "3"
     healthcheck:
       test: ["CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 || exit 1"]
       interval: 5s
