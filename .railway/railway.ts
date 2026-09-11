@@ -1,4 +1,4 @@
-import { defineRailway, project, service, redis, github, image, ref } from "railway/iac";
+import { defineRailway, project, service, redis, github, image, preserve } from "railway/iac";
 
 // Railway hosts the always-on public prototype link (per docs/adr/0001 and
 // the plan this was built from) -- decoupled from the local `kind` cluster,
@@ -36,9 +36,14 @@ export default defineRailway(() => {
 
   const apiGateway = service("api-gateway", {
     source: github("zb8ne/labhsathi", { rootDirectory: "/", branch: "main" }),
-    build: { dockerfilePath: "services/api-gateway/Dockerfile" },
+    build: { builder: "DOCKERFILE", dockerfilePath: "services/api-gateway/Dockerfile" },
     env: {
-      KAFKA_BROKERS: ref(kafkaDb, "RAILWAY_PRIVATE_DOMAIN") + ":9092",
+      // Raw Railway template syntax (resolved server-side), not the SDK's
+      // ref()/.env accessors -- those return a VariableValue object, and
+      // concatenating one into a larger string just calls .toString() on it
+      // ("[object Object]:9092"), confirmed the hard way against the live
+      // service after the first apply.
+      KAFKA_BROKERS: "${{kafka.RAILWAY_PRIVATE_DOMAIN}}:9092",
       REDIS_URL: redisDb.env.REDIS_URL,
       PORT: "8080",
     },
@@ -49,27 +54,30 @@ export default defineRailway(() => {
 
   const ocrWorker = service("ocr-worker", {
     source: github("zb8ne/labhsathi", { rootDirectory: "/", branch: "main" }),
-    build: { dockerfilePath: "services/ocr-worker/Dockerfile" },
+    build: { builder: "DOCKERFILE", dockerfilePath: "services/ocr-worker/Dockerfile" },
     env: {
-      KAFKA_BROKERS: ref(kafkaDb, "RAILWAY_PRIVATE_DOMAIN") + ":9092",
+      KAFKA_BROKERS: "${{kafka.RAILWAY_PRIVATE_DOMAIN}}:9092",
       REDIS_URL: redisDb.env.REDIS_URL,
       KAFKA_CONSUMER_GROUP: "ocr-worker-group",
-      // Set via `railway variable set ANTHROPIC_API_KEY=... --service ocr-worker`
-      // (or the Doppler->Railway sync if that gets wired up) -- never
-      // committed here. `preserve()` would be the IaC way to say "don't
-      // touch whatever's already set"; left unset here since it isn't set
-      // yet on first apply.
+      // Set out-of-band via `railway variable set ANTHROPIC_API_KEY --stdin
+      // --service ocr-worker` (piped from Doppler), never committed here.
+      // preserve() tells apply "leave whatever's already set alone" --
+      // without this, a plain omission here means "this key shouldn't
+      // exist" to the IaC diff, and apply deletes it. Confirmed the hard
+      // way: the first `config plan` after adding this file proposed
+      // deleting the real key that had just been set.
+      ANTHROPIC_API_KEY: preserve(),
     },
   });
 
   const frontend = service("frontend", {
     source: github("zb8ne/labhsathi", { rootDirectory: "/frontend", branch: "main" }),
-    build: { dockerfilePath: "Dockerfile" },
+    build: { builder: "DOCKERFILE", dockerfilePath: "Dockerfile" },
     env: {
       // Browser-facing -- must be the api-gateway's PUBLIC domain, not its
-      // private one. Filled in after api-gateway's first deploy assigns a
-      // domain (see README note below on the two-pass apply this needs).
-      API_BASE_URL: "https://" + ref(apiGateway, "RAILWAY_PUBLIC_DOMAIN") + "/api",
+      // private one. Raw Railway template syntax, same reasoning as
+      // KAFKA_BROKERS above.
+      API_BASE_URL: "https://${{api-gateway.RAILWAY_PUBLIC_DOMAIN}}/api",
     },
     // Same as api-gateway -- domain generated post-apply via
     // `railway domain --service frontend`.
