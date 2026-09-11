@@ -1,0 +1,197 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://labhsathi.gov.in/schemas/schemes.schema.json",
+  "title": "LabhSathi Schemes Dataset",
+  "description": "Schema for welfare scheme facts, metadata, and declarative eligibility criteria.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": [
+      "id",
+      "name",
+      "authority",
+      "benefit",
+      "documents",
+      "official_note",
+      "review_date",
+      "exclusions"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "pattern": "^[a-z0-9-]+$",
+        "description": "Unique URL-safe kebab-case scheme identifier"
+      },
+      "name": {
+        "type": "string",
+        "description": "Full official scheme name including acronym"
+      },
+      "authority": {
+        "type": "string",
+        "description": "Central ministry, department, or nodal agency implementing the scheme"
+      },
+      "benefit": {
+        "type": "string",
+        "description": "Concise summary of direct financial or in-kind assistance provided"
+      },
+      "category_domain": {
+        "type": "string",
+        "enum": [
+          "agriculture",
+          "healthcare",
+          "pensions",
+          "education",
+          "business",
+          "women_child",
+          "housing",
+          "employment",
+          "disability"
+        ],
+        "description": "Primary domain of the welfare scheme for grouping and filtering"
+      },
+      "documents": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "Official documents and proofs required to apply"
+      },
+      "official_note": {
+        "type": "string",
+        "description": "Important administrative details, SECC verification rules, or statutory conditions"
+      },
+      "source_url": {
+        "type": ["string", "null"],
+        "format": "uri",
+        "description": "Official portal URL or null if verified link is not yet established"
+      },
+      "review_date": {
+        "type": "string",
+        "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+        "description": "ISO-8601 date when the criteria was last reviewed against official gazette"
+      },
+      "exclusions": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "Explicit disqualifying conditions (e.g. income-tax payer, institutional owner)"
+      },
+      "criteria": {
+        "type": "object",
+        "description": "Declarative eligibility parameters evaluated against a UserProfile",
+        "additionalProperties": false,
+        "properties": {
+          "min_age": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 120,
+            "description": "Minimum applicant age (inclusive)"
+          },
+          "max_age": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 120,
+            "description": "Maximum applicant age (inclusive)"
+          },
+          "max_annual_income": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Maximum household annual income ceiling in INR (exclusive boundary, i.e. < cap)"
+          },
+          "min_annual_income": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Minimum household annual income in INR (inclusive)"
+          },
+          "occupations": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "farmer",
+                "laborer",
+                "unemployed",
+                "student",
+                "self_employed",
+                "salaried",
+                "homemaker",
+                "retired"
+              ]
+            },
+            "description": "Eligible occupations (matches if applicant occupation is in this list)"
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["general", "sc", "st", "obc", "minority"]
+            },
+            "description": "Eligible social categories (matches if applicant category is in this list)"
+          },
+          "gender": {
+            "type": "string",
+            "enum": ["male", "female", "other"],
+            "description": "Eligible gender (matches if applicant gender equals this)"
+          },
+          "requires_disability": {
+            "type": "boolean",
+            "description": "Whether certified disability is mandatory"
+          },
+          "min_disability_percentage": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Minimum certified disability percentage required (e.g. 40 or 80)"
+          },
+          "requires_land": {
+            "type": "boolean",
+            "description": "Whether owning agricultural land (>0 acres) is required"
+          },
+          "is_widow": {
+            "type": "boolean",
+            "description": "Whether applicant must be a widow"
+          },
+          "is_student": {
+            "type": "boolean",
+            "description": "Whether applicant must currently be an enrolled student"
+          },
+          "requires_no_bank_account": {
+            "type": "boolean",
+            "description": "Whether not having a bank account is required (e.g. for Jan Dhan)"
+          },
+          "requires_kutcha_house": {
+            "type": "boolean",
+            "description": "Whether living in a kutcha/temporary shelter is required"
+          },
+          "is_pregnant_or_lactating": {
+            "type": "boolean",
+            "description": "Whether applicant must be pregnant or lactating for their first child"
+          },
+          "max_daughter_age": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 25,
+            "description": "Maximum age of daughter for child schemes (exclusive boundary, i.e. < max)"
+          },
+          "area_type": {
+            "type": "string",
+            "enum": ["urban", "rural"],
+            "description": "Location type required (urban vs rural)"
+          },
+          "states": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Applicable states/UTs (empty or omitted means all India)"
+          },
+          "match_reason": {
+            "type": "string",
+            "description": "Plain-language sentence explaining why the applicant qualifies"
+          }
+        }
+      }
+    }
+  }
+}

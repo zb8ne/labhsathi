@@ -38,6 +38,7 @@ export interface SchemeMatch {
   documents: string[];
   official_note: string;
   source_url: string | null;
+  category_domain?: string | null;
 }
 
 export interface MatchResponse {
@@ -61,3 +62,16 @@ export interface JobStatusRecord {
   fields: ExtractedFields | null;
   error: string | null;
 }
+
+export const CATEGORY_LABELS: Record<string, string> = {
+  agriculture: "Agriculture & Farmers",
+  healthcare: "Health & Wellness",
+  pensions: "Pensions & Social Security",
+  education: "Education & Scholarships",
+  business: "Business & Artisans",
+  housing: "Housing & Shelter",
+  women_and_child: "Women & Child",
+  employment: "Employment & Livelihood",
+  disability: "Disability Support",
+  financial_inclusion: "Financial Inclusion",
+};

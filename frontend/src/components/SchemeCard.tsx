@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { SchemeMatch } from "../lib/types";
+import { CATEGORY_LABELS } from "../lib/types";
 import { useLanguage } from "../lib/i18n/LanguageContext";
 import { localizeScheme } from "../lib/i18n/schemeTranslations";
 
@@ -65,8 +66,15 @@ export function SchemeCard({ scheme }: { scheme: SchemeMatch }) {
           below sm; the badge itself is also allowed to wrap once stacked. */}
       <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
         <div>
-          <div className="mb-1.5 text-[11px] font-bold uppercase tracking-wide text-terracotta dark:text-amber-orange">
-            {localized.authority}
+          <div className="mb-1.5 flex flex-wrap items-center gap-2">
+            <span className="text-[11px] font-bold uppercase tracking-wide text-terracotta dark:text-amber-orange">
+              {localized.authority}
+            </span>
+            {scheme.category_domain && (
+              <span className="rounded-full border border-border bg-input-bg px-2 py-0.5 text-[10px] font-semibold text-ink-secondary dark:border-dark-border dark:bg-dark-bg dark:text-dark-secondary">
+                {CATEGORY_LABELS[scheme.category_domain] ?? scheme.category_domain}
+              </span>
+            )}
           </div>
           <div className="font-serif text-lg font-semibold">{localized.name}</div>
         </div>
