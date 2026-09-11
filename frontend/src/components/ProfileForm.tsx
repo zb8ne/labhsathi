@@ -14,7 +14,10 @@ const DEFAULT_PROFILE: UserProfile = {
   is_widow: false,
   category: "general",
   is_student: false,
-  has_bank_account: false,
+  // Defaults to true so the "No bank account" pill starts unchecked --
+  // GitHub issue #8: defaulting to false pre-asserted "you have no bank
+  // account" on behalf of every visitor before they'd said anything.
+  has_bank_account: true,
   has_kutcha_house: false,
   is_pregnant_or_lactating_first_child: false,
   girl_child_age: null,
@@ -135,6 +138,37 @@ export function ProfileForm({ extractedFields, onSubmit, submitting }: ProfileFo
             className={inputClass}
           />
         </Field>
+        <Field label="Gender">
+          <select
+            value={profile.gender}
+            onChange={(e) => set("gender", e.target.value)}
+            className={inputClass}
+          >
+            <option value="female">Female</option>
+            <option value="male">Male</option>
+            <option value="other">Other</option>
+          </select>
+        </Field>
+        <Field label="Land holding (acres, if any)">
+          <input
+            type="number"
+            min={0}
+            step={0.1}
+            value={profile.land_holding_acres ?? ""}
+            onChange={(e) => set("land_holding_acres", e.target.value === "" ? null : Number(e.target.value))}
+            className={inputClass}
+          />
+        </Field>
+        <Field label="Daughter's age, if applicable">
+          <input
+            type="number"
+            min={0}
+            max={25}
+            value={profile.girl_child_age ?? ""}
+            onChange={(e) => set("girl_child_age", e.target.value === "" ? null : Number(e.target.value))}
+            className={inputClass}
+          />
+        </Field>
       </div>
 
       <div className="mt-5 flex flex-wrap gap-2.5">
@@ -155,7 +189,31 @@ export function ProfileForm({ extractedFields, onSubmit, submitting }: ProfileFo
           onChange={(v) => set("has_bank_account", !v)}
         />
         <Pill label="Widow" checked={profile.is_widow} onChange={(v) => set("is_widow", v)} />
+        {profile.gender === "female" && (
+          <Pill
+            label="Pregnant or lactating (first child)"
+            checked={profile.is_pregnant_or_lactating_first_child}
+            onChange={(v) => set("is_pregnant_or_lactating_first_child", v)}
+          />
+        )}
       </div>
+
+      {profile.has_disability && (
+        <div className="mt-4 max-w-xs">
+          <Field label="Disability percentage">
+            <input
+              type="number"
+              min={0}
+              max={100}
+              value={profile.disability_percentage ?? ""}
+              onChange={(e) =>
+                set("disability_percentage", e.target.value === "" ? null : Number(e.target.value))
+              }
+              className={inputClass}
+            />
+          </Field>
+        </div>
+      )}
 
       <button
         type="submit"

@@ -110,6 +110,21 @@ const SCHEMES: &[Scheme] = &[
         },
     },
     Scheme {
+        id: "nsap-ignwps",
+        name: "National Widow Pension (IGNWPS)",
+        authority: "Ministry of Rural Development (NSAP)",
+        benefit: "Monthly pension (₹300+, state top-ups vary)",
+        documents: &["Aadhaar card", "Age proof", "Husband's death certificate", "BPL / income certificate", "Bank passbook"],
+        official_note: "Covers widows aged 40-79 in most states; some states transition beneficiaries to IGNOAPS at 60 instead -- check your state's rule.",
+        rule: |p| {
+            if p.is_widow && p.age >= 40 && p.age <= 79 && p.annual_income < 100_000 {
+                Some("You reported being a widow in the 40-79 age band with income below the BPL-linked threshold this scheme targets.".into())
+            } else {
+                None
+            }
+        },
+    },
+    Scheme {
         id: "nsap-igndps",
         name: "National Disability Pension (IGNDPS)",
         authority: "Ministry of Rural Development (NSAP)",
