@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "labhsathi.name" (dict "service" "frontend" "kind" "deployment") }}
+  namespace: {{ .Values.namespace }}
+  labels: {{- include "labhsathi.labels" (dict "service" "frontend") | nindent 4 }}
+spec:
+  replicas: {{ .Values.frontend.replicas }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: frontend
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: "{{ .Values.image.repository }}/frontend:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            # Browser-facing -- must be reachable from outside the cluster,
+            # not the in-cluster service DNS name. Override per environment
+            # (e.g. via --set frontend.apiBaseUrl=...) once the api-gateway
+            # ingress/NodePort URL for this deploy is known.
+            - name: API_BASE_URL
+              value: "{{ .Values.frontend.apiBaseUrl | default "/api" }}"
+          ports:
+            - containerPort: {{ .Values.frontend.port }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "labhsathi.name" (dict "service" "frontend" "kind" "svc") }}
+  namespace: {{ .Values.namespace }}
+spec:
+  type: {{ .Values.frontend.service.type }}
+  selector:
+    app.kubernetes.io/component: frontend
+  ports:
+    - port: {{ .Values.frontend.port }}
+      targetPort: {{ .Values.frontend.port }}

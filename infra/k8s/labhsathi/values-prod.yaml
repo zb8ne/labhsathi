@@ -1,0 +1,24 @@
+# PROD INTENT -- documents the production topology this chart is designed
+# to grow into. NOT deployed as part of this hackathon build, and not
+# fully wired: the actual Kafka template in this chart stays a single-node
+# Deployment regardless of `kafka.brokers` here (a correct 3-node KRaft
+# quorum needs a StatefulSet + persistent volumes + proper broker
+# discovery, which is disproportionate effort for a chart that will never
+# actually be deployed this way for the hackathon). ocrWorker.autoscaling
+# .strategy: keda IS fully wired -- see templates/ocr-worker-scaledobject.yaml
+# -- because that's the one production-shaped piece cheap enough to build
+# for real. See docs/adr/0001 for the full reasoning.
+
+kafka:
+  brokers: 3 # NOT WIRED -- see note above
+
+ocrWorker:
+  autoscaling:
+    strategy: keda # fully wired -- requires the KEDA operator installed in-cluster
+    minReplicas: 2
+    maxReplicas: 20
+
+ingress:
+  enabled: true
+  host: labhsathi.example.com
+  tls: true

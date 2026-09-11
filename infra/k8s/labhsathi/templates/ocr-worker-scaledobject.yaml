@@ -1,0 +1,23 @@
+{{- if eq .Values.ocrWorker.autoscaling.strategy "keda" }}
+# Production path -- scales on actual Kafka consumer lag on
+# document.jobs.submitted, the real signal for this service's load, not a
+# CPU proxy. Requires the KEDA operator installed in-cluster; not used by
+# the hackathon-scope default (autoscaling.strategy: hpa in values.yaml).
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: {{ include "labhsathi.name" (dict "service" "ocr-worker" "kind" "scaledobject") }}
+  namespace: {{ .Values.namespace }}
+spec:
+  scaleTargetRef:
+    name: {{ include "labhsathi.name" (dict "service" "ocr-worker" "kind" "deployment") }}
+  minReplicaCount: {{ .Values.ocrWorker.autoscaling.minReplicas }}
+  maxReplicaCount: {{ .Values.ocrWorker.autoscaling.maxReplicas }}
+  triggers:
+    - type: kafka
+      metadata:
+        bootstrapServers: "{{ include "labhsathi.name" (dict "service" "kafka" "kind" "svc") }}:9092"
+        consumerGroup: ocr-worker-group
+        topic: document.jobs.submitted
+        lagThreshold: "5"
+{{- end }}

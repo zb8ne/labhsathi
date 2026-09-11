@@ -1,0 +1,15 @@
+# Overlay for the local kind demo (docs/adr/0001, 3-hour timebox). NodePort
+# over Ingress on purpose -- installing ingress-nginx is one more moving
+# part not worth adding inside that window. `helm install -f
+# values-kind.yaml` on top of the defaults in values.yaml.
+
+apiGateway:
+  service:
+    type: NodePort
+
+frontend:
+  service:
+    type: NodePort
+
+ingress:
+  enabled: false

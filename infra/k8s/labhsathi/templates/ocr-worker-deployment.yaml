@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "labhsathi.name" (dict "service" "ocr-worker" "kind" "deployment") }}
+  namespace: {{ .Values.namespace }}
+  labels: {{- include "labhsathi.labels" (dict "service" "ocr-worker") | nindent 4 }}
+spec:
+  # HPA/KEDA own replica count once either autoscaler is active; this is
+  # just the starting point.
+  replicas: {{ .Values.ocrWorker.replicas }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: ocr-worker
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: ocr-worker
+    spec:
+      containers:
+        - name: ocr-worker
+          image: "{{ .Values.image.repository }}/ocr-worker:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: KAFKA_BROKERS
+              value: "{{ include "labhsathi.name" (dict "service" "kafka" "kind" "svc") }}:9092"
+            - name: REDIS_URL
+              value: "redis://{{ include "labhsathi.name" (dict "service" "redis" "kind" "svc") }}:6379"
+            - name: KAFKA_CONSUMER_GROUP
+              value: "ocr-worker-group"
+          envFrom:
+            # ANTHROPIC_API_KEY comes from a Secret that must already exist
+            # in-namespace -- this chart never templates a Secret from
+            # values, so plaintext can't land in a checked-in manifest.
+            - secretRef:
+                name: {{ .Values.secretName }}
+          resources:
+            requests:
+              cpu: 100m
+            limits:
+              cpu: 500m

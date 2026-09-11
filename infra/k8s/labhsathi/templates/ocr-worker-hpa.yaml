@@ -1,0 +1,27 @@
+{{- if eq .Values.ocrWorker.autoscaling.strategy "hpa" }}
+# CPU-based, hackathon-scope default -- works with stock k8s, no operator
+# to install. Honest limit (see docs/adr/0001): ocr-worker's real
+# bottleneck is an outbound HTTP call to the vision API, which is I/O-bound
+# and barely moves CPU. This scales on a proxy signal, not the real one.
+# The KEDA path below (autoscaling.strategy: keda) scales on actual Kafka
+# consumer lag instead -- the documented production upgrade.
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "labhsathi.name" (dict "service" "ocr-worker" "kind" "hpa") }}
+  namespace: {{ .Values.namespace }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "labhsathi.name" (dict "service" "ocr-worker" "kind" "deployment") }}
+  minReplicas: {{ .Values.ocrWorker.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.ocrWorker.autoscaling.maxReplicas }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.ocrWorker.autoscaling.targetCPUUtilizationPercentage }}
+{{- end }}

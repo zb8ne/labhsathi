@@ -1,0 +1,47 @@
+# Hackathon-scope defaults. This IS the kind-demo configuration -- a bare
+# `helm install` works with no override file. See values-prod.yaml for the
+# documented (not wired here) production intent, and docs/adr/0001 for why.
+
+namespace: labhsathi
+
+image:
+  repository: labhsathi
+  tag: latest
+  pullPolicy: IfNotPresent
+
+secretName: labhsathi-anthropic-secret # must already exist in-namespace; this chart never templates a Secret from values (see README below)
+
+apiGateway:
+  replicas: 1
+  port: 8080
+  service:
+    type: ClusterIP
+
+ocrWorker:
+  replicas: 1
+  autoscaling:
+    # "hpa" (default, CPU-based, needs nothing beyond stock k8s) or "keda"
+    # (consumer-lag-based, the documented production upgrade -- see
+    # values-prod.yaml and docs/adr/0001. ocr-worker's real bottleneck is
+    # an outbound HTTP call, not CPU; CPU is an honestly-imperfect proxy.)
+    strategy: hpa
+    minReplicas: 1
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 70
+
+frontend:
+  replicas: 1
+  port: 80
+  service:
+    type: NodePort # kind has no cloud LoadBalancer; port-forward or NodePort is the pragmatic default here
+
+kafka:
+  image: apache/kafka:3.8.0
+  brokers: 1 # single-broker KRaft, hackathon scope -- see values-prod.yaml
+
+redis:
+  image: redis:7-alpine
+
+ingress:
+  enabled: false # see values-kind.yaml / values-prod.yaml
+  host: labhsathi.local
