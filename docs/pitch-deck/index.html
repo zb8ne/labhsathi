@@ -268,7 +268,7 @@
         Know what<br /><em>you're entitled to.</em>
       </h1>
       <p style="font-size: 16px; color: var(--ink-2); max-width: 56ch; margin-top: 20px; line-height: 1.6;">
-        A welfare-scheme eligibility matcher for India's central government schemes —
+        A welfare-scheme eligibility matcher for India's central government schemes:
         answer a few questions or scan a document, and get back exactly which
         schemes you're worth checking against, and what to bring.
       </p>
@@ -289,19 +289,19 @@
       <div class="grid2" style="margin-top: 34px;">
         <div class="card">
           <h3>Scattered across ministries</h3>
-          <p>PM-KISAN sits with Agriculture, PM-JAY with the National Health Authority, PMMVY with Women & Child Development — each on its own portal, its own eligibility PDF, its own document list.</p>
+          <p>PM-KISAN sits with Agriculture, PM-JAY with the National Health Authority, PMMVY with Women & Child Development, each on its own portal, its own eligibility PDF, its own document list.</p>
         </div>
         <div class="card">
           <h3>Eligibility reads like legal text</h3>
-          <p>Income slabs, category carve-outs, SECC 2011 criteria, state-specific top-ups — a household usually has to already know a scheme exists before it can check whether it qualifies.</p>
+          <p>Income slabs, category carve-outs, SECC 2011 criteria, state-specific top-ups: a household usually has to already know a scheme exists before it can check whether it qualifies.</p>
         </div>
         <div class="card">
           <h3>The document, not the form, is the blocker</h3>
-          <p>Income certificates, land records, caste certificates — people show up without the right paperwork, or don't apply because they're not sure what's required until they're already in line.</p>
+          <p>Income certificates, land records, caste certificates: people show up without the right paperwork, or don't apply because they're not sure what's required until they're already in line.</p>
         </div>
         <div class="card">
           <h3>"Never store my documents"</h3>
-          <p>Any tool that asks someone to upload an ID or income certificate is asking for trust it hasn't earned — most don't say what happens to that image after the read.</p>
+          <p>Any tool that asks someone to upload an ID or income certificate is asking for trust it hasn't earned; most don't say what happens to that image after the read.</p>
         </div>
       </div>
     </div>
@@ -316,28 +316,28 @@
         <li>
           <span class="num">01</span>
           <div>
-            <h4>Tell us your situation — or scan a document</h4>
-            <p>Income, occupation, family, category, land holding. Or scan an income certificate / ID and let extraction fill in what it can read — the form stays live underneath either way.</p>
+            <h4>Tell us your situation, or scan a document</h4>
+            <p>Income, occupation, family, category, land holding. Or scan an income certificate / ID and let extraction fill in what it can read; the form stays live underneath either way.</p>
           </div>
         </li>
         <li>
           <span class="num">02</span>
           <div>
             <h4>Matched against real scheme rules</h4>
-            <p>PM-KISAN, Ayushman Bharat, PMJDY, NSAP pensions, NSP scholarships, Sukanya Samriddhi, PMAY, PMMVY, PM-SYM — 11 schemes today, each with its own eligibility rule, not a keyword match.</p>
+            <p>PM-KISAN, Ayushman Bharat, PMJDY, NSAP pensions, NSP scholarships, Sukanya Samriddhi, PMAY, PMMVY, PM-SYM: 43 schemes today, each with its own eligibility rule, not a keyword match.</p>
           </div>
         </li>
         <li>
           <span class="num">03</span>
           <div>
             <h4>A document checklist, and an honest badge</h4>
-            <p>Every match says <em style="font-style:normal; color:var(--terracotta); font-weight:600;">"Worth checking,"</em> never "approved" — plus exactly why it matched, and what to bring. Verified links to the official government portal where we could actually confirm one exists.</p>
+            <p>Every match says <em style="font-style:normal; color:var(--terracotta); font-weight:600;">"Worth checking,"</em> never "approved", plus exactly why it matched, and what to bring. Verified links to the official government portal where we could actually confirm one exists.</p>
           </div>
         </li>
       </ul>
       <div class="tagchips">
         <span>English + हिन्दी</span>
-        <span>11 schemes, rule-based</span>
+        <span>43 schemes, Postgres-backed</span>
         <span>Manual form always available</span>
         <span>Sample household shortcut</span>
       </div>
@@ -364,7 +364,11 @@
       </div>
       <div class="sidecar">
         <div class="node">Redis</div>
-        <span>ephemeral handoff cache only — <code>--save ""</code>, two keys, two TTLs, never a datastore</span>
+        <span>ephemeral handoff cache only: <code>--save ""</code>, two keys, two TTLs, never a datastore</span>
+      </div>
+      <div class="sidecar">
+        <div class="node">catalog-service → Postgres</div>
+        <span>api-gateway calls this on every <code>/api/match</code> request; the scheme catalog is a real database behind its own internal API, not a file compiled into the binary</span>
       </div>
       <div class="schema">
         <span class="k">document.jobs.completed</span>
@@ -373,7 +377,7 @@
       </div>
       <p style="margin-top: 16px; font-size: 12.5px; color: var(--ink-3); max-width: 60ch;">
         The privacy guarantee is structural: the event schema has no <code>Vec&lt;u8&gt;</code>
-        and no free-form JSON, so an image can't leak into a log line or a queue message —
+        and no free-form JSON, so an image can't leak into a log line or a queue message,
         not because the code remembers to delete it, but because there's nowhere in the
         type for it to go.
       </p>
@@ -381,7 +385,7 @@
         Deployment topology mirrors this split: a Helm chart puts each piece in its own
         Deployment (namespace <code>labhsathi</code>), with ocr-worker behind an HPA that
         watches CPU by default and a documented KEDA/consumer-lag upgrade path for
-        production — verified live on a local <code>kind</code> cluster, not just written.
+        production; verified live on a local <code>kind</code> cluster, not just written.
       </p>
     </div>
   </section>
@@ -392,23 +396,23 @@
       <div class="eyebrow"><span class="n">04</span> Feasibility, scalability &amp; impact</div>
       <h2 style="font-size: clamp(26px, 4vw, 38px); font-weight: 600;">Every line below was actually run this build, not asserted.</h2>
       <div class="metric-grid">
-        <div class="metric"><div class="v">30 / 30</div><div class="l">Rust unit tests passing — eligibility boundaries, event schema, upload validation</div></div>
+        <div class="metric"><div class="v">43 / 43</div><div class="l">Rust unit tests passing: eligibility boundaries, event schema, upload validation, offset ordering</div></div>
         <div class="metric"><div class="v">1 → 2</div><div class="l">ocr-worker replicas, HPA-scaled live under real vision-API load in a local Kubernetes cluster</div></div>
         <div class="metric"><div class="v">3</div><div class="l">deploy targets working: Railway (public, always-on), Docker Compose, kind + Helm</div></div>
-        <div class="metric"><div class="v">6 / 11</div><div class="l">scheme citation links live-verified against the real government portal before being added</div></div>
-        <div class="metric"><div class="v">0</div><div class="l">plaintext secrets in the repo — Doppler-managed everywhere, Kubernetes Secrets referenced by name only</div></div>
-        <div class="metric"><div class="v">2</div><div class="l">languages fully wired end to end — English and Hindi, including form labels and scheme data</div></div>
+        <div class="metric"><div class="v">43 / 43</div><div class="l">schemes carrying a cited official source_url in the Postgres-backed catalog</div></div>
+        <div class="metric"><div class="v">0</div><div class="l">plaintext secrets in the repo: Doppler-managed everywhere, Kubernetes Secrets referenced by name only</div></div>
+        <div class="metric"><div class="v">2</div><div class="l">languages fully wired end to end: English and Hindi, including form labels and scheme data</div></div>
       </div>
       <p style="margin-top: 24px; font-size: 13.5px; color: var(--ink-2); max-width: 62ch; line-height: 1.6;">
         The scale story is the point of the architecture, not a slide filler: OCR is the
-        one genuinely expensive, spiky part of this product — a real vision-API call per
-        document — and it's the one part built to scale independently of everything else,
+        one genuinely expensive, spiky part of this product (a real vision-API call per
+        document), and it's the one part built to scale independently of everything else,
         instead of being a blocking step inside the same request that serves the rest of
         the app.
       </p>
       <div class="honest">
         <strong style="color: var(--ink);">Scope, stated plainly:</strong> eligibility rules are simplified approximations
-        of real scheme criteria, built for this prototype — every result reads
+        of real scheme criteria, built for this prototype: every result reads
         "worth checking," and the document checklist points to the official
         source when we could confirm a live one. Not a substitute for the
         actual notification.

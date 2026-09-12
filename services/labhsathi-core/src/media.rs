@@ -30,7 +30,7 @@ impl ImageMimeType {
 
 /// Browsers are inconsistent about what they report for a camera-roll photo:
 /// `image/jpg`, `application/octet-stream`, or `image/heic` from an iPhone
-/// are all common. Sniff the magic bytes instead of trusting the header —
+/// are all common. Sniff the magic bytes instead of trusting the header:
 /// the sniff is authoritative; `claimed` only sharpens the error message.
 pub fn detect_media_type(bytes: &[u8], claimed: &str) -> Result<ImageMimeType, String> {
     let sniffed = match bytes {

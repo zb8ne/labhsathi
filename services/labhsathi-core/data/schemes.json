@@ -22,7 +22,7 @@
     "criteria": {
       "occupations": ["farmer"],
       "requires_land": true,
-      "match_reason": "You reported farming as your occupation with land holdings — PM-KISAN provides direct income support to landholding farmer families."
+      "match_reason": "You reported farming as your occupation with land holdings: PM-KISAN provides direct income support to landholding farmer families."
     }
   },
   {
@@ -47,7 +47,7 @@
     "criteria": {
       "occupations": ["farmer"],
       "requires_land": true,
-      "match_reason": "You reported farming with land holdings — PMFBY provides low-premium insurance against unavoidable crop damage and climate risks."
+      "match_reason": "You reported farming with land holdings: PMFBY provides low-premium insurance against unavoidable crop damage and climate risks."
     }
   },
   {
@@ -71,7 +71,7 @@
     "criteria": {
       "occupations": ["farmer"],
       "requires_land": true,
-      "match_reason": "You reported farming as your occupation — Kisan Credit Card provides low-interest working capital for seeds, fertilizers, and farm equipment."
+      "match_reason": "You reported farming as your occupation: Kisan Credit Card provides low-interest working capital for seeds, fertilizers, and farm equipment."
     }
   },
   {
@@ -97,7 +97,7 @@
       "requires_land": true,
       "min_age": 18,
       "max_age": 40,
-      "match_reason": "You're a farmer in the 18–40 age band with land holdings — PM-KMY guarantees a ₹3,000 monthly old-age pension."
+      "match_reason": "You're a farmer in the 18–40 age band with land holdings: PM-KMY guarantees a ₹3,000 monthly old-age pension."
     }
   },
   {
@@ -121,7 +121,7 @@
     "criteria": {
       "occupations": ["farmer"],
       "requires_land": true,
-      "match_reason": "You reported farming on land holdings — PMKSY offers up to 55% government subsidy for installing drip and sprinkler systems."
+      "match_reason": "You reported farming on land holdings: PMKSY offers up to 55% government subsidy for installing drip and sprinkler systems."
     }
   },
   {
@@ -143,7 +143,7 @@
     "criteria": {
       "occupations": ["farmer"],
       "requires_land": true,
-      "match_reason": "You reported farming on land holdings — PKVY supports farmers transitioning to chemical-free organic farming with ₹50,000/ha subsidy."
+      "match_reason": "You reported farming on land holdings: PKVY supports farmers transitioning to chemical-free organic farming with ₹50,000/ha subsidy."
     }
   },
   {
@@ -157,7 +157,7 @@
       "Ration card / SECC household ID",
       "Income certificate"
     ],
-    "official_note": "Actual eligibility is based on SECC 2011 deprivation/occupational criteria, not income alone — verify your household on the official PM-JAY beneficiary portal.",
+    "official_note": "Actual eligibility is based on SECC 2011 deprivation/occupational criteria, not income alone; verify your household on the official PM-JAY beneficiary portal.",
     "source_url": "https://pmjay.gov.in",
     "review_date": "2026-09-12",
     "exclusions": [
@@ -166,7 +166,7 @@
     ],
     "criteria": {
       "max_annual_income": 250000,
-      "match_reason": "Your household income falls in the low-income band PM-JAY targets — worth checking your SECC beneficiary status."
+      "match_reason": "Your household income falls in the low-income band PM-JAY targets: worth checking your SECC beneficiary status."
     }
   },
   {
@@ -190,7 +190,7 @@
       "min_age": 18,
       "max_age": 70,
       "max_annual_income": 500000,
-      "match_reason": "You're in the 18–70 age group with income under ₹5 Lakh — PMSBY provides ₹2 Lakh accidental insurance for just ₹20 per year."
+      "match_reason": "You're in the 18–70 age group with income under ₹5 Lakh: PMSBY provides ₹2 Lakh accidental insurance for just ₹20 per year."
     }
   },
   {
@@ -214,7 +214,7 @@
       "min_age": 18,
       "max_age": 50,
       "max_annual_income": 500000,
-      "match_reason": "You're in the 18–50 age band with income under ₹5 Lakh — PMJJBY provides ₹2 Lakh life insurance protection for your family at ₹436/year."
+      "match_reason": "You're in the 18–50 age band with income under ₹5 Lakh: PMJJBY provides ₹2 Lakh life insurance protection for your family at ₹436/year."
     }
   },
   {
@@ -235,7 +235,7 @@
     ],
     "criteria": {
       "max_annual_income": 200000,
-      "match_reason": "Your household income falls within the low-income threshold — PMGKAY provides free monthly foodgrains through the Public Distribution System."
+      "match_reason": "Your household income falls within the low-income threshold: PMGKAY provides free monthly foodgrains through the Public Distribution System."
     }
   },
   {
@@ -259,7 +259,7 @@
     ],
     "criteria": {
       "max_annual_income": 150000,
-      "match_reason": "Your income is within the BPL-linked band — RAN provides up to ₹15 Lakh emergency treatment grants in government super-specialty hospitals."
+      "match_reason": "Your income is within the BPL-linked band: RAN provides up to ₹15 Lakh emergency treatment grants in government super-specialty hospitals."
     }
   },
   {
@@ -279,7 +279,7 @@
     "exclusions": [],
     "criteria": {
       "requires_no_bank_account": true,
-      "match_reason": "You reported not having a bank account — PM Jan Dhan Yojana gives you one with zero balance requirement plus insurance cover."
+      "match_reason": "You reported not having a bank account: PM Jan Dhan Yojana gives you one with zero balance requirement plus insurance cover."
     }
   },
   {
@@ -304,7 +304,7 @@
     "criteria": {
       "occupations": ["self_employed", "laborer"],
       "min_age": 18,
-      "match_reason": "You're self-employed or working in a skilled trade — PM Vishwakarma provides free toolkits (₹15,000), stipends, and collateral-free business loans at 5%."
+      "match_reason": "You're self-employed or working in a skilled trade: PM Vishwakarma provides free toolkits (₹15,000), stipends, and collateral-free business loans at 5%."
     }
   },
   {
@@ -326,7 +326,7 @@
     ],
     "criteria": {
       "occupations": ["self_employed", "laborer"],
-      "match_reason": "You reported working as self-employed or in the unorganised sector — PM SVANidhi offers collateral-free loans starting at ₹10,000 with 7% interest subsidy."
+      "match_reason": "You reported working as self-employed or in the unorganised sector: PM SVANidhi offers collateral-free loans starting at ₹10,000 with 7% interest subsidy."
     }
   },
   {
@@ -350,7 +350,7 @@
     "criteria": {
       "occupations": ["self_employed", "unemployed"],
       "min_age": 18,
-      "match_reason": "You're self-employed or looking to start a micro-enterprise — MUDRA offers collateral-free financing up to ₹10 Lakh without processing fees."
+      "match_reason": "You're self-employed or looking to start a micro-enterprise: MUDRA offers collateral-free financing up to ₹10 Lakh without processing fees."
     }
   },
   {
@@ -375,7 +375,7 @@
     "criteria": {
       "categories": ["sc", "st"],
       "min_age": 18,
-      "match_reason": "You're from an affirmative social category — Stand-Up India facilitates substantial commercial bank loans (₹10L–₹1Cr) for new enterprises."
+      "match_reason": "You're from an affirmative social category: Stand-Up India facilitates substantial commercial bank loans (₹10L–₹1Cr) for new enterprises."
     }
   },
   {
@@ -399,7 +399,7 @@
     "criteria": {
       "min_age": 18,
       "occupations": ["self_employed", "unemployed"],
-      "match_reason": "You're an adult seeking self-employment — PMEGP offers up to 35% government capital subsidy for establishing micro-enterprises."
+      "match_reason": "You're an adult seeking self-employment: PMEGP offers up to 35% government capital subsidy for establishing micro-enterprises."
     }
   },
   {
@@ -505,7 +505,7 @@
       "min_age": 18,
       "max_age": 40,
       "max_annual_income": 180000,
-      "match_reason": "You're in the 18–40 age band, working in the unorganised sector, within the income cap — this builds you a pension for later."
+      "match_reason": "You're in the 18–40 age band, working in the unorganised sector, within the income cap: this builds you a pension for later."
     }
   },
   {
@@ -529,7 +529,7 @@
       "min_age": 18,
       "max_age": 40,
       "max_annual_income": 500000,
-      "match_reason": "You're in the 18–40 age window with income under ₹5 Lakh — APY locks in a government-guaranteed lifetime monthly pension."
+      "match_reason": "You're in the 18–40 age window with income under ₹5 Lakh: APY locks in a government-guaranteed lifetime monthly pension."
     }
   },
   {
@@ -552,7 +552,7 @@
     ],
     "criteria": {
       "min_age": 60,
-      "match_reason": "You're 60+ — PMVVY provides an assured 7.4% regular pension payout backed by the central government."
+      "match_reason": "You're 60+: PMVVY provides an assured 7.4% regular pension payout backed by the central government."
     }
   },
   {
@@ -578,7 +578,7 @@
       "min_age": 18,
       "max_age": 40,
       "max_annual_income": 300000,
-      "match_reason": "You're self-employed in the 18–40 age bracket — this scheme guarantees a ₹3,000/month old-age pension for small business owners."
+      "match_reason": "You're self-employed in the 18–40 age bracket: this scheme guarantees a ₹3,000/month old-age pension for small business owners."
     }
   },
   {
@@ -601,7 +601,7 @@
     "criteria": {
       "gender": "female",
       "is_pregnant_or_lactating": true,
-      "match_reason": "You indicated a first pregnancy/lactation — PMMVY provides direct cash support tied to your checkups."
+      "match_reason": "You indicated a first pregnancy/lactation: PMMVY provides direct cash support tied to your checkups."
     }
   },
   {
@@ -623,7 +623,7 @@
     ],
     "criteria": {
       "max_daughter_age": 10,
-      "match_reason": "You have a daughter under 10 — this scheme locks in a government-backed high interest rate for her future."
+      "match_reason": "You have a daughter under 10: this scheme locks in a government-backed high interest rate for her future."
     }
   },
   {
@@ -646,7 +646,7 @@
     "criteria": {
       "gender": "female",
       "max_annual_income": 200000,
-      "match_reason": "You're an adult woman from a low-income household — Ujjwala provides a 100% free LPG connection, stove, and cylinder subsidy."
+      "match_reason": "You're an adult woman from a low-income household: Ujjwala provides a 100% free LPG connection, stove, and cylinder subsidy."
     }
   },
   {
@@ -666,7 +666,7 @@
     "criteria": {
       "gender": "female",
       "is_pregnant_or_lactating": true,
-      "match_reason": "You reported pregnancy/lactation — Poshan Abhiyaan provides free supplementary nutrition and health monitoring via your local Anganwadi."
+      "match_reason": "You reported pregnancy/lactation: Poshan Abhiyaan provides free supplementary nutrition and health monitoring via your local Anganwadi."
     }
   },
   {
@@ -689,12 +689,12 @@
     "criteria": {
       "max_daughter_age": 10,
       "max_annual_income": 150000,
-      "match_reason": "You have a daughter under 10 in a low-income household — Balika Samriddhi offers initial cash grants and recurring school scholarships."
+      "match_reason": "You have a daughter under 10 in a low-income household: Balika Samriddhi offers initial cash grants and recurring school scholarships."
     }
   },
   {
     "id": "nsp-scholarship",
-    "name": "National Scholarship Portal — Pre/Post-Matric Scholarship",
+    "name": "National Scholarship Portal: Pre/Post-Matric Scholarship",
     "authority": "Ministry of Social Justice & Empowerment / Ministry of Minority Affairs",
     "benefit": "Tuition fee reimbursement + maintenance allowance for students",
     "category_domain": "education",
@@ -705,7 +705,7 @@
       "Previous year mark sheet",
       "Bank passbook"
     ],
-    "official_note": "This entry bundles several category-specific NSP programs (SC/ST/OBC/Minority), each with its own income cap and exact benefit — check the specific scheme's cutoff on scholarships.gov.in.",
+    "official_note": "This entry bundles several category-specific NSP programs (SC/ST/OBC/Minority), each with its own income cap and exact benefit; check the specific scheme's cutoff on scholarships.gov.in.",
     "source_url": "https://scholarships.gov.in",
     "review_date": "2026-09-12",
     "exclusions": [
@@ -716,7 +716,7 @@
       "is_student": true,
       "categories": ["sc", "st", "obc", "minority"],
       "max_annual_income": 250000,
-      "match_reason": "You're a student from the OBC/SC/ST/Minority category with household income under ₹2.5L — several NSP scholarships target exactly this."
+      "match_reason": "You're a student from the OBC/SC/ST/Minority category with household income under ₹2.5L: several NSP scholarships target exactly this."
     }
   },
   {
@@ -742,7 +742,7 @@
       "is_student": true,
       "categories": ["sc", "st"],
       "max_annual_income": 250000,
-      "match_reason": "You're a student from the SC or ST community with family income under ₹2.5L — this scheme covers your full post-matric college tuition fees."
+      "match_reason": "You're a student from the SC or ST community with family income under ₹2.5L: this scheme covers your full post-matric college tuition fees."
     }
   },
   {
@@ -770,7 +770,7 @@
       "gender": "female",
       "categories": ["minority"],
       "max_annual_income": 200000,
-      "match_reason": "You're a female student from a minority community with income under ₹2L — this scholarship provides dedicated annual school support."
+      "match_reason": "You're a female student from a minority community with income under ₹2L: this scholarship provides dedicated annual school support."
     }
   },
   {
@@ -795,7 +795,7 @@
       "is_student": true,
       "categories": ["obc"],
       "max_annual_income": 250000,
-      "match_reason": "You're an OBC student with household income under ₹2.5L — PM-YASASVI provides high-value merit scholarships up to ₹1,25,000."
+      "match_reason": "You're an OBC student with household income under ₹2.5L: PM-YASASVI provides high-value merit scholarships up to ₹1,25,000."
     }
   },
   {
@@ -821,7 +821,7 @@
       "min_age": 12,
       "max_age": 18,
       "max_annual_income": 350000,
-      "match_reason": "You're a secondary school student with household income under ₹3.5L — NMMSS provides ₹12,000/year to prevent education dropout."
+      "match_reason": "You're a secondary school student with household income under ₹3.5L: NMMSS provides ₹12,000/year to prevent education dropout."
     }
   },
   {
@@ -847,12 +847,12 @@
       "min_age": 17,
       "max_age": 25,
       "max_annual_income": 450000,
-      "match_reason": "You're a college student with household income under ₹4.5L — this Central Sector scheme supports higher education degrees with up to ₹20,000/year."
+      "match_reason": "You're a college student with household income under ₹4.5L: this Central Sector scheme supports higher education degrees with up to ₹20,000/year."
     }
   },
   {
     "id": "pmay-urban",
-    "name": "Pradhan Mantri Awas Yojana — Urban (PMAY-U)",
+    "name": "Pradhan Mantri Awas Yojana: Urban (PMAY-U)",
     "authority": "Ministry of Housing & Urban Affairs",
     "benefit": "Financial assistance / interest subsidy to build or buy a pucca house in an urban area",
     "category_domain": "housing",
@@ -862,7 +862,7 @@
       "Land documents (if owned)",
       "Bank passbook"
     ],
-    "official_note": "Urban income slabs and application process differ from the rural counterpart (PMAY-G) — this entry covers urban areas only.",
+    "official_note": "Urban income slabs and application process differ from the rural counterpart (PMAY-G); this entry covers urban areas only.",
     "source_url": "https://pmaymis.gov.in",
     "review_date": "2026-09-12",
     "exclusions": [
@@ -873,12 +873,12 @@
       "requires_kutcha_house": true,
       "area_type": "urban",
       "max_annual_income": 300000,
-      "match_reason": "You reported living in a kutcha/temporary house in an urban area with income under ₹3L — PMAY-Urban funds pucca house construction for exactly this profile."
+      "match_reason": "You reported living in a kutcha/temporary house in an urban area with income under ₹3L: PMAY-Urban funds pucca house construction for exactly this profile."
     }
   },
   {
     "id": "pmay-rural",
-    "name": "Pradhan Mantri Awas Yojana — Gramin (PMAY-G)",
+    "name": "Pradhan Mantri Awas Yojana: Gramin (PMAY-G)",
     "authority": "Ministry of Rural Development",
     "benefit": "Financial assistance of ₹1.2 Lakh (plain areas) to ₹1.3 Lakh (hilly/difficult areas) to construct a permanent pucca house",
     "category_domain": "housing",
@@ -889,7 +889,7 @@
       "Bank passbook",
       "MGNREGA job card (if held)"
     ],
-    "official_note": "Rural income slabs and beneficiary-selection process (SECC-based) differ from the urban counterpart (PMAY-U) — this entry covers rural areas only.",
+    "official_note": "Rural income slabs and beneficiary-selection process (SECC-based) differ from the urban counterpart (PMAY-U); this entry covers rural areas only.",
     "source_url": "https://pmayg.nic.in",
     "review_date": "2026-09-12",
     "exclusions": [
@@ -900,12 +900,12 @@
       "requires_kutcha_house": true,
       "area_type": "rural",
       "max_annual_income": 300000,
-      "match_reason": "You reported living in a kutcha/temporary house in a rural area with income under ₹3L — PMAY-Gramin funds pucca house construction for exactly this profile."
+      "match_reason": "You reported living in a kutcha/temporary house in a rural area with income under ₹3L: PMAY-Gramin funds pucca house construction for exactly this profile."
     }
   },
   {
     "id": "sbm-gramin-ihhl",
-    "name": "Swachh Bharat Mission — Gramin (IHHL Subsidy)",
+    "name": "Swachh Bharat Mission: Gramin (IHHL Subsidy)",
     "authority": "Department of Drinking Water & Sanitation",
     "benefit": "Direct financial incentive of ₹12,000 for constructing an Individual Household Latrine (IHHL)",
     "category_domain": "housing",
@@ -923,7 +923,7 @@
     "criteria": {
       "requires_kutcha_house": true,
       "max_annual_income": 200000,
-      "match_reason": "You reported a kutcha house under ₹2L income — Swachh Bharat Mission provides ₹12,000 direct cash assistance to build a household toilet."
+      "match_reason": "You reported a kutcha house under ₹2L income: Swachh Bharat Mission provides ₹12,000 direct cash assistance to build a household toilet."
     }
   },
   {
@@ -946,7 +946,7 @@
     "criteria": {
       "min_age": 18,
       "occupations": ["laborer", "farmer", "unemployed"],
-      "match_reason": "You're an adult in a rural/informal occupation — MGNREGA legally guarantees 100 days of paid government wage employment every year."
+      "match_reason": "You're an adult in a rural/informal occupation: MGNREGA legally guarantees 100 days of paid government wage employment every year."
     }
   },
   {
@@ -968,7 +968,7 @@
       "min_age": 15,
       "max_age": 45,
       "occupations": ["unemployed", "student", "laborer", "self_employed"],
-      "match_reason": "You're in the 15–45 working age group — PMKVY offers 100% free certified skill development courses with placement support."
+      "match_reason": "You're in the 15–45 working age group: PMKVY offers 100% free certified skill development courses with placement support."
     }
   },
   {
@@ -993,7 +993,7 @@
       "min_age": 15,
       "max_age": 35,
       "max_annual_income": 200000,
-      "match_reason": "You're a rural youth aged 15–35 from a low-income household — DDU-GKY offers free residential skill training with guaranteed placement."
+      "match_reason": "You're a rural youth aged 15–35 from a low-income household: DDU-GKY offers free residential skill training with guaranteed placement."
     }
   },
   {
@@ -1018,7 +1018,7 @@
       "requires_disability": true,
       "min_disability_percentage": 40,
       "max_annual_income": 240000,
-      "match_reason": "You reported a certified disability of 40%+ with income under ₹2.4L — ADIP provides free high-quality assistive aids and mobility devices."
+      "match_reason": "You reported a certified disability of 40%+ with income under ₹2.4L: ADIP provides free high-quality assistive aids and mobility devices."
     }
   },
   {
@@ -1043,7 +1043,7 @@
       "requires_disability": true,
       "min_disability_percentage": 40,
       "min_age": 18,
-      "match_reason": "You're an adult with a certified disability — this scheme offers low-interest (5%) loans up to ₹50 Lakh to start or expand a business."
+      "match_reason": "You're an adult with a certified disability: this scheme offers low-interest (5%) loans up to ₹50 Lakh to start or expand a business."
     }
   }
 ]

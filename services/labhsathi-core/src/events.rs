@@ -4,7 +4,7 @@
 //! `document.jobs.completed`).
 //!
 //! The privacy boundary is structural, not conventional: `DocumentJobSubmitted`
-//! and `DocumentJobCompleted` have no field capable of holding image bytes —
+//! and `DocumentJobCompleted` have no field capable of holding image bytes:
 //! no `Vec<u8>`, no `serde_json::Value`, nothing unbounded. See
 //! docs/adr/0001-event-driven-document-pipeline.md for the honest limit on
 //! this claim (a `BoundedString` is not literally incapable of misuse, just
@@ -46,7 +46,7 @@ impl std::str::FromStr for JobId {
     }
 }
 
-/// Closed set — deliberately not a bare `String`. Mirrors the four types
+/// Closed set, deliberately not a bare `String`. Mirrors the four types
 /// the vision API accepts (see labhsathi-core::media).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
@@ -59,7 +59,7 @@ pub enum ImageMimeType {
 
 /// A short, length-capped string for the handful of extracted-field values
 /// that are still free text (state name, occupation, etc). Bounding the
-/// length doesn't make image bytes impossible to smuggle in — it makes it
+/// length doesn't make image bytes impossible to smuggle in; it makes it
 /// pointless: a few dozen bytes can't usefully carry a document image, so
 /// the type is a practical reinforcement of the schema-level guarantee, not
 /// the guarantee itself. The guarantee itself is the *absence* of any field
@@ -116,7 +116,7 @@ pub enum JobStatus {
     Failed,
 }
 
-/// The six fields ocr-worker is allowed to extract — identical in shape to
+/// The six fields ocr-worker is allowed to extract: identical in shape to
 /// the extraction schema sent to the vision API (see ocr-worker::extract).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ExtractedFields {
@@ -128,8 +128,8 @@ pub struct ExtractedFields {
     pub occupation: Option<BoundedString>,
 }
 
-/// Published by ocr-worker to `document.jobs.completed`. Always published —
-/// success or failure — so a job is never silently dropped. `fields` is
+/// Published by ocr-worker to `document.jobs.completed`. Always published,
+/// success or failure, so a job is never silently dropped. `fields` is
 /// `None` on `JobStatus::Failed`.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DocumentJobCompleted {

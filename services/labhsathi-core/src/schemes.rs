@@ -239,7 +239,7 @@ fn evaluate_criteria(f: &SchemeFacts, c: &SchemeCriteria, p: &UserProfile) -> Ru
             match p.land_holding_acres {
                 None => {
                     return needs_info(
-                        "You reported farming as your occupation — tell us your land holding to check eligibility.",
+                        "You reported farming as your occupation: tell us your land holding to check eligibility.",
                         "land_holding_acres",
                     );
                 }
@@ -262,7 +262,7 @@ fn evaluate_criteria(f: &SchemeFacts, c: &SchemeCriteria, p: &UserProfile) -> Ru
         match p.disability_percentage {
             None => {
                 return needs_info(
-                    "You reported a disability — tell us the certified percentage to check eligibility.",
+                    "You reported a disability: tell us the certified percentage to check eligibility.",
                     "disability_percentage",
                 );
             }
@@ -316,7 +316,7 @@ fn evaluate_criteria(f: &SchemeFacts, c: &SchemeCriteria, p: &UserProfile) -> Ru
 
 // NOTE ON ACCURACY: Eligibility rules below are simplified approximations of
 // real central-government scheme criteria for prototype/demo purposes. Exact
-// eligibility always depends on the latest official notification — the app
+// eligibility always depends on the latest official notification: the app
 // surfaces these schemes as *candidates worth checking*, not a final
 // determination. See README for sources used to build this table.
 fn evaluate_rule(f: &SchemeFacts, p: &UserProfile) -> RuleOutcome {
@@ -328,11 +328,11 @@ fn evaluate_rule(f: &SchemeFacts, p: &UserProfile) -> RuleOutcome {
             }
             match p.land_holding_acres {
                 None => needs_info(
-                    "You reported farming as your occupation — tell us your land holding to check PM-KISAN eligibility.",
+                    "You reported farming as your occupation: tell us your land holding to check PM-KISAN eligibility.",
                     "land_holding_acres",
                 ),
                 Some(acres) if acres > 0.0 => matched(
-                    "You reported farming as your occupation with land holdings — PM-KISAN provides direct income support to landholding farmer families.",
+                    "You reported farming as your occupation with land holdings: PM-KISAN provides direct income support to landholding farmer families.",
                 ),
                 Some(_) => not_matched("Reported land holding is zero."),
             }
@@ -340,7 +340,7 @@ fn evaluate_rule(f: &SchemeFacts, p: &UserProfile) -> RuleOutcome {
 
         "ayushman-bharat" => {
             if p.annual_income < 250_000 {
-                matched("Your household income falls in the low-income band PM-JAY targets — worth checking your SECC beneficiary status.")
+                matched("Your household income falls in the low-income band PM-JAY targets: worth checking your SECC beneficiary status.")
             } else {
                 not_matched("Household income is at or above the ₹2.5L band this prototype checks.")
             }
@@ -348,7 +348,7 @@ fn evaluate_rule(f: &SchemeFacts, p: &UserProfile) -> RuleOutcome {
 
         "pmjdy" => {
             if !p.has_bank_account {
-                matched("You reported not having a bank account — PM Jan Dhan Yojana gives you one with zero balance requirement plus insurance cover.")
+                matched("You reported not having a bank account: PM Jan Dhan Yojana gives you one with zero balance requirement plus insurance cover.")
             } else {
                 not_matched("Already reported having a bank account.")
             }
@@ -376,7 +376,7 @@ fn evaluate_rule(f: &SchemeFacts, p: &UserProfile) -> RuleOutcome {
             }
             match p.disability_percentage {
                 None => needs_info(
-                    "You reported a disability — tell us the certified percentage to check IGNDPS eligibility.",
+                    "You reported a disability: tell us the certified percentage to check IGNDPS eligibility.",
                     "disability_percentage",
                 ),
                 Some(pct) if pct >= 80 && p.age >= 18 && p.age <= 79 && p.annual_income < 100_000 => {
@@ -389,7 +389,7 @@ fn evaluate_rule(f: &SchemeFacts, p: &UserProfile) -> RuleOutcome {
         "nsp-scholarship" => {
             if p.is_student && p.category != "general" && p.annual_income < 250_000 {
                 matched(format!(
-                    "You're a student from the {} category with household income under ₹2.5L — several NSP scholarships target exactly this.",
+                    "You're a student from the {} category with household income under ₹2.5L: several NSP scholarships target exactly this.",
                     p.category.to_uppercase()
                 ))
             } else {
@@ -406,7 +406,7 @@ fn evaluate_rule(f: &SchemeFacts, p: &UserProfile) -> RuleOutcome {
             // household-member model (deferred, own increment) exists.
             match p.girl_child_age {
                 Some(age) if age < 10 => matched(
-                    "You have a daughter under 10 — this scheme locks in a government-backed high interest rate for her future.",
+                    "You have a daughter under 10: this scheme locks in a government-backed high interest rate for her future.",
                 ),
                 _ => not_matched("No daughter under 10 reported."),
             }
@@ -419,11 +419,11 @@ fn evaluate_rule(f: &SchemeFacts, p: &UserProfile) -> RuleOutcome {
             }
             match p.area_type.as_deref() {
                 None => needs_info(
-                    "You reported a kutcha house under ₹3L income — tell us whether that's in an urban or rural area to route you to the right PMAY program.",
+                    "You reported a kutcha house under ₹3L income: tell us whether that's in an urban or rural area to route you to the right PMAY program.",
                     "area_type",
                 ),
                 Some(a) if a == wants => matched(format!(
-                    "You reported living in a kutcha/temporary house in a {wants} area with income under ₹3L — {} funds pucca house construction for exactly this profile.",
+                    "You reported living in a kutcha/temporary house in a {wants} area with income under ₹3L: {} funds pucca house construction for exactly this profile.",
                     if wants == "urban" { "PMAY-Urban" } else { "PMAY-Gramin" }
                 )),
                 Some(_) => not_matched(format!("Reported area type doesn't match {wants}.")),
@@ -432,7 +432,7 @@ fn evaluate_rule(f: &SchemeFacts, p: &UserProfile) -> RuleOutcome {
 
         "pmmvy" => {
             if p.gender == "female" && p.is_pregnant_or_lactating_first_child {
-                matched("You indicated a first pregnancy/lactation — PMMVY provides direct cash support tied to your checkups.")
+                matched("You indicated a first pregnancy/lactation: PMMVY provides direct cash support tied to your checkups.")
             } else {
                 not_matched("Gender or first-pregnancy/lactation flag doesn't match.")
             }
@@ -441,7 +441,7 @@ fn evaluate_rule(f: &SchemeFacts, p: &UserProfile) -> RuleOutcome {
         "pm-sym" => {
             let unorganised = matches!(p.occupation.as_str(), "laborer" | "self_employed" | "homemaker");
             if unorganised && p.age >= 18 && p.age <= 40 && p.annual_income < 180_000 {
-                matched("You're in the 18–40 age band, working in the unorganised sector, within the income cap — this builds you a pension for later.")
+                matched("You're in the 18–40 age band, working in the unorganised sector, within the income cap: this builds you a pension for later.")
             } else {
                 not_matched("Occupation, age band, or income doesn't meet PM-SYM criteria.")
             }
