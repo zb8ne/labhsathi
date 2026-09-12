@@ -3,8 +3,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link
   href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap"
-  rel="stylesheet"
-/>
+  rel="stylesheet" />
 <style>
   :root {
     --bg: #faf7f2;
@@ -41,6 +40,7 @@
       --dot: #4a433d;
     }
   }
+
   :root[data-theme="dark"] {
     --bg: #1c1917;
     --ink: #faf7f2;
@@ -54,22 +54,41 @@
     --dot: #4a433d;
   }
 
-  * { box-sizing: border-box; }
+  * {
+    box-sizing: border-box;
+  }
+
   body {
     background: var(--bg);
     color: var(--ink);
     font-family: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
   }
-  h1, h2, h3 { font-family: "Newsreader", Georgia, serif; text-wrap: balance; margin: 0; }
-  em { font-style: italic; color: var(--terracotta); }
-  code, .mono { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+
+  h1,
+  h2,
+  h3 {
+    font-family: "Newsreader", Georgia, serif;
+    text-wrap: balance;
+    margin: 0;
+  }
+
+  em {
+    font-style: italic;
+    color: var(--terracotta);
+  }
+
+  code,
+  .mono {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+  }
 
   .deck {
     scroll-snap-type: y mandatory;
     overflow-y: auto;
     height: 100dvh;
   }
+
   .slide {
     scroll-snap-align: start;
     min-height: 100dvh;
@@ -80,8 +99,18 @@
     position: relative;
     border-bottom: 1px solid var(--border);
   }
-  .slide:first-child { justify-content: center; padding-top: clamp(28px, 6vw, 96px); }
-  .slide-inner { max-width: 980px; margin: 0 auto; width: 100%; }
+
+  .slide:first-child {
+    justify-content: center;
+    padding-top: clamp(28px, 6vw, 96px);
+  }
+
+  .slide-inner {
+    max-width: 980px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
   .eyebrow {
     font-size: 12px;
     font-weight: 600;
@@ -93,7 +122,12 @@
     align-items: center;
     gap: 8px;
   }
-  .eyebrow .n { font-family: "IBM Plex Mono"; color: var(--ink-3); font-weight: 500; }
+
+  .eyebrow .n {
+    font-family: "IBM Plex Mono";
+    color: var(--ink-3);
+    font-weight: 500;
+  }
 
   .bar {
     height: 5px;
@@ -114,14 +148,27 @@
     gap: 12px;
     z-index: 20;
   }
+
   .navdots button {
-    width: 9px; height: 9px; border-radius: 50%;
-    border: none; padding: 0; cursor: pointer;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    border: none;
+    padding: 0;
+    cursor: pointer;
     background: var(--dot);
     transition: background 0.2s, transform 0.2s;
   }
-  .navdots button.active { background: var(--dot-active); transform: scale(1.35); }
-  .navdots button:focus-visible { outline: 2px solid var(--terracotta); outline-offset: 3px; }
+
+  .navdots button.active {
+    background: var(--dot-active);
+    transform: scale(1.35);
+  }
+
+  .navdots button:focus-visible {
+    outline: 2px solid var(--terracotta);
+    outline-offset: 3px;
+  }
 
   .counter {
     position: fixed;
@@ -136,23 +183,53 @@
   }
 
   .progress {
-    position: fixed; top: 0; left: 0; height: 3px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 3px;
     background: linear-gradient(90deg, var(--terracotta), var(--amber-2), var(--teal));
-    z-index: 30; transition: width 0.25s ease;
+    z-index: 30;
+    transition: width 0.25s ease;
   }
 
   .logo {
-    width: 34px; height: 34px; border-radius: 9px;
-    background: var(--terracotta); color: #faf7f2;
-    display: flex; align-items: center; justify-content: center;
-    font-family: "Newsreader"; font-weight: 600; font-size: 18px;
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    background: var(--terracotta);
+    color: #faf7f2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Newsreader";
+    font-weight: 600;
+    font-size: 18px;
     flex-shrink: 0;
   }
-  .brand { display: flex; align-items: center; gap: 11px; }
-  .brand span { font-family: "Newsreader"; font-weight: 600; font-size: 19px; }
 
-  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-  @media (max-width: 720px) { .grid2 { grid-template-columns: 1fr; } }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+  }
+
+  .brand span {
+    font-family: "Newsreader";
+    font-weight: 600;
+    font-size: 19px;
+  }
+
+  .grid2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  @media (max-width: 720px) {
+    .grid2 {
+      grid-template-columns: 1fr;
+    }
+  }
 
   .card {
     background: var(--card);
@@ -160,86 +237,281 @@
     border-radius: 14px;
     padding: 20px 22px;
   }
-  .card h3 { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
-  .card p { font-size: 13.5px; color: var(--ink-2); line-height: 1.55; margin: 0; }
+
+  .card h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .card p {
+    font-size: 13.5px;
+    color: var(--ink-2);
+    line-height: 1.55;
+    margin: 0;
+  }
 
   .pill {
-    display: inline-flex; align-items: center; gap: 6px;
-    border-radius: 999px; padding: 5px 12px; font-size: 11.5px; font-weight: 600;
-    border: 1px solid var(--success-border); background: var(--success-bg); color: var(--success-text);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 999px;
+    padding: 5px 12px;
+    font-size: 11.5px;
+    font-weight: 600;
+    border: 1px solid var(--success-border);
+    background: var(--success-bg);
+    color: var(--success-text);
   }
-  .dot-sm { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 
-  ul.plain { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
-  ul.plain li { display: flex; gap: 14px; align-items: flex-start; }
-  .num {
-    font-family: "IBM Plex Mono"; font-size: 12px; font-weight: 600;
-    color: var(--terracotta); width: 22px; flex-shrink: 0; padding-top: 3px;
+  .dot-sm {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
   }
-  ul.plain h4 { font-size: 15px; font-weight: 600; margin: 0 0 3px; }
-  ul.plain p { margin: 0; font-size: 13.5px; color: var(--ink-2); line-height: 1.5; }
+
+  ul.plain {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  ul.plain li {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+
+  .num {
+    font-family: "IBM Plex Mono";
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--terracotta);
+    width: 22px;
+    flex-shrink: 0;
+    padding-top: 3px;
+  }
+
+  ul.plain h4 {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 0 0 3px;
+  }
+
+  ul.plain p {
+    margin: 0;
+    font-size: 13.5px;
+    color: var(--ink-2);
+    line-height: 1.5;
+  }
 
   /* architecture diagram */
   .pipeline {
-    display: flex; align-items: center; gap: 0; flex-wrap: wrap;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    flex-wrap: wrap;
     margin-top: 28px;
   }
+
   .node {
-    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
-    padding: 14px 16px; font-size: 12.5px; text-align: center; min-width: 118px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 12.5px;
+    text-align: center;
+    min-width: 118px;
   }
-  .node .t { font-weight: 600; font-size: 13px; margin-bottom: 2px; }
-  .node .s { color: var(--ink-3); font-size: 11px; }
-  .node.accent { border-color: var(--teal); }
-  .arrow { color: var(--ink-3); font-size: 18px; padding: 0 8px; flex-shrink: 0; }
+
+  .node .t {
+    font-weight: 600;
+    font-size: 13px;
+    margin-bottom: 2px;
+  }
+
+  .node .s {
+    color: var(--ink-3);
+    font-size: 11px;
+  }
+
+  .node.accent {
+    border-color: var(--teal);
+  }
+
+  .arrow {
+    color: var(--ink-3);
+    font-size: 18px;
+    padding: 0 8px;
+    flex-shrink: 0;
+  }
+
   .sidecar {
-    margin-top: 14px; display: flex; align-items: center; gap: 10px;
-    font-size: 12px; color: var(--ink-3);
+    margin-top: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    color: var(--ink-3);
   }
-  .sidecar .node { border-style: dashed; }
+
+  .sidecar .node {
+    border-style: dashed;
+  }
 
   .schema {
-    margin-top: 22px; border-radius: 12px; border: 1px solid var(--border);
-    background: var(--card); padding: 14px 18px; font-family: "IBM Plex Mono";
-    font-size: 12.5px; color: var(--ink-2); display: flex; align-items: center;
-    gap: 12px; flex-wrap: wrap;
+    margin-top: 22px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    padding: 14px 18px;
+    font-family: "IBM Plex Mono";
+    font-size: 12.5px;
+    color: var(--ink-2);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
   }
-  .schema .k { color: var(--terracotta); font-weight: 600; font-size: 10.5px; text-transform: uppercase; letter-spacing: .06em; }
+
+  .schema .k {
+    color: var(--terracotta);
+    font-weight: 600;
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+  }
+
   .schema .tag {
-    border: 1px solid #7c2d2d; background: #3f1d1d; color: #fca5a5;
-    border-radius: 999px; padding: 3px 9px; font-size: 10.5px;
+    border: 1px solid #7c2d2d;
+    background: #3f1d1d;
+    color: #fca5a5;
+    border-radius: 999px;
+    padding: 3px 9px;
+    font-size: 10.5px;
   }
-  @media (prefers-color-scheme: light) { .schema .tag { border-color: #fca5a5; background: #fef2f2; color: #7c2d2d; } }
-  :root[data-theme="light"] .schema .tag { border-color: #fca5a5; background: #fef2f2; color: #7c2d2d; }
 
-  .metric-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 26px; }
-  @media (max-width: 720px) { .metric-grid { grid-template-columns: 1fr 1fr; } }
-  .metric { border-left: 3px solid var(--terracotta); padding-left: 12px; }
-  .metric .v { font-family: "IBM Plex Mono"; font-weight: 600; font-size: 22px; }
-  .metric .l { font-size: 11.5px; color: var(--ink-3); margin-top: 3px; line-height: 1.4; }
+  @media (prefers-color-scheme: light) {
+    .schema .tag {
+      border-color: #fca5a5;
+      background: #fef2f2;
+      color: #7c2d2d;
+    }
+  }
 
-  .kv { display: flex; flex-direction: column; gap: 10px; margin-top: 22px; }
-  .kv-row { display: flex; gap: 16px; align-items: baseline; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
-  .kv-row .k { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-3); width: 130px; flex-shrink: 0; }
-  .kv-row .val { font-size: 14px; }
-  .kv-row a { color: var(--terracotta); text-decoration: none; font-weight: 600; }
-  .kv-row a:hover { text-decoration: underline; }
+  :root[data-theme="light"] .schema .tag {
+    border-color: #fca5a5;
+    background: #fef2f2;
+    color: #7c2d2d;
+  }
 
-  .tagchips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+  .metric-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 26px;
+  }
+
+  @media (max-width: 720px) {
+    .metric-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .metric {
+    border-left: 3px solid var(--terracotta);
+    padding-left: 12px;
+  }
+
+  .metric .v {
+    font-family: "IBM Plex Mono";
+    font-weight: 600;
+    font-size: 22px;
+  }
+
+  .metric .l {
+    font-size: 11.5px;
+    color: var(--ink-3);
+    margin-top: 3px;
+    line-height: 1.4;
+  }
+
+  .kv {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 22px;
+  }
+
+  .kv-row {
+    display: flex;
+    gap: 16px;
+    align-items: baseline;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 10px;
+  }
+
+  .kv-row .k {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--ink-3);
+    width: 130px;
+    flex-shrink: 0;
+  }
+
+  .kv-row .val {
+    font-size: 14px;
+  }
+
+  .kv-row a {
+    color: var(--terracotta);
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .kv-row a:hover {
+    text-decoration: underline;
+  }
+
+  .tagchips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 18px;
+  }
+
   .tagchips span {
-    font-size: 11.5px; padding: 5px 11px; border-radius: 999px;
-    background: var(--card); border: 1px solid var(--border); color: var(--ink-2);
+    font-size: 11.5px;
+    padding: 5px 11px;
+    border-radius: 999px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--ink-2);
   }
 
   .honest {
-    margin-top: 20px; border-left: 3px solid var(--amber-2);
-    background: var(--card); border-radius: 0 10px 10px 0;
-    padding: 12px 16px; font-size: 12.5px; color: var(--ink-2); line-height: 1.55;
+    margin-top: 20px;
+    border-left: 3px solid var(--amber-2);
+    background: var(--card);
+    border-radius: 0 10px 10px 0;
+    padding: 12px 16px;
+    font-size: 12.5px;
+    color: var(--ink-2);
+    line-height: 1.55;
     max-width: 640px;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .navdots button, .progress { transition: none; }
+
+    .navdots button,
+    .progress {
+      transition: none;
+    }
   }
 </style>
 
@@ -274,7 +546,8 @@
       </p>
       <div style="margin-top: 30px; display:flex; gap: 10px; flex-wrap: wrap;">
         <span class="pill"><span class="dot-sm"></span>Jan Jeevan track</span>
-        <span class="pill" style="border-color:var(--border); background:transparent; color:var(--ink-3);">Bit N Build Hackathon 2026</span>
+        <span class="pill" style="border-color:var(--border); background:transparent; color:var(--ink-3);">Bit N Build
+          Hackathon 2026</span>
       </div>
     </div>
   </section>
@@ -284,24 +557,29 @@
     <div class="slide-inner">
       <div class="eyebrow"><span class="n">01</span> The problem</div>
       <h2 style="font-size: clamp(26px, 4vw, 38px); font-weight: 600;">
-        India runs dozens of central welfare schemes.<br />Finding the ones you qualify for isn't the citizen's job to solve alone.
+        India runs dozens of central welfare schemes.<br />Finding the ones you qualify for isn't the citizen's job to
+        solve alone.
       </h2>
       <div class="grid2" style="margin-top: 34px;">
         <div class="card">
           <h3>Scattered across ministries</h3>
-          <p>PM-KISAN sits with Agriculture, PM-JAY with the National Health Authority, PMMVY with Women & Child Development, each on its own portal, its own eligibility PDF, its own document list.</p>
+          <p>PM-KISAN sits with Agriculture, PM-JAY with the National Health Authority, PMMVY with Women & Child
+            Development, each on its own portal, its own eligibility PDF, its own document list.</p>
         </div>
         <div class="card">
           <h3>Eligibility reads like legal text</h3>
-          <p>Income slabs, category carve-outs, SECC 2011 criteria, state-specific top-ups: a household usually has to already know a scheme exists before it can check whether it qualifies.</p>
+          <p>Income slabs, category carve-outs, SECC 2011 criteria, state-specific top-ups: a household usually has to
+            already know a scheme exists before it can check whether it qualifies.</p>
         </div>
         <div class="card">
           <h3>The document, not the form, is the blocker</h3>
-          <p>Income certificates, land records, caste certificates: people show up without the right paperwork, or don't apply because they're not sure what's required until they're already in line.</p>
+          <p>Income certificates, land records, caste certificates: people show up without the right paperwork, or don't
+            apply because they're not sure what's required until they're already in line.</p>
         </div>
         <div class="card">
           <h3>"Never store my documents"</h3>
-          <p>Any tool that asks someone to upload an ID or income certificate is asking for trust it hasn't earned; most don't say what happens to that image after the read.</p>
+          <p>Any tool that asks someone to upload an ID or income certificate is asking for trust it hasn't earned; most
+            don't say what happens to that image after the read.</p>
         </div>
       </div>
     </div>
@@ -317,21 +595,25 @@
           <span class="num">01</span>
           <div>
             <h4>Tell us your situation, or scan a document</h4>
-            <p>Income, occupation, family, category, land holding. Or scan an income certificate / ID and let extraction fill in what it can read; the form stays live underneath either way.</p>
+            <p>Income, occupation, family, category, land holding. Or scan an income certificate / ID and let extraction
+              fill in what it can read; the form stays live underneath either way.</p>
           </div>
         </li>
         <li>
           <span class="num">02</span>
           <div>
             <h4>Matched against real scheme rules</h4>
-            <p>PM-KISAN, Ayushman Bharat, PMJDY, NSAP pensions, NSP scholarships, Sukanya Samriddhi, PMAY, PMMVY, PM-SYM: 43 schemes today, each with its own eligibility rule, not a keyword match.</p>
+            <p>PM-KISAN, Ayushman Bharat, PMJDY, NSAP pensions, NSP scholarships, Sukanya Samriddhi, PMAY, PMMVY,
+              PM-SYM: 43 schemes today, each with its own eligibility rule, not a keyword match.</p>
           </div>
         </li>
         <li>
           <span class="num">03</span>
           <div>
             <h4>A document checklist, and an honest badge</h4>
-            <p>Every match says <em style="font-style:normal; color:var(--terracotta); font-weight:600;">"Worth checking,"</em> never "approved", plus exactly why it matched, and what to bring. Verified links to the official government portal where we could actually confirm one exists.</p>
+            <p>Every match says <em style="font-style:normal; color:var(--terracotta); font-weight:600;">"Worth
+                checking,"</em> never "approved", plus exactly why it matched, and what to bring. Verified links to the
+              official government portal where we could actually confirm one exists.</p>
           </div>
         </li>
       </ul>
@@ -352,15 +634,30 @@
         The scan pipeline is event-driven, not a synchronous call that blocks the request.
       </h2>
       <div class="pipeline">
-        <div class="node accent"><div class="t">React + Tailwind</div><div class="s">frontend</div></div>
+        <div class="node accent">
+          <div class="t">React + Tailwind</div>
+          <div class="s">frontend</div>
+        </div>
         <div class="arrow">→</div>
-        <div class="node accent"><div class="t">api-gateway</div><div class="s">Rust / Axum</div></div>
+        <div class="node accent">
+          <div class="t">api-gateway</div>
+          <div class="s">Rust / Axum</div>
+        </div>
         <div class="arrow">→</div>
-        <div class="node"><div class="t">Kafka (KRaft)</div><div class="s">document.jobs.*</div></div>
+        <div class="node">
+          <div class="t">Kafka (KRaft)</div>
+          <div class="s">document.jobs.*</div>
+        </div>
         <div class="arrow">→</div>
-        <div class="node accent"><div class="t">ocr-worker</div><div class="s">Rust, scales independently</div></div>
+        <div class="node accent">
+          <div class="t">ocr-worker</div>
+          <div class="s">Rust, scales independently</div>
+        </div>
         <div class="arrow">→</div>
-        <div class="node"><div class="t">Claude Vision</div><div class="s">claude-haiku-4-5</div></div>
+        <div class="node">
+          <div class="t">Claude Vision</div>
+          <div class="s">claude-haiku-4-5</div>
+        </div>
       </div>
       <div class="sidecar">
         <div class="node">Redis</div>
@@ -368,7 +665,8 @@
       </div>
       <div class="sidecar">
         <div class="node">catalog-service → Postgres</div>
-        <span>api-gateway calls this on every <code>/api/match</code> request; the scheme catalog is a real database behind its own internal API, not a file compiled into the binary</span>
+        <span>api-gateway calls this on every <code>/api/match</code> request; the scheme catalog is a real database
+          behind its own internal API, not a file compiled into the binary</span>
       </div>
       <div class="schema">
         <span class="k">document.jobs.completed</span>
@@ -394,14 +692,37 @@
   <section class="slide">
     <div class="slide-inner">
       <div class="eyebrow"><span class="n">04</span> Feasibility, scalability &amp; impact</div>
-      <h2 style="font-size: clamp(26px, 4vw, 38px); font-weight: 600;">Every line below was actually run this build, not asserted.</h2>
+      <h2 style="font-size: clamp(26px, 4vw, 38px); font-weight: 600;">Every line below was actually run this build, not
+        asserted.</h2>
       <div class="metric-grid">
-        <div class="metric"><div class="v">43 / 43</div><div class="l">Rust unit tests passing: eligibility boundaries, event schema, upload validation, offset ordering</div></div>
-        <div class="metric"><div class="v">1 → 2</div><div class="l">ocr-worker replicas, HPA-scaled live under real vision-API load in a local Kubernetes cluster</div></div>
-        <div class="metric"><div class="v">3</div><div class="l">deploy targets working: Railway (public, always-on), Docker Compose, kind + Helm</div></div>
-        <div class="metric"><div class="v">43 / 43</div><div class="l">schemes carrying a cited official source_url in the Postgres-backed catalog</div></div>
-        <div class="metric"><div class="v">0</div><div class="l">plaintext secrets in the repo: Doppler-managed everywhere, Kubernetes Secrets referenced by name only</div></div>
-        <div class="metric"><div class="v">2</div><div class="l">languages fully wired end to end: English and Hindi, including form labels and scheme data</div></div>
+        <div class="metric">
+          <div class="v">43 / 43</div>
+          <div class="l">Rust unit tests passing: eligibility boundaries, event schema, upload validation, offset
+            ordering</div>
+        </div>
+        <div class="metric">
+          <div class="v">1 → 2</div>
+          <div class="l">ocr-worker replicas, HPA-scaled live under real vision-API load in a local Kubernetes cluster
+          </div>
+        </div>
+        <div class="metric">
+          <div class="v">3</div>
+          <div class="l">deploy targets working: Railway (public, always-on), Docker Compose, kind + Helm</div>
+        </div>
+        <div class="metric">
+          <div class="v">43 / 43</div>
+          <div class="l">schemes carrying a cited official source_url in the Postgres-backed catalog</div>
+        </div>
+        <div class="metric">
+          <div class="v">0</div>
+          <div class="l">plaintext secrets in the repo: Doppler-managed everywhere, Kubernetes Secrets referenced by
+            name only</div>
+        </div>
+        <div class="metric">
+          <div class="v">2</div>
+          <div class="l">languages fully wired end to end: English and Hindi, including form labels and scheme data
+          </div>
+        </div>
       </div>
       <p style="margin-top: 24px; font-size: 13.5px; color: var(--ink-2); max-width: 62ch; line-height: 1.6;">
         The scale story is the point of the architecture, not a slide filler: OCR is the
@@ -411,7 +732,8 @@
         the app.
       </p>
       <div class="honest">
-        <strong style="color: var(--ink);">Scope, stated plainly:</strong> eligibility rules are simplified approximations
+        <strong style="color: var(--ink);">Scope, stated plainly:</strong> eligibility rules are simplified
+        approximations
         of real scheme criteria, built for this prototype: every result reads
         "worth checking," and the document checklist points to the official
         source when we could confirm a live one. Not a substitute for the
@@ -428,19 +750,24 @@
       <div class="kv">
         <div class="kv-row">
           <div class="k">Live app</div>
-          <div class="val"><a href="https://frontend-production-4a46.up.railway.app" target="_blank" rel="noopener noreferrer">frontend-production-4a46.up.railway.app</a></div>
+          <div class="val"><a href="https://frontend-production-4a46.up.railway.app" target="_blank"
+              rel="noopener noreferrer">frontend-production-4a46.up.railway.app</a></div>
         </div>
         <div class="kv-row">
           <div class="k">Source</div>
-          <div class="val"><a href="https://github.com/zb8ne/labhsathi" target="_blank" rel="noopener noreferrer">github.com/zb8ne/labhsathi</a></div>
+          <div class="val"><a href="https://github.com/zb8ne/labhsathi" target="_blank"
+              rel="noopener noreferrer">github.com/zb8ne/labhsathi</a></div>
         </div>
         <div class="kv-row">
           <div class="k">Stack</div>
-          <div class="val" style="color: var(--ink-2); font-size: 13px;">React · Tailwind · Rust (Axum) · Kafka · Redis · Docker · Kubernetes / Helm · Claude API</div>
+          <div class="val" style="color: var(--ink-2); font-size: 13px;">React · Tailwind · Rust (Axum) · Kafka · Redis
+            · Docker · Kubernetes / Helm · Claude API</div>
         </div>
         <div class="kv-row">
           <div class="k">Future scope</div>
-          <div class="val" style="color: var(--ink-2); font-size: 13px;">Wider scheme coverage with more verified citations · Hindi for the dynamically-generated match reasons · state-level schemes alongside central ones · KEDA consumer-lag autoscaling in place of the CPU-based demo default</div>
+          <div class="val" style="color: var(--ink-2); font-size: 13px;">Wider scheme coverage with more verified
+            citations · Hindi for the dynamically-generated match reasons · state-level schemes alongside central ones ·
+            KEDA consumer-lag autoscaling in place of the CPU-based demo default</div>
         </div>
       </div>
       <div class="bar" style="margin-top: 34px;"></div>
