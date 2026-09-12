@@ -1,3 +1,4 @@
+mod catalog_client;
 mod kafka;
 mod rate_limit;
 mod redis_cache;
@@ -31,6 +32,8 @@ async fn main() {
     let kafka_brokers =
         std::env::var("KAFKA_BROKERS").unwrap_or_else(|_| "localhost:9092".to_string());
     let redis_url = std::env::var("REDIS_URL").unwrap_or_else(|_| "redis://localhost:6379".to_string());
+    let catalog_service_url =
+        std::env::var("CATALOG_SERVICE_URL").unwrap_or_else(|_| "http://localhost:8090".to_string());
 
     let kafka_producer = Arc::new(kafka::build_producer(&kafka_brokers));
 
@@ -42,6 +45,8 @@ async fn main() {
     let app_state = AppState {
         kafka_producer,
         redis: Arc::new(Mutex::new(redis_conn)),
+        http_client: reqwest::Client::new(),
+        catalog_service_url,
     };
 
     let rate_limit_config = rate_limit::UploadRateLimitConfig::from_env();

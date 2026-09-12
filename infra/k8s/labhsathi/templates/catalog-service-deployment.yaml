@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "labhsathi.name" (dict "service" "catalog-service" "kind" "deployment") }}
+  namespace: {{ .Values.namespace }}
+  labels: {{- include "labhsathi.labels" (dict "service" "catalog-service") | nindent 4 }}
+spec:
+  replicas: {{ .Values.catalogService.replicas }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: catalog-service
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: catalog-service
+    spec:
+      containers:
+        - name: catalog-service
+          image: "{{ .Values.image.repository }}/catalog-service:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            # POSTGRES_PASSWORD must be defined before DATABASE_URL in this
+            # list -- Kubernetes only expands $(VAR) references against env
+            # vars that appear earlier in the same container's env array.
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.postgres.secretName }}
+                  key: POSTGRES_PASSWORD
+            - name: DATABASE_URL
+              value: "postgres://{{ .Values.postgres.user }}:$(POSTGRES_PASSWORD)@{{ include "labhsathi.name" (dict "service" "postgres" "kind" "svc") }}:5432/{{ .Values.postgres.database }}"
+            - name: PORT
+              value: "{{ .Values.catalogService.port }}"
+          ports:
+            - containerPort: {{ .Values.catalogService.port }}
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.catalogService.port }}
+            initialDelaySeconds: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "labhsathi.name" (dict "service" "catalog-service" "kind" "svc") }}
+  namespace: {{ .Values.namespace }}
+spec:
+  selector:
+    app.kubernetes.io/component: catalog-service
+  ports:
+    - port: {{ .Values.catalogService.port }}
+      targetPort: {{ .Values.catalogService.port }}

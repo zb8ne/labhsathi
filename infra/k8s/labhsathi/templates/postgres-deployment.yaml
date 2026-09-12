@@ -1,0 +1,75 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "labhsathi.name" (dict "service" "postgres" "kind" "pvc") }}
+  namespace: {{ .Values.namespace }}
+spec:
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests:
+      storage: {{ .Values.postgres.storage }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "labhsathi.name" (dict "service" "postgres" "kind" "deployment") }}
+  namespace: {{ .Values.namespace }}
+  labels: {{- include "labhsathi.labels" (dict "service" "postgres") | nindent 4 }}
+spec:
+  # Single replica by construction -- a real multi-node Postgres cluster is
+  # out of scope here (see values-prod.yaml for the documented, not wired,
+  # production intent: a managed Postgres instead of self-hosting this).
+  replicas: 1
+  strategy:
+    type: Recreate # avoids two pods fighting over the same PVC
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: postgres
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: {{ .Values.postgres.image }}
+          env:
+            - name: POSTGRES_DB
+              value: {{ .Values.postgres.database }}
+            - name: POSTGRES_USER
+              value: {{ .Values.postgres.user }}
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.postgres.secretName }}
+                  key: POSTGRES_PASSWORD
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+              # postgres refuses to initdb into a non-empty mount point that
+              # isn't itself the data dir -- the PVC mounts with a lost+found
+              # entry from some CSI drivers, so put postgres one level down.
+              subPath: pgdata
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "{{ .Values.postgres.user }}", "-d", "{{ .Values.postgres.database }}"]
+            initialDelaySeconds: 5
+            periodSeconds: 5
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ include "labhsathi.name" (dict "service" "postgres" "kind" "pvc") }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "labhsathi.name" (dict "service" "postgres" "kind" "svc") }}
+  namespace: {{ .Values.namespace }}
+spec:
+  selector:
+    app.kubernetes.io/component: postgres
+  ports:
+    - port: 5432
+      targetPort: 5432

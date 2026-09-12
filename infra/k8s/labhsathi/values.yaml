@@ -58,6 +58,20 @@ kafka:
 redis:
   image: redis:7-alpine
 
+postgres:
+  image: postgres:16-alpine
+  database: labhsathi_catalog
+  user: labhsathi
+  storage: 1Gi
+  # Must already exist in-namespace, containing a POSTGRES_PASSWORD key --
+  # same "chart never templates a Secret from values" rule as secretName
+  # above. See infra/k8s/labhsathi/README.md.
+  secretName: labhsathi-postgres-secret
+
+catalogService:
+  replicas: 1
+  port: 8090
+
 ingress:
   enabled: false # see values-kind.yaml / values-prod.yaml
   host: labhsathi.local

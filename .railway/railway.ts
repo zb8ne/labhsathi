@@ -1,4 +1,4 @@
-import { defineRailway, project, service, github, image, preserve } from "railway/iac";
+import { defineRailway, project, service, github, image, preserve, postgres } from "railway/iac";
 
 // Railway hosts the always-on public prototype link (per docs/adr/0001 and
 // the plan this was built from) -- decoupled from the local `kind` cluster,
@@ -41,6 +41,25 @@ export default defineRailway(() => {
     },
   });
 
+  // Managed, unlike kafka/redis above -- deliberately so. The scheme
+  // catalog is curated data meant to survive restarts (persistence is the
+  // whole point of moving it off an embedded JSON file), which is the
+  // opposite of why Redis/Kafka were pinned to no-persistence. Railway's
+  // managed Postgres gives real backups for free instead of hand-rolling
+  // a volume the way postgres-deployment.yaml has to for kind.
+  const postgresDb = postgres("postgres");
+
+  const catalogService = service("catalog-service", {
+    source: github("zb8ne/labhsathi", { rootDirectory: "/", branch: "main" }),
+    build: { builder: "DOCKERFILE", dockerfilePath: "services/catalog-service/Dockerfile" },
+    env: {
+      DATABASE_URL: "${{postgres.DATABASE_URL}}",
+      PORT: "8090",
+    },
+    // No public domain -- api-gateway is the only consumer, reached over
+    // Railway's private network only.
+  });
+
   const apiGateway = service("api-gateway", {
     source: github("zb8ne/labhsathi", { rootDirectory: "/", branch: "main" }),
     build: { builder: "DOCKERFILE", dockerfilePath: "services/api-gateway/Dockerfile" },
@@ -55,6 +74,7 @@ export default defineRailway(() => {
       // redis://redis:6379. Not the managed add-on's env.REDIS_URL
       // accessor (that variable doesn't exist on a plain image service).
       REDIS_URL: "redis://${{redis.RAILWAY_PRIVATE_DOMAIN}}:6379",
+      CATALOG_SERVICE_URL: "http://${{catalog-service.RAILWAY_PRIVATE_DOMAIN}}:8090",
       PORT: "8080",
     },
     // Public domain isn't an IaC concern here -- generated post-apply via
@@ -97,6 +117,6 @@ export default defineRailway(() => {
   });
 
   return project("labhsathi", {
-    resources: [kafkaDb, redisDb, apiGateway, ocrWorker, frontend],
+    resources: [kafkaDb, redisDb, postgresDb, catalogService, apiGateway, ocrWorker, frontend],
   });
 });

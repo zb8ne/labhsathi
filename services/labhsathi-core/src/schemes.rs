@@ -56,7 +56,9 @@ pub struct SchemeMatch {
 }
 
 /// Declarative eligibility criteria that can be specified directly in `data/schemes.json`
-/// without requiring compiled Rust code changes for new schemes.
+/// without requiring compiled Rust code changes for new schemes. Serialize is needed here
+/// (not just Deserialize) because catalog-service re-emits this same struct as its HTTP
+/// response body -- it reads the row out of Postgres and hands it back out verbatim.
 #[derive(Debug, Deserialize, Serialize, Clone, Default)]
 pub struct SchemeCriteria {
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -101,7 +103,12 @@ pub struct SchemeCriteria {
 
 /// The catalog half of the scheme-data split: facts, documentation,
 /// citation links, category domains, and optional declarative criteria.
-#[derive(Debug, Deserialize, Clone)]
+/// This is the exact shape catalog-service stores in Postgres (as a single
+/// JSONB column per row, keyed by `id`) and serves back over HTTP -- both
+/// it and api-gateway depend on this crate specifically so there's one
+/// definition of "what a scheme is," not a hand-kept-in-sync copy on each
+/// side of the wire.
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct SchemeFacts {
     pub id: String,
     pub name: String,
@@ -114,20 +121,18 @@ pub struct SchemeFacts {
     pub category_domain: Option<String>,
     #[serde(default)]
     pub criteria: Option<SchemeCriteria>,
-    #[allow(dead_code)]
     pub review_date: String,
-    #[allow(dead_code)]
     pub exclusions: Vec<String>,
 }
 
-const SCHEMES_JSON: &str = include_str!("../data/schemes.json");
+/// The originally-embedded catalog -- now used as catalog-service's one-time
+/// seed source for Postgres (see services/catalog-service) and as the fixture
+/// this crate's own tests run against, rather than as the runtime data path.
+/// api-gateway no longer reads this directly; it fetches from catalog-service.
+const SEED_SCHEMES_JSON: &str = include_str!("../data/schemes.json");
 
-static FACTS: std::sync::LazyLock<Vec<SchemeFacts>> = std::sync::LazyLock::new(|| {
-    serde_json::from_str(SCHEMES_JSON).expect("data/schemes.json is checked in and must parse")
-});
-
-pub fn load_facts() -> &'static [SchemeFacts] {
-    &FACTS
+pub fn seed_facts() -> Vec<SchemeFacts> {
+    serde_json::from_str(SEED_SCHEMES_JSON).expect("data/schemes.json is checked in and must parse")
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -453,10 +458,16 @@ fn evaluate_rule(f: &SchemeFacts, p: &UserProfile) -> RuleOutcome {
     }
 }
 
-pub fn match_schemes(profile: &UserProfile) -> Vec<SchemeMatch> {
+/// `facts` is supplied by the caller rather than loaded internally -- this
+/// crate has no reqwest/sqlx/axum dependency (see docs/CONVENTIONS.md) and
+/// deliberately doesn't know or care whether the caller got its catalog
+/// from an embedded JSON file (tests, catalog-service's own seed step) or
+/// a live HTTP call to catalog-service (api-gateway, production). The
+/// matching logic itself is identical either way.
+pub fn match_schemes(profile: &UserProfile, facts: &[SchemeFacts]) -> Vec<SchemeMatch> {
     let mut seen_missing_fields: HashSet<&'static str> = HashSet::new();
 
-    load_facts()
+    facts
         .iter()
         .filter_map(|f| {
             let outcome = evaluate_rule(f, profile);
@@ -521,8 +532,14 @@ mod tests {
         }
     }
 
+    // Parsed once for the whole test run -- match_schemes takes facts by
+    // reference now (it no longer loads them itself), so every test needs
+    // a catalog to hand it; this is the same seed data catalog-service
+    // loads into Postgres on first boot.
+    static TEST_FACTS: std::sync::LazyLock<Vec<SchemeFacts>> = std::sync::LazyLock::new(seed_facts);
+
     fn matches(p: &UserProfile) -> Vec<SchemeMatch> {
-        match_schemes(p)
+        match_schemes(p, &TEST_FACTS)
     }
 
     fn has(matches: &[SchemeMatch], id: &str) -> bool {
@@ -762,7 +779,7 @@ mod tests {
         // instead of a live 500 the first time someone adds a scheme to
         // schemes.json without a matching Rust arm or declarative criteria.
         let p = base_profile();
-        for f in load_facts() {
+        for f in TEST_FACTS.iter() {
             let _ = evaluate_rule(f, &p);
         }
     }
