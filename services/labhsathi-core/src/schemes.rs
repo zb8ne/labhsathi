@@ -1,5 +1,4 @@
 use serde::{Deserialize, Serialize};
-use std::collections::HashSet;
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct UserProfile {
@@ -452,7 +451,24 @@ fn evaluate_rule(f: &SchemeFacts, p: &UserProfile) -> RuleOutcome {
             if let Some(ref c) = f.criteria {
                 evaluate_criteria(f, c, p)
             } else {
-                unreachable!("data/schemes.json declares scheme id `{id}` with neither a compiled rule arm nor declarative criteria")
+                // A row with neither a compiled rule arm nor declarative
+                // criteria is a data bug (a scheme added to Postgres/
+                // data/schemes.json without either), but it must not take
+                // down matching for every *other* scheme on this request --
+                // `match_schemes` calls `evaluate_rule` for every catalog
+                // row on every `/api/match` call, so a panic here is a live
+                // 500 for the entire response, not just this one scheme.
+                // `every_catalog_entry_has_a_rule_arm` below still catches
+                // this at test time against the embedded seed data; this is
+                // the runtime backstop for a row that reaches Postgres
+                // without going through that test (a hand-edited row, or a
+                // future data-loading path this crate doesn't control).
+                tracing::error!(
+                    scheme_id = id,
+                    "scheme has neither a compiled rule arm nor declarative criteria -- \
+                     treating as no-match rather than failing the whole request"
+                );
+                not_matched(format!("Scheme `{id}` has no eligibility rule configured."))
             }
         }
     }
@@ -465,7 +481,24 @@ fn evaluate_rule(f: &SchemeFacts, p: &UserProfile) -> RuleOutcome {
 /// a live HTTP call to catalog-service (api-gateway, production). The
 /// matching logic itself is identical either way.
 pub fn match_schemes(profile: &UserProfile, facts: &[SchemeFacts]) -> Vec<SchemeMatch> {
-    let mut seen_missing_fields: HashSet<&'static str> = HashSet::new();
+    // GitHub issue #10 (product review): this used to dedupe by
+    // `missing_field` name across the *entire* catalog -- fine back when
+    // only pmay-urban/pmay-rural shared "area_type" and only pm-kisan asked
+    // for "land_holding_acres", but the 43->100 scheme expansion gave
+    // "land_holding_acres" and "area_type" to eight declarative schemes
+    // each, and the same dedup logic silently dropped seven distinct real
+    // government schemes from the response every time, keeping only
+    // whichever one happened to iterate first. A repeated needs-info
+    // prompt across genuinely different schemes is a minor UX
+    // redundancy; silently hiding real schemes a citizen may be eligible
+    // for is not an acceptable tradeoff for avoiding it.
+    //
+    // pmay-urban/pmay-rural specifically are still collapsed to one
+    // needs-info entry: they're the same underlying housing benefit
+    // routed by area type, a household is one or the other, and showing
+    // both as separate incomplete cards asking the identical question is
+    // genuinely redundant rather than two different opportunities.
+    let mut pmay_needs_info_already_shown = false;
 
     facts
         .iter()
@@ -474,13 +507,11 @@ pub fn match_schemes(profile: &UserProfile, facts: &[SchemeFacts]) -> Vec<Scheme
             let status = match outcome.status {
                 RawStatus::Match => MatchStatus::Match,
                 RawStatus::NeedsInfo => {
-                    // pmay-urban and pmay-rural can both land here asking
-                    // the identical follow-up question -- only surface it
-                    // once rather than showing the same prompt twice.
-                    if let Some(field) = outcome.missing_field {
-                        if !seen_missing_fields.insert(field) {
+                    if f.id == "pmay-urban" || f.id == "pmay-rural" {
+                        if pmay_needs_info_already_shown {
                             return None;
                         }
+                        pmay_needs_info_already_shown = true;
                     }
                     MatchStatus::NeedsInfo
                 }
@@ -750,6 +781,36 @@ mod tests {
     }
 
     #[test]
+    fn unrelated_schemes_sharing_a_missing_field_are_not_silently_dropped() {
+        // GitHub issue #10 (product review): pm-kisan asks for
+        // land_holding_acres, and so do several declarative agriculture
+        // schemes (pmfby, kisan-credit-card, pm-kmy, pmksy-irrigation,
+        // pkvy-organic, soil-health-card-scheme, midh-horticulture) --
+        // real, distinct benefits, not duplicates of each other. The old
+        // global-by-field-name dedup treated all of them as
+        // interchangeable with pm-kisan's prompt and silently kept only
+        // whichever one the catalog happened to iterate first, hiding the
+        // rest from a farmer who genuinely qualifies for all of them
+        // pending one answer. They must all come back as needs_info.
+        let mut p = base_profile();
+        p.occupation = "farmer".into();
+        p.land_holding_acres = None;
+
+        let m = matches(&p);
+        let land_holding_prompts: Vec<&SchemeMatch> = m
+            .iter()
+            .filter(|s| s.status == MatchStatus::NeedsInfo && s.missing_field == Some("land_holding_acres"))
+            .collect();
+        assert!(
+            land_holding_prompts.len() > 1,
+            "expected multiple distinct schemes to independently ask for land_holding_acres, got {}: {:?}",
+            land_holding_prompts.len(),
+            land_holding_prompts.iter().map(|s| &s.id).collect::<Vec<_>>()
+        );
+        assert!(land_holding_prompts.iter().any(|s| s.id == "pm-kisan"));
+    }
+
+    #[test]
     fn pmmvy_requires_female_gender_not_just_the_pregnancy_flag() {
         let mut p = base_profile();
         p.gender = "female".into();
@@ -783,6 +844,34 @@ mod tests {
         assert!(has(&m, "pm-kisan"));
         assert!(has(&m, "pmjdy"));
         assert!(has(&m, "ayushman-bharat"));
+    }
+
+    /// GitHub issue #5 (product review): these 12 ids each have a compiled
+    /// Rust rule arm in `evaluate_rule`, matched by id *before* `f.criteria`
+    /// is ever consulted -- a `criteria` block on one of these rows is
+    /// silently dead data. It used to ship anyway, which meant editing one
+    /// of these 12 schemes' eligibility criteria in Postgres (the whole
+    /// point of the declarative catalog) had no effect for exactly the
+    /// schemes most likely to be edited. This test is the backstop: it
+    /// fails loudly if a future data change reintroduces a criteria block
+    /// on any of these ids, rather than letting the same bug back in
+    /// silently.
+    #[test]
+    fn hardcoded_rule_schemes_carry_no_dead_criteria_block() {
+        const HARDCODED_RULE_IDS: &[&str] = &[
+            "pm-kisan", "ayushman-bharat", "pmjdy", "nsap-ignoaps", "nsap-ignwps",
+            "nsap-igndps", "nsp-scholarship", "sukanya-samriddhi", "pmay-urban",
+            "pmay-rural", "pmmvy", "pm-sym",
+        ];
+        for id in HARDCODED_RULE_IDS {
+            let f = TEST_FACTS.iter().find(|f| &f.id == id).unwrap_or_else(|| panic!("expected `{id}` in the embedded catalog"));
+            assert!(
+                f.criteria.is_none(),
+                "`{id}` has a compiled rule arm in evaluate_rule -- a `criteria` block on this row \
+                 is dead data an editor could change without it ever taking effect. Either delete \
+                 the criteria block, or delete the compiled rule arm and let criteria drive it."
+            );
+        }
     }
 
     #[test]

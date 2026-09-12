@@ -99,25 +99,29 @@ async fn list_schemes(State(state): State<AppState>) -> Result<Json<Vec<SchemeFa
 /// way to get a newly-added embedded scheme into a database that's
 /// already been seeded once is a manual INSERT against production. Instead
 /// this runs the same upsert-by-id loop every boot -- `ON CONFLICT (id) DO
-/// NOTHING` makes it a no-op for rows that already exist (byte-for-byte
-/// identical or not; an edit to an existing scheme's fields still needs a
-/// real migration, this only ever adds rows whose id isn't present yet)
-/// and a real insert for anything new in the embedded catalog since the
-/// last deploy. Safe for every replica to run this at once for the same
-/// reason the old empty-table version was: the INSERT itself is the only
-/// thing that can race, and ON CONFLICT DO NOTHING already handles that.
+/// UPDATE` overwrites the stored row with the embedded catalog's current
+/// version every time (a real insert for anything new, a real update for
+/// anything edited). This *is* the source of truth on every deploy; a
+/// manual edit made directly against production Postgres (outside this
+/// repo) would be silently reverted on the next boot -- there is no
+/// supported "edit prod, not the repo" path, by design. Safe for every
+/// replica to run this at once: two concurrent UPSERTs on the same id are
+/// just two writes to the same row, not a race that can corrupt anything.
 async fn sync_catalog(pool: &PgPool) {
     let facts = seed_facts();
     tracing::info!(count = facts.len(), "syncing schemes table against the embedded catalog");
 
     for f in &facts {
         let data = serde_json::to_value(f).expect("SchemeFacts must serialize");
-        sqlx::query("INSERT INTO schemes (id, data) VALUES ($1, $2) ON CONFLICT (id) DO NOTHING")
-            .bind(&f.id)
-            .bind(&data)
-            .execute(pool)
-            .await
-            .expect("failed to sync a scheme row");
+        sqlx::query(
+            "INSERT INTO schemes (id, data) VALUES ($1, $2) \
+             ON CONFLICT (id) DO UPDATE SET data = EXCLUDED.data",
+        )
+        .bind(&f.id)
+        .bind(&data)
+        .execute(pool)
+        .await
+        .expect("failed to sync a scheme row");
     }
 }
 
@@ -164,7 +168,7 @@ mod tests {
 
     #[tokio::test]
     #[ignore]
-    async fn syncing_twice_against_an_already_populated_table_is_a_no_op() {
+    async fn syncing_twice_against_an_already_populated_table_does_not_duplicate_rows() {
         let pool = test_pool().await;
         create_table_if_missing(&pool).await.expect("create table");
         sqlx::query("DELETE FROM schemes").execute(&pool).await.expect("clear table for test isolation");
@@ -172,14 +176,55 @@ mod tests {
         sync_catalog(&pool).await;
         let first_pass = fetch_all_schemes(&pool).await.expect("fetch schemes");
 
-        // A second call must not duplicate or error -- ON CONFLICT DO
-        // NOTHING is what makes it safe for every catalog-service replica
-        // to run this same sync at boot without racing each other into a
+        // A second call must not duplicate rows or error -- ON CONFLICT DO
+        // UPDATE is what makes it safe for every catalog-service replica to
+        // run this same sync at boot without racing each other into a
         // broken state, and safe to run again on every future redeploy.
+        // Row *count* staying stable is what this test checks; row
+        // *content* actually changing on an edit is covered separately by
+        // `syncing_overwrites_a_row_whose_embedded_data_changed` below --
+        // this repo previously shipped `ON CONFLICT DO NOTHING`, which kept
+        // row count stable too, while silently never applying an edit to
+        // an existing scheme. Don't let a future change regress back to
+        // that by only checking length here again.
         sync_catalog(&pool).await;
         let second_pass = fetch_all_schemes(&pool).await.expect("fetch schemes");
 
         assert_eq!(first_pass.len(), second_pass.len());
+    }
+
+    #[tokio::test]
+    #[ignore]
+    async fn syncing_overwrites_a_row_whose_embedded_data_changed() {
+        // The actual bug this fixes: production Postgres previously never
+        // received an edit to an existing scheme once that row's id had
+        // been inserted once (ON CONFLICT DO NOTHING). Simulate exactly
+        // that drift -- seed a row with stale data, then confirm a normal
+        // sync_catalog() call (the same one that runs on every boot)
+        // overwrites it with the current embedded catalog's version.
+        let pool = test_pool().await;
+        create_table_if_missing(&pool).await.expect("create table");
+        sqlx::query("DELETE FROM schemes").execute(&pool).await.expect("clear table for test isolation");
+
+        let mut stale = seed_facts().into_iter().find(|f| f.id == "pm-kisan").expect("pm-kisan in embedded catalog");
+        stale.official_note = "THIS IS DELIBERATELY STALE TEST DATA".to_string();
+        let stale_json = serde_json::to_value(&stale).expect("serialize");
+        sqlx::query("INSERT INTO schemes (id, data) VALUES ($1, $2)")
+            .bind(&stale.id)
+            .bind(&stale_json)
+            .execute(&pool)
+            .await
+            .expect("seed a deliberately stale row by hand");
+
+        sync_catalog(&pool).await;
+
+        let stored = fetch_all_schemes(&pool).await.expect("fetch schemes");
+        let pm_kisan = stored.iter().find(|s| s.id == "pm-kisan").expect("pm-kisan present after syncing");
+        let current = seed_facts().into_iter().find(|f| f.id == "pm-kisan").expect("pm-kisan in embedded catalog");
+        assert_eq!(
+            pm_kisan.official_note, current.official_note,
+            "sync_catalog must overwrite a row that drifted from the embedded catalog, not leave it stale"
+        );
     }
 
     #[tokio::test]

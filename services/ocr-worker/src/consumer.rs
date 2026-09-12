@@ -15,7 +15,7 @@ use rdkafka::util::Timeout;
 use redis::aio::ConnectionManager;
 use std::sync::Arc;
 use std::time::Duration;
-use tokio::sync::{Mutex, Semaphore};
+use tokio::sync::Semaphore;
 
 /// Caps concurrent in-flight vision-API calls per pod. This, not the number
 /// of pods, is the real ceiling on this service's resource use -- it's why
@@ -79,7 +79,11 @@ pub fn build_http_client() -> reqwest::Client {
 pub async fn run(
     consumer: Arc<StreamConsumer>,
     producer: Arc<FutureProducer>,
-    redis: Arc<Mutex<ConnectionManager>>,
+    // GitHub issue #4 (product review): `ConnectionManager` is `Clone` by
+    // design specifically so it can be shared this way -- see the doc
+    // comment on api-gateway/src/state.rs's `AppState::redis` for the full
+    // reasoning. No `Arc<Mutex<..>>` wrapper needed or wanted.
+    redis: ConnectionManager,
     http_client: Arc<reqwest::Client>,
     max_concurrent_extractions: usize,
 ) {
@@ -173,6 +177,29 @@ pub async fn run(
     }
 }
 
+/// GitHub issue #13 (product review): `process_job_inner`'s error strings
+/// include raw detail from the vision API (`extract.rs`'s `API error
+/// ({status}): {msg}`, which can echo back auth/billing/quota text from
+/// Anthropic) and from image decoding -- fine for a server log, not fine
+/// served verbatim through api-gateway's public, unauthenticated `GET
+/// /api/documents/{job_id}` status endpoint, which anyone holding a job id
+/// can poll. This maps the handful of error shapes this worker actually
+/// produces to a small set of messages safe to show a user; the raw detail
+/// still reaches the logs via the `tracing::error!` call at the one place
+/// it's swallowed, in `process_job` below.
+fn sanitize_error_for_client(raw: &str) -> String {
+    // The one error message this worker constructs specifically to be
+    // read by a user (see process_job_inner) -- pass it through unchanged
+    // rather than genericizing a message that was already safe and useful.
+    if raw.contains("already consumed or expired") {
+        return raw.to_string();
+    }
+    if raw.contains("timed out") {
+        return "The document scan took too long. Please try again.".to_string();
+    }
+    "Could not read this document. Please try again or fill the form manually.".to_string()
+}
+
 /// Always writes a Processing status, then always attempts to publish a
 /// terminal Success/Failed event and a matching terminal status -- a job
 /// is never left in limbo regardless of where extraction itself fails.
@@ -181,13 +208,18 @@ pub async fn run(
 async fn process_job(
     event: DocumentJobSubmitted,
     producer: &FutureProducer,
-    redis: &Arc<Mutex<ConnectionManager>>,
+    redis: &ConnectionManager,
     http_client: &reqwest::Client,
 ) -> bool {
     let job_id = event.job_id;
 
     {
-        let mut conn = redis.lock().await;
+        // GitHub issue #4 (product review): cloned directly, same reasoning
+        // as api-gateway/src/state.rs -- ConnectionManager is built to be
+        // shared this way, and with MAX_CONCURRENT_EXTRACTIONS > 1 this
+        // worker has multiple jobs genuinely running in parallel, which a
+        // shared Mutex would have serialized through one lock for no reason.
+        let mut conn = redis.clone();
         let _ = redis_cache::set_status(
             &mut conn,
             job_id,
@@ -201,6 +233,13 @@ async fn process_job(
     }
 
     let result = process_job_inner(job_id, redis, http_client).await;
+
+    if let Err(e) = &result {
+        // The one place the raw, potentially-sensitive error detail is
+        // allowed to exist in full -- server logs, not the public status
+        // endpoint. See sanitize_error_for_client above.
+        tracing::error!(%job_id, error = %e, "document extraction failed");
+    }
 
     let (status, fields) = match &result {
         Ok(fields) => (JobStatus::Success, Some(fields.clone())),
@@ -230,10 +269,27 @@ async fn process_job(
         Err(e) => JobStatusRecord {
             status: JobProgress::Failed,
             fields: None,
-            error: Some(e),
+            error: Some(sanitize_error_for_client(&e)),
         },
     };
-    let mut conn = redis.lock().await;
+
+    // GitHub issue #12 (product review): a redelivered message (the
+    // consumer crashed after the completed-event published but before the
+    // offset committed, or the offset publish itself failed and this job
+    // legitimately reprocesses) can race a slow first attempt's Done write
+    // here. Don't let a redelivery's Failed status clobber an already-Done
+    // one -- the frontend has already shown the user their real result by
+    // then, and flipping it to Failed under them is strictly worse than
+    // leaving the correct terminal state alone.
+    let mut conn = redis.clone();
+    if record.status == JobProgress::Failed {
+        if let Ok(Some(existing)) = redis_cache::get_status(&mut conn, job_id).await {
+            if existing.status == JobProgress::Done {
+                tracing::warn!(%job_id, "redelivery failed after an earlier attempt already succeeded -- keeping the Done status, not overwriting with Failed");
+                return publish_ok;
+            }
+        }
+    }
     let _ = redis_cache::set_status(&mut conn, job_id, &record).await;
 
     publish_ok
@@ -241,11 +297,11 @@ async fn process_job(
 
 async fn process_job_inner(
     job_id: JobId,
-    redis: &Arc<Mutex<ConnectionManager>>,
+    redis: &ConnectionManager,
     http_client: &reqwest::Client,
 ) -> Result<ExtractedFields, String> {
     let raw = {
-        let mut conn = redis.lock().await;
+        let mut conn = redis.clone();
         redis_cache::fetch_and_delete_image(&mut conn, job_id).await?
     };
     // A miss here is a legitimate state (redelivery after a crash, or the

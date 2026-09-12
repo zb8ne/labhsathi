@@ -13,7 +13,8 @@ use labhsathi_core::media::MAX_IMAGE_BYTES;
 use redis::aio::ConnectionManager;
 use state::AppState;
 use std::sync::Arc;
-use tokio::sync::Mutex;
+use std::time::Duration;
+use tokio::sync::RwLock;
 use tower_http::cors::CorsLayer;
 use tower_http::trace::TraceLayer;
 
@@ -44,9 +45,18 @@ async fn main() {
 
     let app_state = AppState {
         kafka_producer,
-        redis: Arc::new(Mutex::new(redis_conn)),
-        http_client: reqwest::Client::new(),
+        redis: redis_conn,
+        // A default timeout here is defense in depth -- the actual guard
+        // against a hung catalog-service call is the per-request
+        // `.timeout()` in catalog_client.rs, which is what really matters
+        // since it can't be silently forgotten on a future call site that
+        // reuses this same client for something else.
+        http_client: reqwest::Client::builder()
+            .timeout(Duration::from_secs(10))
+            .build()
+            .expect("failed to build reqwest client"),
         catalog_service_url,
+        catalog_cache: Arc::new(RwLock::new(None)),
     };
 
     let rate_limit_config = rate_limit::UploadRateLimitConfig::from_env();
@@ -73,19 +83,52 @@ async fn main() {
     let addr = format!("0.0.0.0:{port}");
     let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
     tracing::info!("api-gateway listening on http://{addr}");
-    // SmartIpKeyExtractor (rate_limit.rs) falls back to the raw connection's
-    // peer address when there's no X-Forwarded-For/X-Real-IP header (e.g.
-    // curl direct to this port, no proxy in front) -- that fallback only
-    // works if ConnectInfo is actually in the request extensions, which
-    // requires opting in here.
+    // TrustedProxyIpKeyExtractor (rate_limit.rs) falls back to the raw
+    // connection's peer address when there's no X-Forwarded-For/X-Real-IP
+    // header (e.g. curl direct to this port, no proxy in front) -- that
+    // fallback only works if ConnectInfo is actually in the request
+    // extensions, which requires opting in here.
     axum::serve(
         listener,
         app.into_make_service_with_connect_info::<SocketAddr>(),
     )
+    .with_graceful_shutdown(shutdown_signal())
     .await
     .unwrap();
 }
 
 async fn health() -> &'static str {
     "ok"
+}
+
+/// GitHub issue #11 (product review): without this, every Railway redeploy
+/// (or `kubectl rollout`) sends SIGTERM and the process dies mid-request --
+/// a scan already in flight, or a status poll landing right as the pod
+/// exits. `axum::serve`'s graceful shutdown stops accepting *new*
+/// connections on the signal but lets in-flight requests finish (bounded by
+/// the platform's own kill grace period, typically several seconds), which
+/// covers the common redeploy-during-a-quick-request case. It does not by
+/// itself cover a scan whose extraction is still running in ocr-worker at
+/// the moment api-gateway exits -- that's a separate service with its own
+/// shutdown handling, see ocr-worker/src/main.rs.
+async fn shutdown_signal() {
+    let ctrl_c = async {
+        tokio::signal::ctrl_c().await.expect("failed to install Ctrl+C handler");
+    };
+
+    #[cfg(unix)]
+    let terminate = async {
+        tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate())
+            .expect("failed to install SIGTERM handler")
+            .recv()
+            .await;
+    };
+
+    #[cfg(not(unix))]
+    let terminate = std::future::pending::<()>();
+
+    tokio::select! {
+        _ = ctrl_c => tracing::info!("received Ctrl+C, shutting down gracefully"),
+        _ = terminate => tracing::info!("received SIGTERM, shutting down gracefully"),
+    }
 }

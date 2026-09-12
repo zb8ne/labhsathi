@@ -56,7 +56,14 @@ pub async fn documents_upload_handler(
         };
 
         let job_id = JobId::new();
-        let mut redis = state.redis.lock().await;
+        // GitHub issue #4 (product review): `state.redis` is a plain,
+        // cheaply-`Clone`-able `ConnectionManager` now, not a
+        // `Mutex`-guarded one -- see state.rs's doc comment. Cloning it
+        // here is a handle copy, not a new connection, and (unlike the old
+        // Mutex) doesn't block every other in-flight request's Redis
+        // access for the duration of this handler, including the Kafka
+        // publish a few lines down.
+        let mut redis = state.redis.clone();
 
         if let Err(e) = redis_cache::store_image(&mut redis, job_id, &data).await {
             tracing::error!(%job_id, error = %e, "failed to store image in redis");
@@ -106,7 +113,7 @@ pub async fn documents_status_handler(
         Err(_) => return error(StatusCode::BAD_REQUEST, "invalid job id"),
     };
 
-    let mut redis = state.redis.lock().await;
+    let mut redis = state.redis.clone();
     match redis_cache::get_status(&mut redis, job_id).await {
         Ok(Some(record)) => Json(record).into_response(),
         Ok(None) => error(

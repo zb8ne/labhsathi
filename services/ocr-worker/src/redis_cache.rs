@@ -40,3 +40,23 @@ pub async fn set_status(
         .await
         .map_err(|e| format!("redis SETEX failed: {e}"))
 }
+
+/// GitHub issue #12 (product review): needed so `process_job` can check
+/// whether a redelivered job's earlier attempt already reached `Done`
+/// before writing a `Failed` status over it -- see consumer.rs.
+pub async fn get_status(
+    conn: &mut ConnectionManager,
+    job_id: JobId,
+) -> Result<Option<JobStatusRecord>, String> {
+    let raw: Option<String> = conn
+        .get(status_key(job_id))
+        .await
+        .map_err(|e| format!("redis GET failed: {e}"))?;
+
+    match raw {
+        None => Ok(None),
+        Some(s) => serde_json::from_str(&s)
+            .map(Some)
+            .map_err(|e| format!("corrupt status record: {e}")),
+    }
+}

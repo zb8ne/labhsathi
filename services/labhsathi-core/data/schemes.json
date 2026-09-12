@@ -18,14 +18,7 @@
       "Institutional land holders",
       "Income-tax payers (most categories)",
       "Constitutional post holders and serving/retired government employees above Group D"
-    ],
-    "criteria": {
-      "occupations": [
-        "farmer"
-      ],
-      "requires_land": true,
-      "match_reason": "You reported farming as your occupation with land holdings: PM-KISAN provides direct income support to landholding farmer families."
-    }
+    ]
   },
   {
     "id": "pmfby",
@@ -175,11 +168,7 @@
     "exclusions": [
       "Households already covered by ESIC/CGHS in most states",
       "Households not on the SECC 2011 deprivation list"
-    ],
-    "criteria": {
-      "max_annual_income": 250000,
-      "match_reason": "Your household income falls in the low-income band PM-JAY targets: worth checking your SECC beneficiary status."
-    }
+    ]
   },
   {
     "id": "pmsby",
@@ -288,11 +277,7 @@
     "official_note": "Open to any Indian resident; no minimum balance requirement.",
     "source_url": "https://pmjdy.gov.in",
     "review_date": "2026-09-12",
-    "exclusions": [],
-    "criteria": {
-      "requires_no_bank_account": true,
-      "match_reason": "You reported not having a bank account: PM Jan Dhan Yojana gives you one with zero balance requirement plus insurance cover."
-    }
+    "exclusions": []
   },
   {
     "id": "pm-vishwakarma",
@@ -446,12 +431,7 @@
     "review_date": "2026-09-12",
     "exclusions": [
       "Households above the state's BPL-linked income threshold"
-    ],
-    "criteria": {
-      "min_age": 60,
-      "max_annual_income": 100000,
-      "match_reason": "You're 60+ with household income below the BPL-linked threshold this scheme targets."
-    }
+    ]
   },
   {
     "id": "nsap-ignwps",
@@ -472,14 +452,7 @@
     "exclusions": [
       "Widows outside the 40-79 age band in most states",
       "Households above the BPL-linked threshold"
-    ],
-    "criteria": {
-      "is_widow": true,
-      "min_age": 40,
-      "max_age": 79,
-      "max_annual_income": 100000,
-      "match_reason": "You reported being a widow in the 40-79 age band with income below the BPL-linked threshold this scheme targets."
-    }
+    ]
   },
   {
     "id": "nsap-igndps",
@@ -498,15 +471,7 @@
     "exclusions": [
       "Disability certified below 80%",
       "Age outside 18-79"
-    ],
-    "criteria": {
-      "requires_disability": true,
-      "min_disability_percentage": 80,
-      "min_age": 18,
-      "max_age": 79,
-      "max_annual_income": 100000,
-      "match_reason": "Your reported disability level (80%+), age band, and income match IGNDPS criteria."
-    }
+    ]
   },
   {
     "id": "pm-sym",
@@ -526,18 +491,7 @@
       "Age outside 18-40 at enrollment",
       "Already covered by EPFO/ESIC/NPS",
       "Income-tax payers"
-    ],
-    "criteria": {
-      "occupations": [
-        "laborer",
-        "self_employed",
-        "homemaker"
-      ],
-      "min_age": 18,
-      "max_age": 40,
-      "max_annual_income": 180000,
-      "match_reason": "You're in the 18–40 age band, working in the unorganised sector, within the income cap: this builds you a pension for later."
-    }
+    ]
   },
   {
     "id": "atal-pension-yojana",
@@ -630,12 +584,7 @@
     "review_date": "2026-09-12",
     "exclusions": [
       "Women in regular employment with Central or State Government or PSUs"
-    ],
-    "criteria": {
-      "gender": "female",
-      "is_pregnant_or_lactating": true,
-      "match_reason": "You indicated a first pregnancy/lactation: PMMVY provides direct cash support tied to your checkups."
-    }
+    ]
   },
   {
     "id": "sukanya-samriddhi",
@@ -653,11 +602,7 @@
     "review_date": "2026-09-12",
     "exclusions": [
       "Girl child aged 10 or older at account opening"
-    ],
-    "criteria": {
-      "max_daughter_age": 10,
-      "match_reason": "You have a daughter under 10: this scheme locks in a government-backed high interest rate for her future."
-    }
+    ]
   },
   {
     "id": "pm-ujjwala",
@@ -744,18 +689,7 @@
     "exclusions": [
       "General category (not covered by these specific programs)",
       "Household income above the specific program's cap"
-    ],
-    "criteria": {
-      "is_student": true,
-      "categories": [
-        "sc",
-        "st",
-        "obc",
-        "minority"
-      ],
-      "max_annual_income": 250000,
-      "match_reason": "You're a student from the OBC/SC/ST/Minority category with household income under ₹2.5L: several NSP scholarships target exactly this."
-    }
+    ]
   },
   {
     "id": "nsp-post-matric-sc-st",
@@ -913,13 +847,7 @@
     "exclusions": [
       "Rural residence (see PMAY-Gramin instead)",
       "Household already owns a pucca house"
-    ],
-    "criteria": {
-      "requires_kutcha_house": true,
-      "area_type": "urban",
-      "max_annual_income": 300000,
-      "match_reason": "You reported living in a kutcha/temporary house in an urban area with income under ₹3L: PMAY-Urban funds pucca house construction for exactly this profile."
-    }
+    ]
   },
   {
     "id": "pmay-rural",
@@ -940,13 +868,7 @@
     "exclusions": [
       "Urban residence (see PMAY-Urban instead)",
       "Household already owns a pucca house"
-    ],
-    "criteria": {
-      "requires_kutcha_house": true,
-      "area_type": "rural",
-      "max_annual_income": 300000,
-      "match_reason": "You reported living in a kutcha/temporary house in a rural area with income under ₹3L: PMAY-Gramin funds pucca house construction for exactly this profile."
-    }
+    ]
   },
   {
     "id": "sbm-gramin-ihhl",

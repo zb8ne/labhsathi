@@ -7,7 +7,7 @@ use crate::catalog_client;
 use crate::state::AppState;
 
 pub async fn match_handler(State(state): State<AppState>, Json(profile): Json<UserProfile>) -> impl IntoResponse {
-    let facts = match catalog_client::fetch_schemes(&state.http_client, &state.catalog_service_url).await {
+    let facts = match catalog_client::fetch_schemes(&state.http_client, &state.catalog_service_url, &state.catalog_cache).await {
         Ok(facts) => facts,
         Err(err) => {
             tracing::error!(error = %err, "failed to fetch the scheme catalog");
