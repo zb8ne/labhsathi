@@ -6,7 +6,7 @@ import { useLanguage } from "../lib/i18n/LanguageContext";
 export function SchemaStrip() {
   const { t } = useLanguage();
   return (
-    <div className="mx-6 mt-14 flex flex-col items-start gap-3 rounded-xl border border-dark-border-soft bg-[#141110] px-6 py-5 sm:mx-14 sm:flex-row sm:items-center sm:gap-4">
+    <div className="mx-6 mt-9 flex flex-col items-start gap-3 rounded-xl border border-dark-border-soft bg-[#141110] px-6 py-5 sm:mx-14 sm:flex-row sm:items-center sm:gap-4">
       <span className="whitespace-nowrap text-[11px] font-bold uppercase tracking-wide text-ink-secondary">
         {t.privacy.schemaTopic}
       </span>

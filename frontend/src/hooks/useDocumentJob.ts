@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { getJobStatus, uploadDocument } from "../lib/api";
 import type { ExtractedFields } from "../lib/types";
 
@@ -95,6 +95,21 @@ export function useDocumentJob() {
   const reset = useCallback(() => {
     stopPolling();
     setState({ phase: "idle" });
+  }, [stopPolling]);
+
+  // GitHub issue #18 (product review): without this, navigating away from
+  // MainScreen mid-scan (ScanPanel/this hook unmounts, e.g. the user clicks
+  // "Editing answers" back from a previous run, or otherwise routes away)
+  // left the interval and timeout running in the background -- still
+  // polling a job nobody's looking at anymore, and if that job's status
+  // resolves after the unmount, calling setState against a component that
+  // no longer exists. Effect cleanup (not `reset`, which also flips
+  // visible state) is the right place: this only ever needs to stop the
+  // timers, never touch `state`, since nothing is rendering it anymore.
+  useEffect(() => {
+    return () => {
+      stopPolling();
+    };
   }, [stopPolling]);
 
   return { state, scan, reset };

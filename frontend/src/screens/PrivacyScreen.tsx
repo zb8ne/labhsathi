@@ -10,7 +10,7 @@ export function PrivacyScreen() {
     <div className="flex min-h-screen flex-col bg-cream text-ink dark:bg-dark-bg dark:text-dark-text">
       <Nav />
 
-      <main className="flex-1 px-6 pb-16 pt-4 text-center sm:px-14">
+      <main className="flex-1 px-6 pb-8 pt-4 text-center sm:px-14">
         <div className="mb-3.5 text-xs font-semibold uppercase tracking-[0.08em] text-terracotta dark:text-amber-tan">
           {t.privacy.kicker}
         </div>

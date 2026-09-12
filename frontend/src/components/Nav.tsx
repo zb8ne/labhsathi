@@ -13,30 +13,54 @@ interface NavProps {
 export function Nav({ right }: NavProps) {
   const { t, lang, setLang } = useLanguage();
   return (
-    <div className="flex items-center justify-between gap-3 border-b border-border px-6 py-5 dark:border-dark-border sm:px-14">
-      <Link to="/" className="flex shrink-0 items-center gap-3">
-        <Logo />
-        {/* Wordmark hidden below sm: the icon alone plus a `right` slot
-            (e.g. Results' "Editing answers" link) collides with it on a
-            360px-class phone otherwise -- verified by screenshot. */}
-        <span className="hidden font-serif text-xl font-semibold sm:inline sm:text-[22px]">LabhSathi</span>
-      </Link>
-      <div className="flex items-center gap-3 sm:gap-6">
-        {right ?? (
-          <>
-            <span className="hidden text-sm font-medium text-ink-secondary dark:text-dark-secondary sm:inline">
-              {t.nav.howItWorks}
-            </span>
-            <Link to="/privacy" className="hidden text-sm font-medium text-ink-secondary dark:text-dark-secondary sm:inline">
-              {t.nav.privacy}
-            </Link>
-            <TrustPill label={t.nav.noDocumentsStored} />
-          </>
-        )}
-        <ThemeToggle />
-        <LanguageToggle lang={lang} setLang={setLang} />
+    <>
+      <div className="flex items-center justify-between gap-3 border-b border-border px-6 py-5 dark:border-dark-border sm:px-14">
+        <Link to="/" className="flex shrink-0 items-center gap-3">
+          <Logo />
+          {/* Wordmark hidden below sm: the icon alone plus a `right` slot
+              (e.g. Results' "Editing answers" link) collides with it on a
+              360px-class phone otherwise -- verified by screenshot. */}
+          <span className="hidden font-serif text-xl font-semibold sm:inline sm:text-[22px]">LabhSathi</span>
+        </Link>
+        <div className="flex items-center gap-3 sm:gap-6">
+          {right ?? (
+            <>
+              <Link to="/how-it-works" className="hidden text-sm font-medium text-ink-secondary dark:text-dark-secondary sm:inline">
+                {t.nav.howItWorks}
+              </Link>
+              <Link to="/privacy" className="hidden text-sm font-medium text-ink-secondary dark:text-dark-secondary sm:inline">
+                {t.nav.privacy}
+              </Link>
+              <TrustPill label={t.nav.noDocumentsStored} />
+            </>
+          )}
+          <ThemeToggle />
+          <LanguageToggle lang={lang} setLang={setLang} />
+        </div>
       </div>
-    </div>
+      {/* GitHub issue #14 (product review): How it works / Privacy were
+          `hidden` entirely below the `sm` breakpoint with no mobile
+          equivalent anywhere else -- on a phone (this app's primary
+          audience) there was simply no way to reach either page. A
+          second, compact row rather than touching the row above: the main
+          row's icon/wordmark/trust-pill spacing on a 360px phone was
+          already tuned once (see the wordmark comment above) and verified
+          by screenshot; adding these links into that same row risks the
+          exact collision that comment describes. Only rendered when this
+          Nav is showing its default content (not Results' "Editing
+          answers" `right` slot), matching the same condition the two
+          links above already use. */}
+      {!right && (
+        <div className="flex items-center gap-5 border-b border-border px-6 py-2.5 dark:border-dark-border sm:hidden">
+          <Link to="/how-it-works" className="text-[13px] font-medium text-ink-secondary dark:text-dark-secondary">
+            {t.nav.howItWorks}
+          </Link>
+          <Link to="/privacy" className="text-[13px] font-medium text-ink-secondary dark:text-dark-secondary">
+            {t.nav.privacy}
+          </Link>
+        </div>
+      )}
+    </>
   );
 }
 
