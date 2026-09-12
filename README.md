@@ -4,6 +4,8 @@
 
 **Know what you're entitled to.**
 
+**Live app:** https://frontend-production-4a46.up.railway.app · English + हिन्दी, light/dark theme.
+
 ## Problem
 
 Most Indians eligible for central welfare schemes (PM-KISAN, Ayushman Bharat, old-age/disability pension, scholarships, housing assistance, etc.) never claim them. The barrier isn't willingness — it's that eligibility rules are scattered across dozens of scheme PDFs and portals, and nobody translates "my situation" into "here's what you qualify for and what to bring." Multiple field studies on scheme awareness among rural/urban poor and elderly populations report large gaps between eligibility and actual enrollment (see Sources below).
@@ -14,8 +16,10 @@ On top of that, the standard advice ("upload your Aadhaar/income proof to this p
 
 LabhSathi is a two-step flow:
 
-1. **Structured self-assessment** — a short form (age, income, occupation, category, disability status, land holding, etc.) is evaluated against a curated eligibility-rules table for central government schemes. Matches come back with a plain-language reason, the benefit, and the exact documents needed.
-2. **Optional document auto-fill, privacy-first** — instead of storing uploaded ID/income/land documents, the app extracts only the handful of structured fields the form needs from a one-time vision-API read, then discards the image. Nothing about the document — not the image, not OCR text, not a hash — is written to disk, logged, or persisted anywhere.
+1. **Structured self-assessment** — a short form (age, income, occupation, category, disability status, land holding, etc.) is evaluated against a curated eligibility catalog for central government schemes. Every scheme comes back in one of two states, never a silent guess: **a match**, with a plain-language reason, the benefit, and the exact documents needed; or **needs more info**, when an unanswered optional field (land holding, disability percentage, urban/rural area) is the only thing standing between the applicant and a real answer — with a direct link back to the exact form field that would resolve it. A scheme is only ever left out silently when something the applicant *did* answer clearly rules it out.
+2. **Optional document auto-fill, privacy-first** — instead of storing uploaded ID/income/land documents, the app extracts only the handful of structured fields the form needs from a one-time vision-API read, then discards the image. Nothing about the document — not the image, not OCR text, not a hash — is written to disk, logged, or persisted anywhere. Extracted values are shown as an editable suggestion (never silently overwriting something the user already typed), and free-form model wording is normalized against the form's own dropdown vocabulary rather than injected verbatim.
+
+Once matched, the results screen turns discovery into a next step: a have/still-need document checklist, a link to the scheme's official portal where one's been verified, and a browser-only print view of the whole assessment (nothing is sent to a server to produce it).
 
 ## Architecture
 
@@ -34,7 +38,18 @@ frontend (React) ──▶ api-gateway (Rust/Axum) ──▶ Kafka: document.job
 - **labhsathi-core** — the shared Rust domain crate: the eligibility rule engine and the Kafka event schemas. The event schemas have no field capable of holding image bytes, enforced by the struct definitions themselves — see [`docs/adr/0001-event-driven-document-pipeline.md`](docs/adr/0001-event-driven-document-pipeline.md) for the full reasoning, including the honest limits on that claim.
 - **Kafka** (single-broker KRaft) and **Redis** (ephemeral handoff cache, persistence off even in dev) connect the two services.
 
-See [`docs/CONVENTIONS.md`](docs/CONVENTIONS.md) for naming rules and [`infra/k8s/labhsathi/README.md`](infra/k8s/labhsathi/README.md) for the Helm chart / Kubernetes deployment.
+See [`docs/CONVENTIONS.md`](docs/CONVENTIONS.md) for naming rules and [`infra/k8s/labhsathi/README.md`](infra/k8s/labhsathi/README.md) for the Helm chart / Kubernetes deployment. The Helm chart has been deployed and verified for real — including watching its `ocr-worker` HPA scale under real vision-API load, and three further reproducible reliability checks (OCR outage doesn't block matching, a real failure reaches a terminal state, replica count vs. throughput) — see [`docs/engineering/reliability-proof.md`](docs/engineering/reliability-proof.md).
+
+## Scheme data: hardcoded, not live-synced
+
+Direct answer, asked plainly during this build: **yes, every scheme is hardcoded.** There is no live connection to any government API, portal, or database — nothing here refreshes on its own. If a scheme's income cap changes next year, someone has to notice and edit the data by hand.
+
+The catalog (43 schemes as of this writing) is split into two halves, in `services/labhsathi-core`:
+
+- **Facts** (`data/schemes.json`) — name, authority, benefit text, required documents, an `official_note`, a `review_date`, `exclusions`, and a `source_url` linking to the real government portal wherever one could be confirmed live. Plain JSON, editable without touching Rust.
+- **Eligibility logic** (`schemes.rs`) — most schemes are evaluated by a small declarative `criteria` block right in their JSON entry (age/income bounds, occupation, category, gender, etc.) — adding a new scheme this way needs no Rust change at all. A handful of the original schemes (PM-KISAN, the NSAP pensions, PMAY's urban/rural split) instead have a hand-written Rust rule, because their eligibility needed the three-state match/needs-info distinction above — the declarative engine doesn't yet express "ask a follow-up question," only match/no-match.
+
+What this buys, honestly: every catalog entry states the date it was last checked and links to its real source where one exists, so the app never claims to *be* the authority — it points at one. What it doesn't buy: nothing here is verified against the live portals on any kind of schedule. Before trusting a specific number for anything real, follow the `source_url`.
 
 ## Tech stack
 
@@ -44,7 +59,8 @@ See [`docs/CONVENTIONS.md`](docs/CONVENTIONS.md) for naming rules and [`infra/k8
 - **Cache:** Redis (ephemeral handoff only — see the ADR for why this distinction is load-bearing, not cosmetic)
 - **Vision/OCR:** Anthropic Claude API (vision), called once per document, never persisted
 - **Local dev:** Docker Compose (`infra/docker/docker-compose.yml`)
-- **Deployment:** Kubernetes via Helm (`infra/k8s/labhsathi`)
+- **Deployment:** Railway (the always-on public link above) · Kubernetes via Helm (`infra/k8s/labhsathi`), verified against a local `kind` cluster with a real HPA scaling demo
+- **Secrets:** Doppler in every environment — no plaintext secret in the repo, a Compose file, or a checked-in k8s manifest; the Helm chart references a Secret by name rather than templating one from values
 
 ## Running it
 
@@ -83,9 +99,14 @@ cd frontend && npm install && npm run dev
 
 ## Scope & honesty note
 
-The scheme database here is a demonstration set, not exhaustive — a production version would ingest the full central + state catalog and keep it current against official notifications. Eligibility rules are simplified approximations of real criteria; the app frames matches as "worth checking," not a final determination, and lists the relevant documents so you can verify on the official portal before relying on a match.
+The scheme catalog (43 entries, central government only) is curated and hardcoded, not exhaustive and not live-synced — see [Scheme data](#scheme-data-hardcoded-not-live-synced) above for exactly what that means and why. Eligibility rules are simplified approximations of real criteria; the app frames matches as "worth checking," never a final determination, distinguishes a real match from "we need one more answer to tell," and lists the relevant documents so you can verify on the official portal before relying on a match.
 
 The event-driven pipeline is real and running, not a diagram — but read [`docs/adr/0001`](docs/adr/0001-event-driven-document-pipeline.md) for exactly where the guarantees are solid (no field anywhere can hold image bytes) versus where they're honestly bounded (a free-text field is length-capped, not literally typed-impossible to misuse).
+
+## Demo & pitch deck
+
+- [`docs/demo/walkthrough.mp4`](docs/demo/walkthrough.mp4) — a real, unscripted capture of the golden path against the live stack (real Kafka/Redis/ocr-worker, a real vision-API call against a synthetic specimen document)
+- [`docs/pitch-deck/index.html`](docs/pitch-deck/index.html) — the 6-slide submission deck, open directly in a browser
 
 ## Sources used while building this
 
@@ -97,8 +118,10 @@ The event-driven pipeline is real and running, not a diagram — but read [`docs
 
 ## Future scope
 
-- Ingest the full central + state scheme catalog (data.gov.in has partial APIs)
-- Multi-language form (most affected users are not English-first)
+- A real process for keeping scheme data current against official notifications, instead of a one-time hardcoded pass — periodic re-verification of every `source_url` and `review_date` at minimum; ingesting the full central + state catalog (data.gov.in has partial APIs) is the further version of this
+- Extend the three-state (match / needs-info) eligibility model to the declarative criteria engine, so schemes that only have JSON criteria today can also ask a follow-up question instead of only ever matching or not
+- A real household-member model — today's form mixes an individual's age/occupation with household income and a daughter's age without ever asking whose circumstances a question describes; this is a deliberately separate increment, not a quick fix
+- Hindi translation for the dynamically-generated per-scheme "why you matched" sentences (everything else in the UI is already fully bilingual)
 - SMS/WhatsApp front-end for low-smartphone-literacy users
 - KEDA-based (consumer-lag) autoscaling for ocr-worker in production — see `infra/k8s/labhsathi/values-prod.yaml`
 - 3-broker Kafka for production durability — see the ADR
