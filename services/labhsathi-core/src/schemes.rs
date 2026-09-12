@@ -551,8 +551,22 @@ mod tests {
     }
 
     #[test]
-    fn base_profile_matches_nothing() {
-        assert_eq!(matches(&base_profile()).len(), 0);
+    fn base_profile_matches_only_genuinely_universal_schemes() {
+        // base_profile is a comfortable, well-off salaried adult with no
+        // special circumstances -- deliberately built to rule out every
+        // means-tested or vulnerability-targeted scheme in the catalog.
+        // It's no longer expected to match *zero* schemes now that the
+        // catalog also includes formal-sector and universal-eligibility
+        // programs that a profile like this genuinely does qualify for:
+        // NPCDCS screens any adult 30+ regardless of income, and NPS's
+        // all-citizen model is open to any citizen 18-70. Matching those
+        // two is correct, not a leak -- the assertion below is deliberately
+        // an explicit allowlist, not a raised count, so any *other* scheme
+        // matching this profile still fails the test loudly.
+        let ids: Vec<String> = matches(&base_profile()).into_iter().map(|m| m.id).collect();
+        assert_eq!(ids.len(), 2, "unexpected match(es) for a profile designed to qualify for nothing means-tested: {ids:?}");
+        assert!(ids.iter().any(|id| id == "npcdcs-ncd-screening"));
+        assert!(ids.iter().any(|id| id == "nps-all-citizen"));
     }
 
     #[test]

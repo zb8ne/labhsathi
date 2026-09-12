@@ -29,7 +29,7 @@ async fn main() {
     // works fine) with real backups, not a file no service owns.
     create_table_if_missing(&pool).await.expect("failed to create schemes table");
 
-    seed_if_empty(&pool).await;
+    sync_catalog(&pool).await;
 
     let state = AppState { pool };
 
@@ -89,23 +89,26 @@ async fn list_schemes(State(state): State<AppState>) -> Result<Json<Vec<SchemeFa
     })
 }
 
-/// Runs once, on first boot against an empty database. labhsathi-core's
-/// seed_facts() is the same reviewed data/schemes.json this repo has
-/// always shipped -- Postgres is the runtime store now, but the dataset
-/// itself is still the hand-curated one, not pulled from anywhere live.
-async fn seed_if_empty(pool: &PgPool) {
-    let count: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM schemes")
-        .fetch_one(pool)
-        .await
-        .expect("failed to count schemes");
-
-    if count > 0 {
-        tracing::info!(count, "schemes table already seeded, skipping");
-        return;
-    }
-
+/// Runs on every boot, against a table that may already hold rows.
+/// labhsathi-core's seed_facts() is the same reviewed data/schemes.json
+/// this repo has always shipped -- Postgres is the runtime store now, but
+/// the dataset itself is still the hand-curated one, not pulled from
+/// anywhere live.
+///
+/// Deliberately not gated on "table is empty": that would mean the only
+/// way to get a newly-added embedded scheme into a database that's
+/// already been seeded once is a manual INSERT against production. Instead
+/// this runs the same upsert-by-id loop every boot -- `ON CONFLICT (id) DO
+/// NOTHING` makes it a no-op for rows that already exist (byte-for-byte
+/// identical or not; an edit to an existing scheme's fields still needs a
+/// real migration, this only ever adds rows whose id isn't present yet)
+/// and a real insert for anything new in the embedded catalog since the
+/// last deploy. Safe for every replica to run this at once for the same
+/// reason the old empty-table version was: the INSERT itself is the only
+/// thing that can race, and ON CONFLICT DO NOTHING already handles that.
+async fn sync_catalog(pool: &PgPool) {
     let facts = seed_facts();
-    tracing::info!(count = facts.len(), "seeding schemes table from the embedded catalog");
+    tracing::info!(count = facts.len(), "syncing schemes table against the embedded catalog");
 
     for f in &facts {
         let data = serde_json::to_value(f).expect("SchemeFacts must serialize");
@@ -114,7 +117,7 @@ async fn seed_if_empty(pool: &PgPool) {
             .bind(&data)
             .execute(pool)
             .await
-            .expect("failed to seed a scheme row");
+            .expect("failed to sync a scheme row");
     }
 }
 
@@ -123,7 +126,7 @@ async fn seed_if_empty(pool: &PgPool) {
 // tests: `cargo test -p catalog-service -- --ignored --test-threads=1`
 // against a real DATABASE_URL (the standalone `docker run` in .env.example
 // is easiest -- Compose's own postgres service isn't published to the
-// host). --test-threads=1 matters here specifically: both tests call
+// host). --test-threads=1 matters here specifically: these tests all call
 // CREATE TABLE IF NOT EXISTS against the same fresh database, and Postgres
 // isn't safe against two concurrent callers racing that on a table that
 // doesn't exist yet (confirmed -- running them in parallel intermittently
@@ -144,38 +147,64 @@ mod tests {
 
     #[tokio::test]
     #[ignore]
-    async fn seeding_an_empty_table_populates_the_full_catalog() {
+    async fn syncing_an_empty_table_populates_the_full_catalog() {
         let pool = test_pool().await;
         create_table_if_missing(&pool).await.expect("create table");
         sqlx::query("DELETE FROM schemes").execute(&pool).await.expect("clear table for test isolation");
 
-        seed_if_empty(&pool).await;
+        sync_catalog(&pool).await;
 
         let stored = fetch_all_schemes(&pool).await.expect("fetch schemes");
         let expected = seed_facts();
         assert_eq!(stored.len(), expected.len());
 
-        let pm_kisan = stored.iter().find(|s| s.id == "pm-kisan").expect("pm-kisan present after seeding");
+        let pm_kisan = stored.iter().find(|s| s.id == "pm-kisan").expect("pm-kisan present after syncing");
         assert_eq!(pm_kisan.source_url.as_deref(), Some("https://pmkisan.gov.in"));
     }
 
     #[tokio::test]
     #[ignore]
-    async fn seeding_is_a_no_op_against_an_already_populated_table() {
+    async fn syncing_twice_against_an_already_populated_table_is_a_no_op() {
         let pool = test_pool().await;
         create_table_if_missing(&pool).await.expect("create table");
         sqlx::query("DELETE FROM schemes").execute(&pool).await.expect("clear table for test isolation");
 
-        seed_if_empty(&pool).await;
+        sync_catalog(&pool).await;
         let first_pass = fetch_all_schemes(&pool).await.expect("fetch schemes");
 
-        // A second call must not duplicate or error (ON CONFLICT DO NOTHING
-        // plus the count>0 short-circuit) -- this is what makes it safe for
-        // every catalog-service replica to run the same startup seed logic
-        // without racing each other into a broken state.
-        seed_if_empty(&pool).await;
+        // A second call must not duplicate or error -- ON CONFLICT DO
+        // NOTHING is what makes it safe for every catalog-service replica
+        // to run this same sync at boot without racing each other into a
+        // broken state, and safe to run again on every future redeploy.
+        sync_catalog(&pool).await;
         let second_pass = fetch_all_schemes(&pool).await.expect("fetch schemes");
 
         assert_eq!(first_pass.len(), second_pass.len());
+    }
+
+    #[tokio::test]
+    #[ignore]
+    async fn syncing_adds_new_rows_to_a_table_that_already_has_some() {
+        let pool = test_pool().await;
+        create_table_if_missing(&pool).await.expect("create table");
+        sqlx::query("DELETE FROM schemes").execute(&pool).await.expect("clear table for test isolation");
+
+        // Simulate "already deployed with an older, smaller catalog": seed
+        // just one real row by hand, then run the normal sync and confirm
+        // it fills in the rest without touching the pre-existing one.
+        let pm_kisan = seed_facts().into_iter().find(|f| f.id == "pm-kisan").expect("pm-kisan in embedded catalog");
+        let data = serde_json::to_value(&pm_kisan).expect("serialize");
+        sqlx::query("INSERT INTO schemes (id, data) VALUES ($1, $2)")
+            .bind(&pm_kisan.id)
+            .bind(&data)
+            .execute(&pool)
+            .await
+            .expect("seed one row by hand");
+
+        sync_catalog(&pool).await;
+
+        let stored = fetch_all_schemes(&pool).await.expect("fetch schemes");
+        let expected = seed_facts();
+        assert_eq!(stored.len(), expected.len(), "sync should have added every other embedded scheme");
     }
 }

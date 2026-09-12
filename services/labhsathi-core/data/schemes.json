@@ -20,7 +20,9 @@
       "Constitutional post holders and serving/retired government employees above Group D"
     ],
     "criteria": {
-      "occupations": ["farmer"],
+      "occupations": [
+        "farmer"
+      ],
       "requires_land": true,
       "match_reason": "You reported farming as your occupation with land holdings: PM-KISAN provides direct income support to landholding farmer families."
     }
@@ -45,7 +47,9 @@
       "Damage caused by malicious intent or avoidable risks"
     ],
     "criteria": {
-      "occupations": ["farmer"],
+      "occupations": [
+        "farmer"
+      ],
       "requires_land": true,
       "match_reason": "You reported farming with land holdings: PMFBY provides low-premium insurance against unavoidable crop damage and climate risks."
     }
@@ -69,7 +73,9 @@
       "Willful bank loan defaulters"
     ],
     "criteria": {
-      "occupations": ["farmer"],
+      "occupations": [
+        "farmer"
+      ],
       "requires_land": true,
       "match_reason": "You reported farming as your occupation: Kisan Credit Card provides low-interest working capital for seeds, fertilizers, and farm equipment."
     }
@@ -93,7 +99,9 @@
       "Beneficiaries of other statutory social security schemes like NPS, PM-SYM, EPFO"
     ],
     "criteria": {
-      "occupations": ["farmer"],
+      "occupations": [
+        "farmer"
+      ],
       "requires_land": true,
       "min_age": 18,
       "max_age": 40,
@@ -119,7 +127,9 @@
       "Farms without access to an identified water source"
     ],
     "criteria": {
-      "occupations": ["farmer"],
+      "occupations": [
+        "farmer"
+      ],
       "requires_land": true,
       "match_reason": "You reported farming on land holdings: PMKSY offers up to 55% government subsidy for installing drip and sprinkler systems."
     }
@@ -141,7 +151,9 @@
     "review_date": "2026-09-12",
     "exclusions": [],
     "criteria": {
-      "occupations": ["farmer"],
+      "occupations": [
+        "farmer"
+      ],
       "requires_land": true,
       "match_reason": "You reported farming on land holdings: PKVY supports farmers transitioning to chemical-free organic farming with ₹50,000/ha subsidy."
     }
@@ -302,7 +314,10 @@
       "Beneficiaries who availed PMEGP/PM SVANidhi/MUDRA loans and defaulted"
     ],
     "criteria": {
-      "occupations": ["self_employed", "laborer"],
+      "occupations": [
+        "self_employed",
+        "laborer"
+      ],
       "min_age": 18,
       "match_reason": "You're self-employed or working in a skilled trade: PM Vishwakarma provides free toolkits (₹15,000), stipends, and collateral-free business loans at 5%."
     }
@@ -325,7 +340,10 @@
       "Vendors operating without municipal survey records or local letter of recommendation"
     ],
     "criteria": {
-      "occupations": ["self_employed", "laborer"],
+      "occupations": [
+        "self_employed",
+        "laborer"
+      ],
       "match_reason": "You reported working as self-employed or in the unorganised sector: PM SVANidhi offers collateral-free loans starting at ₹10,000 with 7% interest subsidy."
     }
   },
@@ -348,7 +366,10 @@
       "Individuals seeking personal loans rather than business setup/expansion"
     ],
     "criteria": {
-      "occupations": ["self_employed", "unemployed"],
+      "occupations": [
+        "self_employed",
+        "unemployed"
+      ],
       "min_age": 18,
       "match_reason": "You're self-employed or looking to start a micro-enterprise: MUDRA offers collateral-free financing up to ₹10 Lakh without processing fees."
     }
@@ -373,7 +394,10 @@
       "Existing business units (only applies to greenfield/first-time ventures)"
     ],
     "criteria": {
-      "categories": ["sc", "st"],
+      "categories": [
+        "sc",
+        "st"
+      ],
       "min_age": 18,
       "match_reason": "You're from an affirmative social category: Stand-Up India facilitates substantial commercial bank loans (₹10L–₹1Cr) for new enterprises."
     }
@@ -398,7 +422,10 @@
     ],
     "criteria": {
       "min_age": 18,
-      "occupations": ["self_employed", "unemployed"],
+      "occupations": [
+        "self_employed",
+        "unemployed"
+      ],
       "match_reason": "You're an adult seeking self-employment: PMEGP offers up to 35% government capital subsidy for establishing micro-enterprises."
     }
   },
@@ -501,7 +528,11 @@
       "Income-tax payers"
     ],
     "criteria": {
-      "occupations": ["laborer", "self_employed", "homemaker"],
+      "occupations": [
+        "laborer",
+        "self_employed",
+        "homemaker"
+      ],
       "min_age": 18,
       "max_age": 40,
       "max_annual_income": 180000,
@@ -574,7 +605,9 @@
       "Income-tax payers"
     ],
     "criteria": {
-      "occupations": ["self_employed"],
+      "occupations": [
+        "self_employed"
+      ],
       "min_age": 18,
       "max_age": 40,
       "max_annual_income": 300000,
@@ -714,7 +747,12 @@
     ],
     "criteria": {
       "is_student": true,
-      "categories": ["sc", "st", "obc", "minority"],
+      "categories": [
+        "sc",
+        "st",
+        "obc",
+        "minority"
+      ],
       "max_annual_income": 250000,
       "match_reason": "You're a student from the OBC/SC/ST/Minority category with household income under ₹2.5L: several NSP scholarships target exactly this."
     }
@@ -740,7 +778,10 @@
     ],
     "criteria": {
       "is_student": true,
-      "categories": ["sc", "st"],
+      "categories": [
+        "sc",
+        "st"
+      ],
       "max_annual_income": 250000,
       "match_reason": "You're a student from the SC or ST community with family income under ₹2.5L: this scheme covers your full post-matric college tuition fees."
     }
@@ -768,7 +809,9 @@
     "criteria": {
       "is_student": true,
       "gender": "female",
-      "categories": ["minority"],
+      "categories": [
+        "minority"
+      ],
       "max_annual_income": 200000,
       "match_reason": "You're a female student from a minority community with income under ₹2L: this scholarship provides dedicated annual school support."
     }
@@ -793,7 +836,9 @@
     ],
     "criteria": {
       "is_student": true,
-      "categories": ["obc"],
+      "categories": [
+        "obc"
+      ],
       "max_annual_income": 250000,
       "match_reason": "You're an OBC student with household income under ₹2.5L: PM-YASASVI provides high-value merit scholarships up to ₹1,25,000."
     }
@@ -945,7 +990,11 @@
     ],
     "criteria": {
       "min_age": 18,
-      "occupations": ["laborer", "farmer", "unemployed"],
+      "occupations": [
+        "laborer",
+        "farmer",
+        "unemployed"
+      ],
       "match_reason": "You're an adult in a rural/informal occupation: MGNREGA legally guarantees 100 days of paid government wage employment every year."
     }
   },
@@ -967,7 +1016,12 @@
     "criteria": {
       "min_age": 15,
       "max_age": 45,
-      "occupations": ["unemployed", "student", "laborer", "self_employed"],
+      "occupations": [
+        "unemployed",
+        "student",
+        "laborer",
+        "self_employed"
+      ],
       "match_reason": "You're in the 15–45 working age group: PMKVY offers 100% free certified skill development courses with placement support."
     }
   },
@@ -1044,6 +1098,1576 @@
       "min_disability_percentage": 40,
       "min_age": 18,
       "match_reason": "You're an adult with a certified disability: this scheme offers low-interest (5%) loans up to ₹50 Lakh to start or expand a business."
+    }
+  },
+  {
+    "id": "pmmsy-fisheries",
+    "name": "Pradhan Mantri Matsya Sampada Yojana (PMMSY)",
+    "authority": "Department of Fisheries, Ministry of Fisheries, Animal Husbandry and Dairying",
+    "benefit": "Provides capital subsidy of up to 40% of project cost for general beneficiaries and up to 60% for SC/ST and women beneficiaries to build fisheries infrastructure such as ponds, hatcheries, cages, and fishing vessels, under a total scheme outlay of ₹20,050 crore for 2020-25.",
+    "category_domain": "agriculture",
+    "documents": [
+      "Aadhaar card",
+      "PAN card or Voter ID",
+      "Bank passbook or cancelled cheque",
+      "Proof of land ownership or registered lease agreement",
+      "Detailed Project Report (DPR)"
+    ],
+    "official_note": "Subsidy is calculated on the government-approved unit cost, so any project expense above that cap must be paid by the beneficiary, and support already availed for the same activity under another government scheme makes an applicant ineligible.",
+    "source_url": "https://pmmsy.dof.gov.in/",
+    "review_date": "2026-09-12",
+    "exclusions": [
+      "Beneficiaries already supported for the same activity under another government scheme are not eligible",
+      "Assistance is capped at the approved unit cost regardless of actual project cost"
+    ],
+    "criteria": {
+      "min_age": 18,
+      "occupations": [
+        "farmer",
+        "self_employed",
+        "laborer"
+      ],
+      "match_reason": "You reported fishing or fish farming as your occupation: PMMSY provides capital subsidy of up to 60% to help you set up ponds, hatcheries, cages, or other fisheries infrastructure."
+    }
+  },
+  {
+    "id": "rashtriya-gokul-mission",
+    "name": "Rashtriya Gokul Mission (RGM)",
+    "authority": "Department of Animal Husbandry and Dairying, Ministry of Fisheries, Animal Husbandry and Dairying",
+    "benefit": "Provides up to 50% subsidy on sex-sorted semen costs, ₹5,000 subsidy per IVF pregnancy, and up to 50% subsidy (capped at ₹2 crore) for setting up breed multiplication farms, to improve indigenous cattle and buffalo breeds, under a total outlay of ₹3,400 crore for 2021-26.",
+    "category_domain": "agriculture",
+    "documents": [
+      "Aadhaar card",
+      "Proof of cattle/buffalo ownership",
+      "Bank passbook",
+      "Application through the state Animal Husbandry Department"
+    ],
+    "official_note": "The scheme is specifically aimed at small and marginal farmers and landless labourers, since more than 80% of low-producing indigenous animals are owned by these groups, and it covers only indigenous bovine breeds, not crossbred or exotic cattle.",
+    "source_url": "https://dahd.gov.in/en/schemes/programmes/rashtriya_gokul_mission",
+    "review_date": "2026-09-12",
+    "exclusions": [
+      "Crossbred or exotic cattle breeds are not covered",
+      "Benefits are routed through state implementing agencies and artificial insemination networks, not paid directly on demand"
+    ],
+    "criteria": {
+      "min_age": 18,
+      "occupations": [
+        "farmer",
+        "laborer"
+      ],
+      "area_type": "rural",
+      "match_reason": "You reported cattle or dairy farming as your occupation: Rashtriya Gokul Mission subsidises artificial insemination, IVF, and breed improvement services to help raise your milk yield."
+    }
+  },
+  {
+    "id": "national-beekeeping-honey-mission",
+    "name": "National Beekeeping and Honey Mission (NBHM)",
+    "authority": "National Bee Board, Department of Agriculture and Farmers Welfare, Ministry of Agriculture and Farmers Welfare",
+    "benefit": "Provides 80-90% subsidy on bee boxes, beehives, and honey processing equipment for SC/ST and women beekeepers, a lower subsidy for general category beekeepers, and free basic beekeeping training, under a total outlay of ₹500 crore for 2020-26.",
+    "category_domain": "agriculture",
+    "documents": [
+      "Aadhaar card",
+      "Bank passbook",
+      "Caste certificate (if applying under SC/ST category)",
+      "Proof of completion of basic beekeeping training"
+    ],
+    "official_note": "Applicants already receiving support for the same activity under another government scheme are not eligible, and input support is generally limited to beekeepers maintaining fewer than 10 bee colonies.",
+    "source_url": "https://nbb.gov.in/default.html",
+    "review_date": "2026-09-12",
+    "exclusions": [
+      "Not available to those already benefiting from another government scheme for the same activity",
+      "Typically limited to beekeepers with fewer than 10 bee colonies"
+    ],
+    "criteria": {
+      "min_age": 18,
+      "max_age": 55,
+      "occupations": [
+        "farmer",
+        "laborer",
+        "self_employed"
+      ],
+      "match_reason": "You reported beekeeping or farming as your occupation: NBHM offers up to 80-90% subsidy on bee boxes and hives plus free training to help you start or expand beekeeping."
+    }
+  },
+  {
+    "id": "agriculture-infrastructure-fund",
+    "name": "Agriculture Infrastructure Fund (AIF)",
+    "authority": "Department of Agriculture and Farmers Welfare, Ministry of Agriculture and Farmers Welfare",
+    "benefit": "Offers loans of up to ₹2 crore with a 3% per annum interest subvention (capped at 9% effective interest) and collateral-free credit guarantee coverage through CGTMSE, for building post-harvest and farm-gate infrastructure such as cold storage, warehouses, and primary processing units.",
+    "category_domain": "agriculture",
+    "documents": [
+      "Aadhaar number and registered mobile number",
+      "Detailed Project Report (DPR) with cost breakup and financial projections",
+      "Land ownership or lease documents for the project site"
+    ],
+    "official_note": "Standalone secondary processing units are not eligible unless integrated with primary processing facilities, and no separate capital or margin subsidy is available on top of the interest subvention.",
+    "source_url": "https://agriinfra.dac.gov.in/",
+    "review_date": "2026-09-12",
+    "exclusions": [
+      "Working capital-only loans are not covered",
+      "Standalone secondary processing units are not eligible",
+      "Maximum of 25 projects per applicant, except for state agencies and federations"
+    ],
+    "criteria": {
+      "min_age": 18,
+      "occupations": [
+        "farmer",
+        "self_employed"
+      ],
+      "match_reason": "You reported farming or agri-entrepreneurship as your occupation: the Agriculture Infrastructure Fund offers loans up to ₹2 crore at a 3% interest subvention to help you build storage, processing, or other farm infrastructure."
+    }
+  },
+  {
+    "id": "soil-health-card-scheme",
+    "name": "Soil Health Card Scheme (SHC)",
+    "authority": "Department of Agriculture and Farmers Welfare, Ministry of Agriculture and Farmers Welfare",
+    "benefit": "Provides every landholding farmer a free soil health card, renewed once every three years, with crop-wise fertiliser and nutrient recommendations that have helped farmers save 8-10% on fertiliser costs and increase yields by 5-6%.",
+    "category_domain": "agriculture",
+    "documents": [
+      "Land ownership or tenancy record",
+      "Aadhaar card",
+      "Soil sample collected from the farmer's field"
+    ],
+    "official_note": "Recommendations are based on soil samples tested once every three years, so the advice may not reflect very recent changes in soil condition, and income-tax-paying farmers and government employees are generally not prioritised for outreach.",
+    "source_url": "https://soilhealth.dac.gov.in/",
+    "review_date": "2026-09-12",
+    "exclusions": [
+      "Income-tax-paying farmers and government employees are typically not prioritized",
+      "Card is renewed only once every three years, not on demand"
+    ],
+    "criteria": {
+      "min_age": 18,
+      "occupations": [
+        "farmer"
+      ],
+      "requires_land": true,
+      "match_reason": "You reported farming as your occupation with land holdings: the Soil Health Card scheme gives you a free soil test and fertiliser recommendations to cut costs and improve yield."
+    }
+  },
+  {
+    "id": "midh-horticulture",
+    "name": "Mission for Integrated Development of Horticulture (MIDH)",
+    "authority": "Department of Agriculture and Farmers Welfare, Ministry of Agriculture and Farmers Welfare",
+    "benefit": "Provides financial assistance (60% Centre share for general states, 90% for North Eastern and Himalayan states) for setting up nurseries, new orchards, protected cultivation such as poly-houses and green-houses, and post-harvest and marketing infrastructure for fruits, vegetables, spices, and flowers.",
+    "category_domain": "agriculture",
+    "documents": [
+      "Land records",
+      "Aadhaar card",
+      "Bank passbook",
+      "Project proposal submitted through the State Horticulture Mission"
+    ],
+    "official_note": "Assistance is released only after a horticulture officer verifies the crop and area planted, and since it is a centrally sponsored scheme, funds and processing time are routed through state horticulture departments rather than paid out directly by the Centre.",
+    "source_url": "https://midh.gov.in/",
+    "review_date": "2026-09-12",
+    "exclusions": [
+      "Funds route through State Horticulture Missions, so processing time varies by state",
+      "Subsidy is limited to notified horticulture crops and approved components"
+    ],
+    "criteria": {
+      "min_age": 18,
+      "occupations": [
+        "farmer"
+      ],
+      "requires_land": true,
+      "match_reason": "You reported horticulture or farming as your occupation: MIDH subsidises nurseries, orchards, and greenhouse cultivation to help you grow fruits, vegetables, or flowers."
+    }
+  },
+  {
+    "id": "smam-agri-mechanization",
+    "name": "Sub-Mission on Agricultural Mechanization (SMAM)",
+    "authority": "Department of Agriculture and Farmers Welfare, Ministry of Agriculture and Farmers Welfare",
+    "benefit": "Provides 40-50% subsidy on farm machinery such as tractors, power tillers, and harvesters for general farmers, and 50-80% subsidy for SC/ST, women, and small and marginal farmers, along with support for setting up Custom Hiring Centres.",
+    "category_domain": "agriculture",
+    "documents": [
+      "Aadhaar card",
+      "Land records (Khasra/Khatauni)",
+      "Bank passbook",
+      "Caste certificate (if applicable)",
+      "Quotation from a registered machinery dealer"
+    ],
+    "official_note": "Subsidy is released only for machinery purchased from registered manufacturers whose models are tested at designated Farm Machinery Testing Institutes, and small, marginal, women, and SC/ST farmers get priority in fund allocation.",
+    "source_url": "https://agrimachinery.nic.in/",
+    "review_date": "2026-09-12",
+    "exclusions": [
+      "Machinery not tested or certified by designated Farm Machinery Testing Institutes is not eligible for subsidy",
+      "Subsidy is reimbursed against actual purchase, not paid as advance cash"
+    ],
+    "criteria": {
+      "min_age": 18,
+      "occupations": [
+        "farmer"
+      ],
+      "match_reason": "You reported farming as your occupation: SMAM offers 40-80% subsidy on tractors and farm machinery, with higher subsidy for small, marginal, women, and SC/ST farmers."
+    }
+  },
+  {
+    "id": "india-post-payments-bank",
+    "name": "India Post Payments Bank (IPPB)",
+    "authority": "Department of Posts, Ministry of Communications",
+    "benefit": "Offers a zero-minimum-balance savings account with Aadhaar-based instant account opening and doorstep banking through postal staff, bringing formal banking, Direct Benefit Transfer payments, and insurance access to unbanked and underserved households.",
+    "category_domain": "financial_inclusion",
+    "documents": [
+      "Aadhaar number",
+      "PAN card or Form 60",
+      "Registered mobile number linked to Aadhaar"
+    ],
+    "official_note": "The basic Regular Savings Account has a balance cap, with funds above ₹2 lakh auto-swept to a linked Post Office Savings account, so it works as an entry-level banking product rather than a full-service account for large sums.",
+    "source_url": "https://www.indiapost.gov.in/banking-services/ippb",
+    "review_date": "2026-09-12",
+    "exclusions": [
+      "Balance cap applies to the basic Regular Savings Account",
+      "Some services require an additionally linked Post Office Savings Bank or partner bank account"
+    ],
+    "criteria": {
+      "min_age": 10,
+      "requires_no_bank_account": true,
+      "match_reason": "You reported not having a bank account or living in a remote area: India Post Payments Bank lets you open a zero-balance account with doorstep service through your local postal worker."
+    }
+  },
+  {
+    "id": "cgtmse-credit-guarantee",
+    "name": "Credit Guarantee Fund Trust for Micro and Small Enterprises (CGTMSE)",
+    "authority": "Ministry of Micro, Small and Medium Enterprises and Small Industries Development Bank of India (SIDBI)",
+    "benefit": "Enables collateral-free loans up to ₹10 crore to micro and small enterprises by guaranteeing 75% to 85% of the loan amount to the lending bank, with higher cover for micro loans, women entrepreneurs, and SC/ST-owned businesses.",
+    "category_domain": "financial_inclusion",
+    "documents": [
+      "Udyam Registration Certificate",
+      "Aadhaar card and PAN card of promoters",
+      "Business project report",
+      "Financial statements or bank statements"
+    ],
+    "official_note": "The guarantee is extended to the lending bank rather than paid to the borrower, so getting the loan approved still depends on the bank's own credit assessment of the business.",
+    "source_url": "https://www.cgtmse.in/",
+    "review_date": "2026-09-12",
+    "exclusions": [
+      "Retail trade activities are generally excluded from coverage",
+      "Loans already covered under certain other government credit-guarantee schemes cannot claim CGTMSE guarantee for the same amount"
+    ],
+    "criteria": {
+      "min_age": 18,
+      "occupations": [
+        "self_employed"
+      ],
+      "match_reason": "You reported running or starting a small business: CGTMSE lets you get a collateral-free loan up to ₹10 crore because the government guarantees most of it to your bank."
+    }
+  },
+  {
+    "id": "senior-citizen-savings-scheme",
+    "name": "Senior Citizen Savings Scheme (SCSS)",
+    "authority": "Department of Economic Affairs, Ministry of Finance (operated through India Post and authorised banks)",
+    "benefit": "Offers a 5-year government-backed fixed deposit paying 8.2% annual interest (for the April-June 2026 quarter), paid out quarterly, with deposits allowed up to ₹30 lakh per individual.",
+    "category_domain": "financial_inclusion",
+    "documents": [
+      "Age proof",
+      "Aadhaar card",
+      "PAN card",
+      "Address proof",
+      "Passport-size photograph",
+      "Retirement proof (for those aged 55-60 opting via VRS)"
+    ],
+    "official_note": "The interest rate is locked at account opening for the full 5-year tenure even though the government revises it quarterly for new accounts, and premature closure before maturity attracts a penalty; the minimum age is relaxed to 55 for VRS retirees and 50 for retired defence personnel.",
+    "source_url": "https://www.indiapost.gov.in/",
+    "review_date": "2026-09-12",
+    "exclusions": [
+      "NRIs and Hindu Undivided Families (HUFs) are not eligible",
+      "Premature withdrawal before maturity results in a reduced payout"
+    ],
+    "criteria": {
+      "min_age": 60,
+      "occupations": [
+        "retired"
+      ],
+      "match_reason": "You reported being a senior citizen: the Senior Citizen Savings Scheme lets you invest up to ₹30 lakh at a guaranteed 8.2% annual interest paid every quarter."
+    }
+  },
+  {
+    "id": "day-nrlm-women-shg",
+    "name": "Deendayal Antyodaya Yojana - National Rural Livelihood Mission (DAY-NRLM) Interest Subvention for Women SHGs",
+    "authority": "Ministry of Rural Development",
+    "benefit": "Provides interest subvention on bank loans of up to ₹3 lakh taken by women Self Help Groups in eligible districts, bringing the effective interest rate down to around 7% (and further to about 4% for groups with prompt repayment), along with collateral-free credit access.",
+    "category_domain": "financial_inclusion",
+    "documents": [
+      "SHG membership and bank account details",
+      "SHG bank loan sanction letter",
+      "Aadhaar card of members",
+      "SHG grading certificate"
+    ],
+    "official_note": "The subvention applies only to loans routed through Self Help Groups formed and mobilised under DAY-NRLM in notified/eligible districts, not to individual loans taken outside the SHG structure.",
+    "source_url": "https://aajeevika.gov.in/",
+    "review_date": "2026-09-12",
+    "exclusions": [
+      "Available only to women members of DAY-NRLM-mobilised Self Help Groups",
+      "Interest subvention is limited to loans up to ₹3 lakh per SHG"
+    ],
+    "criteria": {
+      "min_age": 18,
+      "occupations": [
+        "homemaker",
+        "self_employed",
+        "laborer"
+      ],
+      "gender": "female",
+      "area_type": "rural",
+      "match_reason": "You reported being a woman in a rural area looking for credit: DAY-NRLM helps your Self Help Group access bank loans up to ₹3 lakh at a reduced interest rate as low as 4-7%."
+    }
+  },
+  {
+    "id": "cegssc-sc-credit-guarantee",
+    "name": "Credit Enhancement Guarantee Scheme for Scheduled Castes (CEGSSC)",
+    "authority": "Ministry of Social Justice and Empowerment (implemented by IFCI Ltd as nodal agency)",
+    "benefit": "Provides a credit guarantee of up to ₹1 crore per individual Scheduled Caste entrepreneur, and up to ₹5 crore for SC-owned companies, on term loans and working capital, enabling access to bank credit without additional collateral.",
+    "category_domain": "financial_inclusion",
+    "documents": [
+      "Caste certificate proving Scheduled Caste status",
+      "Business registration documents",
+      "Project report",
+      "Sanction letter or letter of intent from the lending institution"
+    ],
+    "official_note": "The guarantee is issued to the Member Lending Institution rather than paid to the entrepreneur, and companies must have more than 51% shareholding held by SC entrepreneurs with management control to qualify.",
+    "source_url": "https://socialjustice.gov.in/schemes/32",
+    "review_date": "2026-09-12",
+    "exclusions": [
+      "Only available to enterprises with majority Scheduled Caste ownership and management control",
+      "Guarantee cover is renewed annually and lapses if the annual renewal fee is not paid"
+    ],
+    "criteria": {
+      "min_age": 18,
+      "occupations": [
+        "self_employed"
+      ],
+      "categories": [
+        "sc"
+      ],
+      "match_reason": "You reported belonging to a Scheduled Caste and running or starting a business: CEGSSC helps you get bank credit up to ₹1 crore by guaranteeing the loan so you don't need collateral."
+    }
+  },
+  {
+    "id": "cgss-startups",
+    "name": "Credit Guarantee Scheme for Startups (CGSS)",
+    "authority": "Department for Promotion of Industry and Internal Trade (DPIIT), via National Credit Guarantee Trustee Company (NCGTC)",
+    "benefit": "Credit guarantee cover of up to ₹20 crore per borrower (85% cover for loans up to ₹10 crore, 75% for amounts above that) letting DPIIT-recognised startups raise debt financing without collateral.",
+    "category_domain": "business",
+    "documents": [
+      "DPIIT Startup Recognition Certificate",
+      "Certificate of Incorporation",
+      "Audited financial statements or monthly bank statements for the past 12 months",
+      "PAN card of the entity",
+      "Loan or debt facility agreement with the lending institution"
+    ],
+    "official_note": "Only startups with no default history and no Non-Performing Asset classification are eligible, and the startup's annual turnover must stay under ₹100 crore in every year since incorporation.",
+    "source_url": "https://www.startupindia.gov.in/content/sih/en/credit-guarantee-scheme-for-startups.html",
+    "review_date": "2026-09-12",
+    "exclusions": [
+      "Startups already classified as NPA or in default with any lender or investor",
+      "Startups older than 10 years from incorporation"
+    ],
+    "criteria": {
+      "occupations": [
+        "self_employed"
+      ],
+      "match_reason": "You run a DPIIT-recognised startup that needs debt funding but has no collateral to offer: CGSS provides a government-backed guarantee of up to ₹20 crore so banks and NBFCs can lend to you directly."
+    }
+  },
+  {
+    "id": "tread-women-entrepreneurs",
+    "name": "Trade Related Entrepreneurship Assistance and Development Scheme (TREAD) for Women",
+    "authority": "Ministry of Micro, Small and Medium Enterprises (MSME)",
+    "benefit": "A government grant of up to 30% of the total project cost for women setting up non-farm enterprises, with the remaining 70% financed as a loan by a bank or NBFC through a partner NGO.",
+    "category_domain": "business",
+    "documents": [
+      "Application in the prescribed format submitted through an empanelled NGO",
+      "Project proposal and cost estimate",
+      "Beneficiary profile and identity proof",
+      "NGO registration and track record documents"
+    ],
+    "official_note": "Funds are never disbursed directly to the woman applicant; they are routed only through an NGO that has at least three years of registration and experience running credit or training programmes for women, and farm-based activities are not covered.",
+    "source_url": "https://www.msmediagra.gov.in/womentread.htm",
+    "review_date": "2026-09-12",
+    "exclusions": [
+      "Farm-based or agricultural activities",
+      "Women who have already availed a similar government grant for the same activity"
+    ],
+    "criteria": {
+      "gender": "female",
+      "occupations": [
+        "self_employed",
+        "unemployed",
+        "homemaker"
+      ],
+      "match_reason": "You're a woman planning a non-farm business but lack collateral or a credit history: TREAD funds up to 30% of your project cost as a grant through a partner NGO, with a bank loan covering the rest."
+    }
+  },
+  {
+    "id": "interest-subvention-export-credit",
+    "name": "Interest Subvention Scheme for Pre and Post-Shipment Export Credit",
+    "authority": "Department of Commerce, Ministry of Commerce and Industry (via DGFT and RBI)",
+    "benefit": "An interest subvention of 2.75% per annum on pre-shipment and post-shipment rupee export credit for MSME exporters, capped at ₹50 lakh per exporter per financial year.",
+    "category_domain": "business",
+    "documents": [
+      "Importer Exporter Code (IEC)",
+      "Udyam Registration Certificate",
+      "Export credit sanction letter from the bank",
+      "GST registration",
+      "HSN classification details of the exported product"
+    ],
+    "official_note": "The benefit is limited to a notified positive list of HSN six-digit tariff lines and applies only to export credit sanctioned on or after 2 January 2026, with the subvention credited by the lending bank rather than paid directly to the exporter.",
+    "source_url": "https://www.dgft.gov.in/CP/index.jsp?opt=Interest-Subvention-Support-for-Pre-and-Post-Shipment-Export-Credit",
+    "review_date": "2026-09-12",
+    "exclusions": [
+      "Exporters of products outside the notified HSN tariff line list",
+      "Export credit sanctioned before 2 January 2026 under the earlier scheme"
+    ],
+    "criteria": {
+      "occupations": [
+        "self_employed"
+      ],
+      "match_reason": "You're an MSME exporter paying interest on pre-shipment or post-shipment credit: this scheme cuts your rupee export credit interest cost by 2.75% a year, up to ₹50 lakh annually."
+    }
+  },
+  {
+    "id": "mse-cluster-development",
+    "name": "Micro and Small Enterprises Cluster Development Programme (MSE-CDP)",
+    "authority": "Ministry of Micro, Small and Medium Enterprises (MSME)",
+    "benefit": "A government grant covering 60 to 90% of project cost (depending on location and cluster composition) to build Common Facility Centres and upgrade infrastructure for clusters of micro and small enterprises, up to ₹20 crore per Common Facility Centre.",
+    "category_domain": "business",
+    "documents": [
+      "Cluster diagnostic study report",
+      "Detailed project report submitted via the State Government or MSME Development Institute",
+      "Special Purpose Vehicle (SPV) registration of the cluster"
+    ],
+    "official_note": "Assistance is not given to an individual business directly; it funds shared infrastructure for a registered cluster or SPV, and the grant share rises to 90% for clusters in North-East/hill states, islands, aspirational districts, or where over half the units are owned by micro, women, or SC/ST entrepreneurs.",
+    "source_url": "https://www.dcmsme.gov.in/mse-cdprog.htm",
+    "review_date": "2026-09-12",
+    "exclusions": [
+      "Land cost is capped at 25% of the project cost and is not fully reimbursed",
+      "Enterprises that do not form part of a registered cluster or SPV"
+    ],
+    "criteria": {
+      "occupations": [
+        "self_employed"
+      ],
+      "match_reason": "You're part of a cluster of similar micro or small manufacturing or service units: MSE-CDP funds shared facilities like testing labs and raw material depots, covering up to 90% of the project cost in eligible areas."
+    }
+  },
+  {
+    "id": "pmfme-food-processing",
+    "name": "Pradhan Mantri Formalisation of Micro Food Processing Enterprises Scheme (PMFME)",
+    "authority": "Ministry of Food Processing Industries (MoFPI)",
+    "benefit": "A credit-linked capital subsidy of 35% of the project cost, up to ₹10 lakh, to set up or upgrade an individual micro food processing enterprise.",
+    "category_domain": "business",
+    "documents": [
+      "Udyam Registration or proof of micro enterprise status",
+      "Aadhaar card and PAN of the applicant",
+      "Detailed Project Report (DPR)",
+      "Bank account details",
+      "FSSAI registration/licence",
+      "Proof of Class VIII pass educational qualification"
+    ],
+    "official_note": "Only one person per family can avail the individual enterprise benefit, and the applicant must contribute at least 10% of the project cost themselves, with the remainder coming from a bank loan.",
+    "source_url": "https://pmfme.mofpi.gov.in/pmfme/",
+    "review_date": "2026-09-12",
+    "exclusions": [
+      "More than one member of the same family applying for the individual component",
+      "Applicants below Class VIII educational qualification"
+    ],
+    "criteria": {
+      "min_age": 18,
+      "occupations": [
+        "self_employed",
+        "unemployed"
+      ],
+      "match_reason": "You want to set up or upgrade a small food processing unit: PMFME gives you a 35% credit-linked subsidy, up to ₹10 lakh, toward your project cost."
+    }
+  },
+  {
+    "id": "zed-certification",
+    "name": "MSME Sustainable (ZED) Certification Scheme",
+    "authority": "Ministry of Micro, Small and Medium Enterprises (MSME), through Quality Council of India",
+    "benefit": "A subsidy of 80% (micro), 60% (small) or 50% (medium) on the cost of ZED (Zero Defect Zero Effect) certification, plus a further 10% for women or SC/ST-owned MSMEs and a ₹10,000 reward for taking the ZED pledge.",
+    "category_domain": "business",
+    "documents": [
+      "Udyam Registration Certificate",
+      "PAN card",
+      "GST registration (if applicable)",
+      "Bank statement (last 6 months)",
+      "Latest balance sheet and profit and loss statement"
+    ],
+    "official_note": "An MSME must first complete a free online ZED pledge and have at least one year of business operations, with no pending court case or NPA classification, before it can be certified.",
+    "source_url": "https://zed.msme.gov.in/",
+    "review_date": "2026-09-12",
+    "exclusions": [
+      "MSMEs not registered on the Udyam portal",
+      "MSMEs classified as NPA by a bank or with a pending court case"
+    ],
+    "criteria": {
+      "occupations": [
+        "self_employed"
+      ],
+      "match_reason": "You run an Udyam-registered MSME wanting a recognised quality and sustainability certification: ZED certification subsidises 50 to 80% of the cost depending on your enterprise size, with an extra 10% if you're a woman or SC/ST entrepreneur."
+    }
+  },
+  {
+    "id": "naps-apprenticeship",
+    "name": "National Apprenticeship Promotion Scheme (NAPS)",
+    "authority": "Ministry of Skill Development and Entrepreneurship (MSDE)",
+    "benefit": "The government reimburses 25% of the prescribed monthly stipend, up to ₹1,500 per apprentice per month, paid directly to the apprentice's bank account via Direct Benefit Transfer during the training period.",
+    "category_domain": "employment",
+    "documents": [
+      "Aadhaar card",
+      "Aadhaar-linked bank account",
+      "Educational qualification certificates (Class 10/12, ITI, diploma or degree as applicable)",
+      "Passport-size photograph"
+    ],
+    "official_note": "The minimum age is 14 years for most trades but 18 years for apprenticeships in hazardous industries, and it is the employer establishment, not the apprentice, that registers the apprenticeship contract on the portal for the stipend support to be processed.",
+    "source_url": "https://www.apprenticeshipindia.gov.in/",
+    "review_date": "2026-09-12",
+    "exclusions": [
+      "Apprentices under 18 in trades classified as hazardous",
+      "Training periods not backed by a registered apprenticeship contract"
+    ],
+    "criteria": {
+      "min_age": 14,
+      "occupations": [
+        "unemployed",
+        "student"
+      ],
+      "match_reason": "You're a young jobseeker wanting hands-on industry training: NAPS reimburses part of your apprenticeship stipend, up to ₹1,500 a month, paid directly to your bank account."
+    }
+  },
+  {
+    "id": "national-career-service",
+    "name": "National Career Service (NCS)",
+    "authority": "Ministry of Labour and Employment (Directorate General of Employment)",
+    "benefit": "Free job matching, vacancy alerts, career counselling at 200+ Model Career Centres, skill training referrals and job fairs for registered jobseekers, at no cost at any stage.",
+    "category_domain": "employment",
+    "documents": [
+      "Aadhaar card",
+      "Educational qualification certificates",
+      "Resume or work experience details",
+      "Active mobile number and email ID for registration"
+    ],
+    "official_note": "NCS explicitly never charges a fee at any stage of registration, job application or interview processing, so registration itself does not guarantee a job offer, only access to listings and support services.",
+    "source_url": "https://www.ncs.gov.in/Pages/default.aspx",
+    "review_date": "2026-09-12",
+    "exclusions": [
+      "Any third party demanding payment in the name of NCS is not authorised by the scheme"
+    ],
+    "criteria": {
+      "occupations": [
+        "unemployed",
+        "student"
+      ],
+      "match_reason": "You're looking for a job or career guidance: National Career Service gives you free job matching, counselling and skill training referrals through its portal and Model Career Centres."
+    }
+  },
+  {
+    "id": "pm-daksh",
+    "name": "Pradhan Mantri Dakshta Aur Kushalta Sampann Hitgrahi Yojana (PM-DAKSH)",
+    "authority": "Ministry of Social Justice and Empowerment",
+    "benefit": "100% government-funded free skill training with a monthly stipend of ₹1,500 for SC candidates and sanitation workers, or ₹1,000 for OBC/EBC/DNT candidates, during non-residential short-term training.",
+    "category_domain": "employment",
+    "documents": [
+      "Caste or category certificate issued by the State Government",
+      "Income certificate (for OBC and EWS applicants)",
+      "Occupation certificate (for sanitation workers/waste pickers)",
+      "Aadhaar card"
+    ],
+    "official_note": "There is no income ceiling for SC, De-notified/Nomadic Tribe, or sanitation worker applicants, but OBC and Economically Weaker Section applicants must have an annual family income below ₹3 lakh.",
+    "source_url": "https://socialjustice.gov.in/schemes/100",
+    "review_date": "2026-09-12",
+    "exclusions": [
+      "OBC or EWS applicants with annual family income of ₹3 lakh or above"
+    ],
+    "criteria": {
+      "min_age": 18,
+      "max_age": 45,
+      "categories": [
+        "sc",
+        "obc"
+      ],
+      "occupations": [
+        "unemployed"
+      ],
+      "match_reason": "You belong to a marginalised community and want free skill training with a stipend: PM-DAKSH covers 100% of your training cost and pays up to ₹1,500 a month while you train."
+    }
+  },
+  {
+    "id": "day-nulm-self-employment",
+    "name": "Self Employment Programme under Deendayal Antyodaya Yojana - National Urban Livelihoods Mission (DAY-NULM)",
+    "authority": "Ministry of Housing and Urban Affairs",
+    "benefit": "A collateral-free bank loan of up to ₹2 lakh for an individual micro-enterprise (up to ₹10 lakh for a group enterprise) with an interest subsidy on the portion above 7%, for urban poor residents starting a business.",
+    "category_domain": "employment",
+    "documents": [
+      "Proof of urban poor/BPL status or residence in the ULB area",
+      "Aadhaar card",
+      "Bank account details",
+      "Project proposal or business plan",
+      "Age proof"
+    ],
+    "official_note": "No collateral security is required for these loans, but the extra interest subsidy for women self-help groups applies only if the loan is repaid on time, and the scheme is limited to areas covered by an Urban Local Body.",
+    "source_url": "https://nulm.gov.in/",
+    "review_date": "2026-09-12",
+    "exclusions": [
+      "Rural residents and areas not covered by an Urban Local Body",
+      "Group enterprises with fewer than three members or less than 70% urban poor membership"
+    ],
+    "criteria": {
+      "min_age": 18,
+      "area_type": "urban",
+      "occupations": [
+        "unemployed",
+        "self_employed"
+      ],
+      "match_reason": "You're an urban poor resident wanting to start a small business: DAY-NULM's Self Employment Programme offers a collateral-free bank loan of up to ₹2 lakh with an interest subsidy."
+    }
+  },
+  {
+    "id": "rseti-rural-self-employment",
+    "name": "Rural Self Employment Training Institutes (RSETI)",
+    "authority": "Ministry of Rural Development, under Deendayal Antyodaya Yojana - National Rural Livelihoods Mission (DAY-NRLM)",
+    "benefit": "Free residential skill and entrepreneurship training with free food, accommodation and tool kits for rural unemployed youth, followed by up to 2 years of handholding support for bank credit linkage.",
+    "category_domain": "employment",
+    "documents": [
+      "Aadhaar card",
+      "Age proof",
+      "Residence proof of the home district",
+      "BPL certificate (where claiming reserved seats)",
+      "Passport-size photograph"
+    ],
+    "official_note": "At least 70% of seats are reserved for rural Below Poverty Line candidates, and training is available only at the RSETI located in the applicant's own home district.",
+    "source_url": "https://www.rseti.in/",
+    "review_date": "2026-09-12",
+    "exclusions": [
+      "Applicants seeking training outside their home district",
+      "Urban (non-rural) residents"
+    ],
+    "criteria": {
+      "min_age": 18,
+      "max_age": 45,
+      "area_type": "rural",
+      "occupations": [
+        "unemployed"
+      ],
+      "match_reason": "You're an unemployed rural youth wanting practical skills to start your own venture: RSETI gives you free residential training plus up to 2 years of help getting a bank loan afterward."
+    }
+  },
+  {
+    "id": "seekho-aur-kamao",
+    "name": "Seekho Aur Kamao (Learn and Earn) Scheme for Skill Development of Minorities",
+    "authority": "Ministry of Minority Affairs",
+    "benefit": "Free skill development training for minority youth with a monthly stipend, boarding and lodging for outstation trainees, and at least 75% placement assistance after training (with 50% in the organised sector).",
+    "category_domain": "employment",
+    "documents": [
+      "Proof of belonging to a notified minority community",
+      "Aadhaar card",
+      "Educational certificate (minimum Class V pass)",
+      "Age proof"
+    ],
+    "official_note": "Eligibility is restricted to the communities notified as minorities under the National Commission for Minorities Act, 1992 (Muslims, Christians, Sikhs, Buddhists, Parsis and Jains), and the placement rate is a scheme-wide guarantee rather than a fixed individual job offer.",
+    "source_url": "https://minorityaffairs.gov.in/schemesperformance/seekho-aur-kamaolearn-earn-scheme-skill-development-minorities",
+    "review_date": "2026-09-12",
+    "exclusions": [
+      "Applicants not belonging to a notified minority community",
+      "Applicants below Class V educational qualification"
+    ],
+    "criteria": {
+      "min_age": 14,
+      "max_age": 35,
+      "categories": [
+        "minority"
+      ],
+      "occupations": [
+        "unemployed",
+        "student"
+      ],
+      "match_reason": "You're a minority-community youth aged 14 to 35 looking to build job skills: Seekho Aur Kamao gives you free training with a stipend and links you to placement support once you finish."
+    }
+  },
+  {
+    "id": "aicte-pragati-girls",
+    "name": "Scholarship for Girls under PRAGATI Scheme (AICTE Pragati)",
+    "authority": "All India Council for Technical Education (AICTE), Ministry of Education",
+    "benefit": "Girl students in AICTE-approved diploma or degree technical courses get ₹50,000 per year for up to 3 years (degree) or up to 4 years (diploma), covering tuition, books and equipment costs.",
+    "category_domain": "education",
+    "documents": [
+      "Class Xth/XIIth mark sheet",
+      "Annual family income certificate from Tehsildar or above",
+      "Admission letter from the technical institution",
+      "Certificate from Principal/Head of Institute",
+      "Aadhaar-seeded bank passbook",
+      "Aadhaar card",
+      "Caste certificate (if applicable)"
+    ],
+    "official_note": "Only one girl child per family can avail this scholarship, and it is limited to the first year of admission (or second year via lateral entry) into an AICTE-approved technical institution.",
+    "source_url": "https://www.aicte.gov.in/schemes/students-development-schemes/Pragati/General-Instructions",
+    "review_date": "2026-09-12",
+    "exclusions": [
+      "More than one girl child from the same family cannot both claim the award",
+      "Not applicable to non-AICTE-approved institutions"
+    ],
+    "criteria": {
+      "max_annual_income": 800000,
+      "gender": "female",
+      "is_student": true,
+      "match_reason": "You're a girl student admitted to an AICTE-approved diploma or degree technical course with family income under ₹8 lakh: this scheme gives you ₹50,000 a year to cover your technical education costs."
+    }
+  },
+  {
+    "id": "aicte-saksham-disabled",
+    "name": "Scholarship for Differently Abled Students under SAKSHAM Scheme (AICTE Saksham)",
+    "authority": "All India Council for Technical Education (AICTE), Ministry of Education",
+    "benefit": "Specially-abled students in AICTE-approved technical diploma or degree courses receive ₹50,000 per year for up to 4 years (degree) or 3 years (diploma) to cover tuition, books, and assistive equipment.",
+    "category_domain": "education",
+    "documents": [
+      "Class Xth/XIIth mark sheet",
+      "Disability certificate showing at least 40% disability",
+      "Annual family income certificate from Tehsildar or above",
+      "Admission letter from the technical institution",
+      "Aadhaar-seeded bank passbook",
+      "Aadhaar card"
+    ],
+    "official_note": "The student must have at least 40% specified disability certified by a competent medical authority to qualify; the scholarship amount is treated as a lump sum covering tuition and assistive devices rather than a monthly stipend.",
+    "source_url": "https://www.aicte.gov.in/schemes/students-development-schemes/Saksham/General-Instructions",
+    "review_date": "2026-09-12",
+    "exclusions": [
+      "Students with disability below 40% are not eligible",
+      "Not applicable outside AICTE-approved institutions"
+    ],
+    "criteria": {
+      "max_annual_income": 800000,
+      "requires_disability": true,
+      "min_disability_percentage": 40,
+      "is_student": true,
+      "match_reason": "You're a student with at least 40% disability admitted to an AICTE-approved technical course with family income under ₹8 lakh: this scheme gives you ₹50,000 a year toward tuition and assistive equipment."
+    }
+  },
+  {
+    "id": "nf-obc-fellowship",
+    "name": "National Fellowship for OBC Students (NF-OBC)",
+    "authority": "Department of Social Justice and Empowerment (implemented by UGC/NBCFDC)",
+    "benefit": "OBC (non-creamy layer) students pursuing M.Phil/Ph.D receive a Junior Research Fellowship of ₹37,000 per month for the first two years, rising to a Senior Research Fellowship of ₹42,000 per month for the remaining tenure, plus contingency and HRA support.",
+    "category_domain": "education",
+    "documents": [
+      "OBC non-creamy layer certificate",
+      "Annual family income certificate",
+      "UGC-NET/UGC-CSIR NET JRF qualifying certificate",
+      "Master's degree mark sheet/certificate",
+      "Proof of M.Phil/Ph.D registration at a UGC-recognized institution",
+      "Aadhaar card and bank details"
+    ],
+    "official_note": "Only 1,000 fresh fellowships are awarded each year (750 for NET-JRF subjects and 250 for CSIR-NET streams), so selection is competitive even among qualifying candidates, and applicants already in regular salaried employment are not eligible.",
+    "source_url": "https://socialjustice.gov.in/schemes/7",
+    "review_date": "2026-09-12",
+    "exclusions": [
+      "OBC creamy layer candidates are not eligible",
+      "Candidates in regular salaried government employment are excluded"
+    ],
+    "criteria": {
+      "max_annual_income": 600000,
+      "occupations": [
+        "student",
+        "unemployed"
+      ],
+      "categories": [
+        "obc"
+      ],
+      "is_student": true,
+      "match_reason": "You're an unemployed OBC (non-creamy layer) student who has qualified UGC-NET/CSIR-NET JRF with family income under ₹6 lakh: this fellowship pays you up to ₹42,000 a month during your M.Phil or Ph.D."
+    }
+  },
+  {
+    "id": "nf-sc-fellowship",
+    "name": "National Fellowship for Scheduled Caste Students (NFSC)",
+    "authority": "Ministry of Social Justice and Empowerment (implemented via UGC-recognized universities)",
+    "benefit": "SC students pursuing M.Phil/Ph.D in Science, Humanities or Social Science receive a Junior Research Fellowship of about ₹37,000 per month, rising to a Senior Research Fellowship of about ₹42,000 per month, plus contingency and HRA.",
+    "category_domain": "education",
+    "documents": [
+      "Scheduled Caste certificate",
+      "Annual family income certificate",
+      "Master's degree mark sheet/certificate",
+      "Proof of M.Phil/Ph.D admission at a UGC-recognized institution",
+      "Aadhaar card and bank account details"
+    ],
+    "official_note": "About 2,000 new fellowships are sanctioned per year (1,500 for Humanities/Social Sciences and 500 for Science), and the scheme's income ceiling has been subject to periodic government revision, so applicants should confirm the current cut-off before applying.",
+    "source_url": "https://nsfdc.nic.in/en/national-fellowship-for-scheduled-castes-students-nfsc",
+    "review_date": "2026-09-12",
+    "exclusions": [
+      "Not available to students in regular salaried employment",
+      "Limited to research (M.Phil/Ph.D) programs, not undergraduate study"
+    ],
+    "criteria": {
+      "max_annual_income": 600000,
+      "occupations": [
+        "student",
+        "unemployed"
+      ],
+      "categories": [
+        "sc"
+      ],
+      "is_student": true,
+      "match_reason": "You're an SC student pursuing M.Phil or Ph.D research: this fellowship pays you up to ₹42,000 a month plus contingency support so you can focus on your research instead of your finances."
+    }
+  },
+  {
+    "id": "top-class-education-sc",
+    "name": "Central Sector Scholarship of Top Class Education for SC Students",
+    "authority": "Department of Social Justice and Empowerment, Ministry of Social Justice and Empowerment",
+    "benefit": "SC students admitted to notified premier institutions (IITs, IIMs, AIIMS, NITs, National Law Universities, NIFT, NID and others) get full tuition fees and non-refundable charges paid directly (capped at ₹2 lakh/year for private institutions), plus an academic allowance of ₹86,000 in the first year and ₹41,000 in every subsequent year.",
+    "category_domain": "education",
+    "documents": [
+      "Scheduled Caste certificate",
+      "Annual family income certificate",
+      "Admission proof from a notified institution",
+      "Class XII/previous qualifying mark sheet",
+      "Aadhaar card and bank account details"
+    ],
+    "official_note": "Only 1,250 scholarships are granted per year and are restricted to a fixed list of notified institutes of excellence; when slots run out at an institution, students with lower family income get preference in the merit tie-break.",
+    "source_url": "https://socialjustice.gov.in/schemes/27",
+    "review_date": "2026-09-12",
+    "exclusions": [
+      "Only applicable at specifically notified top-class institutions, not all colleges",
+      "Family income above ₹8 lakh disqualifies the applicant"
+    ],
+    "criteria": {
+      "max_annual_income": 800000,
+      "categories": [
+        "sc"
+      ],
+      "is_student": true,
+      "match_reason": "You're an SC student admitted to a premier institution like an IIT, IIM, AIIMS or NIT with family income under ₹8 lakh: this scheme pays your full tuition plus an annual allowance of up to ₹86,000."
+    }
+  },
+  {
+    "id": "national-overseas-scholarship-sc",
+    "name": "National Overseas Scholarship (NOS) for SC and Other Notified Candidates",
+    "authority": "Department of Social Justice and Empowerment, Ministry of Social Justice and Empowerment",
+    "benefit": "Selected SC, De-notified/Nomadic Tribe, Landless Agricultural Labourer and Traditional Artisan students studying for a Master's or Ph.D abroad receive an annual maintenance allowance of USD 15,400, economy class airfare, and payment of tuition and other approved fees.",
+    "category_domain": "education",
+    "documents": [
+      "Scheduled Caste or notified category certificate",
+      "Annual family income certificate from a Revenue Officer not below Tehsildar",
+      "Income Tax Returns/ITR and CPC intimation order (if applicable)",
+      "Admission/offer letter from the foreign university",
+      "Academic mark sheets and certificates",
+      "Passport"
+    ],
+    "official_note": "Only 125 scholarships are awarded per year across all eligible categories combined (115 for SC, 6 for De-notified/Nomadic Tribes, 4 for Landless Agricultural Labourers/Traditional Artisans), with 30% of slots reserved for women, so competition is intense even among eligible applicants.",
+    "source_url": "https://socialjustice.gov.in/schemes/28",
+    "review_date": "2026-09-12",
+    "exclusions": [
+      "Not available for undergraduate study, only Master's/Ph.D abroad",
+      "Family income above ₹8 lakh disqualifies the applicant"
+    ],
+    "criteria": {
+      "max_age": 35,
+      "max_annual_income": 800000,
+      "categories": [
+        "sc"
+      ],
+      "is_student": true,
+      "match_reason": "You're an SC student admitted to a Master's or Ph.D program abroad with family income under ₹8 lakh: this scholarship covers your tuition, a USD 15,400 annual maintenance allowance, and airfare."
+    }
+  },
+  {
+    "id": "nfst-tribal-affairs",
+    "name": "National Fellowship and Scholarship for Higher Education of ST Students (NFST)",
+    "authority": "Ministry of Tribal Affairs",
+    "benefit": "ST students pursuing M.Phil/Ph.D get a fellowship of up to ₹35,000 per month plus an annual contingency grant of up to ₹25,000, while ST students admitted to notified top-class institutions (like IITs, IIMs, AIIMS, NLUs) get full tuition and admission fees covered under the scholarship component.",
+    "category_domain": "education",
+    "documents": [
+      "Scheduled Tribe certificate",
+      "Annual family income certificate",
+      "Master's degree or Class XII mark sheet as applicable",
+      "Proof of admission/registration at the relevant institution",
+      "Aadhaar card and bank account details"
+    ],
+    "official_note": "The scheme has two distinct tracks under one umbrella, a research fellowship for 750 M.Phil/Ph.D scholars per year (age limit 36, minimum 55% in Master's) and a scholarship for around 1,000 students per year at notified premier institutes (income cap ₹6 lakh), with preference given to girls, persons with disabilities, and Particularly Vulnerable Tribal Groups.",
+    "source_url": "https://tribal.nic.in/ScholarshiP.aspx",
+    "review_date": "2026-09-12",
+    "exclusions": [
+      "Scholarship component limited to a fixed list of notified premier institutions",
+      "Fellowship component capped at age 36 and requires minimum 55% marks in Master's degree"
+    ],
+    "criteria": {
+      "max_annual_income": 600000,
+      "occupations": [
+        "student"
+      ],
+      "categories": [
+        "st"
+      ],
+      "is_student": true,
+      "match_reason": "You're an ST student pursuing higher studies or research with family income under ₹6 lakh: this scheme covers your tuition at premier institutions or pays you a monthly fellowship of up to ₹35,000 for M.Phil/Ph.D."
+    }
+  },
+  {
+    "id": "pmss-ex-servicemen-wards",
+    "name": "Prime Minister's Scholarship Scheme (PMSS) for Wards of Ex-Servicemen",
+    "authority": "Department of Ex-Servicemen Welfare, Ministry of Defence (via Kendriya Sainik Board)",
+    "benefit": "Wards and widows of ex-servicemen/ex-Coast Guard personnel pursuing professional/technical degree courses (engineering, medical, MBA, MCA and similar AICTE/UGC-approved programs) receive ₹2,500 per month for boys and ₹3,000 per month for girls for the full course duration.",
+    "category_domain": "education",
+    "documents": [
+      "Ex-Serviceman/Ex-Coast Guard discharge certificate or equivalent proof",
+      "Relationship proof (ward/widow certificate)",
+      "Class XII/Diploma/Graduation mark sheet showing minimum 60% marks",
+      "Admission letter to a recognized professional/technical course",
+      "Aadhaar card and bank account details"
+    ],
+    "official_note": "About 5,500 scholarships are awarded annually, and the applicant must have scored at least 60% in the qualifying examination and be admitted to an AICTE- or UGC-approved professional/technical course to qualify.",
+    "source_url": "https://www.desw.gov.in/prime-ministers-scholarship-scheme-pmss",
+    "review_date": "2026-09-12",
+    "exclusions": [
+      "Not applicable to general (non-professional/technical) degree courses",
+      "Requires minimum 60% marks in the qualifying exam"
+    ],
+    "criteria": {
+      "occupations": [
+        "student"
+      ],
+      "is_student": true,
+      "match_reason": "You're the ward or widow of an ex-serviceman admitted to a professional or technical degree course with at least 60% marks: this scheme pays you ₹2,500 to ₹3,000 a month for the entire course."
+    }
+  },
+  {
+    "id": "pm-vidyalaxmi-education-loan",
+    "name": "Pradhan Mantri Vidyalaxmi Scheme (PM-Vidyalaxmi)",
+    "authority": "Department of Higher Education, Ministry of Education",
+    "benefit": "Meritorious students admitted to Quality Higher Educational Institutions get collateral-free, guarantor-free education loans covering full tuition and course expenses, with students from families earning up to ₹8 lakh/year getting a 3% interest subvention during the moratorium period on loans up to ₹10 lakh, and full interest subvention for those from families earning up to ₹4.5 lakh/year.",
+    "category_domain": "education",
+    "documents": [
+      "Aadhaar card and PAN card",
+      "Admission letter from the Quality Higher Educational Institution",
+      "Fee structure from the institution",
+      "Previous qualifying mark sheets and entrance exam results",
+      "Income certificate/ITR/Form 16 or self-employment affidavit",
+      "Bank account details",
+      "Self-declaration of not availing any other government scholarship or interest subvention scheme"
+    ],
+    "official_note": "The 3% interest subvention is capped at one lakh students per year and only applies to loans taken for admission into institutions on the government's notified Quality Higher Educational Institutions list, not every college.",
+    "source_url": "https://www.pib.gov.in/PressReleasePage.aspx?PRID=2071131",
+    "review_date": "2026-09-12",
+    "exclusions": [
+      "Interest subvention only applies at notified Quality Higher Educational Institutions",
+      "Students already receiving another government scholarship or interest subvention are not eligible for this subvention"
+    ],
+    "criteria": {
+      "max_annual_income": 800000,
+      "occupations": [
+        "student"
+      ],
+      "is_student": true,
+      "match_reason": "You're admitted to a quality higher education institution and need an education loan with family income under ₹8 lakh: this scheme gets you a collateral-free loan with 3% interest subvention (full subvention if your family earns under ₹4.5 lakh)."
+    }
+  },
+  {
+    "id": "nphce-elderly-healthcare",
+    "name": "National Programme for Health Care of the Elderly (NPHCE)",
+    "authority": "Directorate General of Health Services, Ministry of Health and Family Welfare",
+    "benefit": "Free geriatric outpatient and inpatient care, day-care services, home-based care and rehabilitation for senior citizens through dedicated geriatric clinics and Regional Geriatric Centres at district hospitals and above.",
+    "category_domain": "healthcare",
+    "documents": [
+      "Age proof (Aadhaar card, voter ID, or similar)",
+      "Any prior medical records",
+      "Referral slip if coming from a sub-centre or PHC"
+    ],
+    "official_note": "Services are delivered through the general public health system (sub-centres, PHCs, CHCs, district hospitals and Regional Geriatric Centres), so the actual range of geriatric services available can vary by district.",
+    "source_url": "https://dghs.mohfw.gov.in/national-programme-for-the-health-care-of-the-elderly.php",
+    "review_date": "2026-09-12",
+    "exclusions": [
+      "Not a cash benefit; it funds services and infrastructure, not direct payments to individuals",
+      "Specialised geriatric services may be limited or unavailable outside district-hospital-level facilities"
+    ],
+    "criteria": {
+      "min_age": 60,
+      "match_reason": "You reported being 60 or older: NPHCE gives you access to free geriatric outpatient, inpatient, day-care and home-based healthcare services at government health facilities."
+    }
+  },
+  {
+    "id": "rbsk-child-health",
+    "name": "Rashtriya Bal Swasthya Karyakram (RBSK)",
+    "authority": "Ministry of Health and Family Welfare, National Health Mission",
+    "benefit": "Free screening of children aged 0-18 years for the 4 D's (birth defects, deficiencies, diseases, developmental delays) covering over 30 health conditions, plus free treatment, therapy and surgery for identified conditions through District Early Intervention Centres.",
+    "category_domain": "healthcare",
+    "documents": [
+      "Child's birth certificate or Aadhaar",
+      "Anganwadi or school enrollment record",
+      "Mother and Child Protection (MCP) card for children under 6"
+    ],
+    "official_note": "Screening is delivered mainly through mobile health teams visiting anganwadi centres (ages 0-6) and schools (ages 6-18); a child not enrolled in either may need to visit the nearest PHC or CHC directly to be screened.",
+    "source_url": "https://nhm.gov.in/index4.php?lang=1&level=0&linkid=499&lid=773",
+    "review_date": "2026-09-12",
+    "exclusions": [
+      "Covers only the defined list of about 30-32 conditions under the 4 D's framework, not all childhood illnesses"
+    ],
+    "criteria": {
+      "min_age": 0,
+      "max_age": 18,
+      "match_reason": "You reported a child aged 0 to 18: RBSK provides free health screening and, for any of about 30 identified conditions, free treatment including surgery through District Early Intervention Centres."
+    }
+  },
+  {
+    "id": "janani-suraksha-yojana",
+    "name": "Janani Suraksha Yojana (JSY)",
+    "authority": "Ministry of Health and Family Welfare, National Health Mission",
+    "benefit": "Cash assistance of ₹1,400 (rural) or ₹1,000 (urban) after institutional delivery at a government or accredited private facility in Low Performing States, and ₹700 (rural) or ₹600 (urban) in High Performing States, where it is restricted to BPL, SC and ST women.",
+    "category_domain": "healthcare",
+    "documents": [
+      "Aadhaar card",
+      "JSY card or Mother and Child Protection card",
+      "BPL card, where applicable",
+      "SC/ST certificate, where applicable",
+      "Bank account details"
+    ],
+    "official_note": "In High Performing States, cash assistance is restricted to BPL, SC and ST women delivering in a government facility, while in Low Performing States all pregnant women who deliver institutionally are eligible regardless of income or category.",
+    "source_url": "https://nhm.gov.in/index1.php?lang=1&level=3&lid=309&sublinkid=841",
+    "review_date": "2026-09-12",
+    "exclusions": [
+      "Home deliveries are not covered",
+      "In High Performing States, general-category women above the poverty line are not eligible"
+    ],
+    "criteria": {
+      "gender": "female",
+      "is_pregnant_or_lactating": true,
+      "match_reason": "You reported being pregnant and planning an institutional delivery: JSY pays cash assistance of ₹1,400 (rural) or ₹1,000 (urban) after delivery at a government or accredited facility, with eligibility widened for BPL, SC and ST women everywhere."
+    }
+  },
+  {
+    "id": "npcdcs-ncd-screening",
+    "name": "National Programme for Prevention and Control of Cancer, Diabetes, Cardiovascular Diseases and Stroke (NPCDCS)",
+    "authority": "Ministry of Health and Family Welfare, National Health Mission",
+    "benefit": "Free universal screening for diabetes, hypertension and common cancers (oral, breast, cervical) for adults aged 30 and above, plus free follow-up diagnostics and medicines at government NCD clinics for those diagnosed.",
+    "category_domain": "healthcare",
+    "documents": [
+      "Aadhaar card",
+      "Any prior medical records if already under treatment"
+    ],
+    "official_note": "Free drugs and diagnostics under this programme apply only at government NCD clinics and district-level Cardiac Care Units, not at private hospitals.",
+    "source_url": "https://nhm.gov.in/index1.php?lang=1&level=2&sublinkid=1048&lid=604",
+    "review_date": "2026-09-12",
+    "exclusions": [
+      "Free drugs and diagnostics are available only at government NCD clinics, not private facilities"
+    ],
+    "criteria": {
+      "min_age": 30,
+      "match_reason": "You reported being 30 or older: NPCDCS gives you free screening for diabetes, high blood pressure and common cancers, plus free follow-up medicines and diagnostics at your local NCD clinic."
+    }
+  },
+  {
+    "id": "pm-surakshit-matritva-abhiyan",
+    "name": "Pradhan Mantri Surakshit Matritva Abhiyan (PMSMA)",
+    "authority": "Ministry of Health and Family Welfare, National Health Mission",
+    "benefit": "Free fixed-day antenatal care package, specialist doctor check-up, blood and urine tests, one ultrasound and medicines, for all pregnant women in their 2nd or 3rd trimester, offered on the 9th of every month at designated government health facilities.",
+    "category_domain": "healthcare",
+    "documents": [
+      "No advance registration required",
+      "Mother and Child Protection (MCP) card, if available"
+    ],
+    "official_note": "Available universally regardless of income; high-risk pregnancies identified during the check-up are specifically flagged for extra follow-up visits, and if the 9th falls on a Sunday or holiday, services shift to the next working day at most facilities.",
+    "source_url": "https://pmsma.mohfw.gov.in/about-scheme/",
+    "review_date": "2026-09-12",
+    "exclusions": [
+      "Offered only on the fixed date (9th of each month) at designated facilities, not on demand every day"
+    ],
+    "criteria": {
+      "gender": "female",
+      "is_pregnant_or_lactating": true,
+      "match_reason": "You reported being in your 2nd or 3rd trimester of pregnancy: PMSMA gives you a free specialist antenatal check-up, tests and ultrasound on the 9th of every month at your nearest government health facility."
+    }
+  },
+  {
+    "id": "top-class-education-disabilities",
+    "name": "Scholarship for Top Class Education for Students with Disabilities",
+    "authority": "Department of Empowerment of Persons with Disabilities (DEPwD), Ministry of Social Justice and Empowerment",
+    "benefit": "Full financial support for graduate or postgraduate study at listed Institutes of Excellence: tuition reimbursement up to ₹1.9 lakh per year, maintenance allowance of ₹3,000 per month for hostellers or ₹1,500 per month for day scholars, plus book, special-needs and a one-time computer/assistive-aid grant.",
+    "category_domain": "disability",
+    "documents": [
+      "Disability certificate showing 40% or more benchmark disability, and UDID card",
+      "Family income certificate",
+      "Admission or current fee receipt from a listed Institute of Excellence",
+      "Aadhaar card",
+      "Bank account details",
+      "Previous academic mark sheets"
+    ],
+    "official_note": "Restricted to students admitted to a specified list of premier Institutes of Excellence (such as IITs, IIMs, NITs and central universities) in full-time regular graduate/postgraduate programmes; distance, part-time and weekend courses are excluded, and support is capped at two children per family.",
+    "source_url": "https://depwd.gov.in/en/scholarship/",
+    "review_date": "2026-09-12",
+    "exclusions": [
+      "Distance education, part-time and weekend courses are not covered",
+      "Students already receiving another scholarship or stipend for the same course are not eligible",
+      "Support is capped at two students per family"
+    ],
+    "criteria": {
+      "max_annual_income": 800000,
+      "requires_disability": true,
+      "min_disability_percentage": 40,
+      "is_student": true,
+      "match_reason": "You reported a benchmark disability of 40% or more, admission to a listed premier institute, and family income under ₹8 lakh: this scholarship covers your tuition, hostel costs and other course expenses in full."
+    }
+  },
+  {
+    "id": "national-fellowship-persons-disabilities",
+    "name": "National Fellowship for Persons with Disabilities (NFPwD)",
+    "authority": "University Grants Commission (UGC), on behalf of the Department of Empowerment of Persons with Disabilities, Ministry of Social Justice and Empowerment",
+    "benefit": "Monthly fellowship of ₹31,000 (Junior Research Fellow, first two years) rising to ₹35,000 (Senior Research Fellow) for full-time M.Phil./Ph.D. scholars with disabilities, plus contingency grants, house rent allowance, and a ₹2,000 per month reader/escort allowance for candidates with visual or physical disabilities.",
+    "category_domain": "disability",
+    "documents": [
+      "Disability certificate showing 40% or more benchmark disability, and UDID card",
+      "Postgraduate mark sheet showing at least 50% marks",
+      "Proof of enrollment in a full-time regular M.Phil./Ph.D. programme",
+      "Aadhaar card",
+      "Bank account details"
+    ],
+    "official_note": "Only about 200 fellowships are awarded each year on merit based on postgraduate marks, with 15% of slots reserved for SC and 7.5% for ST candidates, so meeting the eligibility criteria alone does not guarantee selection.",
+    "source_url": "https://depwd.gov.in/en/scholarship/",
+    "review_date": "2026-09-12",
+    "exclusions": [
+      "Not available for part-time or correspondence M.Phil./Ph.D. programmes",
+      "Selection is merit-based and capped at around 200 fellowships a year, so not all eligible applicants are selected"
+    ],
+    "criteria": {
+      "max_annual_income": 250000,
+      "requires_disability": true,
+      "min_disability_percentage": 40,
+      "is_student": true,
+      "match_reason": "You reported a benchmark disability of 40% or more, enrollment in a full-time M.Phil. or PhD programme, and family income under ₹2.5 lakh: NFPwD provides a monthly fellowship of ₹31,000 to ₹35,000 plus contingency and reader/escort allowances."
+    }
+  },
+  {
+    "id": "accessible-india-campaign",
+    "name": "Accessible India Campaign (Sugamya Bharat Abhiyan)",
+    "authority": "Department of Empowerment of Persons with Disabilities (DEPwD), Ministry of Social Justice and Empowerment",
+    "benefit": "Funds accessibility retrofits, ramps, lifts, accessible toilets and tactile signage, at public buildings, transport and government websites, and lets any person with a disability report an inaccessible public place through the Sugamya Bharat mobile app for redressal.",
+    "category_domain": "disability",
+    "documents": [
+      "None required to report an inaccessible site through the app",
+      "Disability certificate or UDID only if applying regarding a specific retrofit request"
+    ],
+    "official_note": "This is an infrastructure and enforcement campaign, not a direct cash or device benefit; results depend on the concerned building, transport or website owner acting on flagged accessibility complaints, so progress varies significantly by state and city.",
+    "source_url": "https://depwd.gov.in/en/accessible-india-campaign/",
+    "review_date": "2026-09-12",
+    "exclusions": [
+      "Does not provide any direct cash payment or individual device grant",
+      "Coverage is limited to government and other public buildings, websites and transport already targeted under the campaign"
+    ],
+    "criteria": {
+      "requires_disability": true,
+      "match_reason": "You reported having a disability: under the Accessible India Campaign you can report any inaccessible public building, transport or government website through the Sugamya Bharat app to get it fixed, and benefit from ongoing accessibility retrofits nationwide."
+    }
+  },
+  {
+    "id": "deendayal-divyangjan-rehabilitation-scheme",
+    "name": "Deendayal Divyangjan Rehabilitation Scheme (DDRS)",
+    "authority": "Department of Empowerment of Persons with Disabilities (DEPwD), Ministry of Social Justice and Empowerment",
+    "benefit": "Free or subsidised early intervention, special education, therapy, counselling and vocational rehabilitation services for persons with disabilities, delivered through Central Government-funded NGO-run special schools, early intervention centres and rehabilitation projects across India.",
+    "category_domain": "disability",
+    "documents": [
+      "Disability certificate or UDID card",
+      "Age proof, especially for early intervention services for young children",
+      "Enrollment through the local DDRS-funded NGO or rehabilitation centre"
+    ],
+    "official_note": "DDRS is a grant-in-aid scheme: the Central Government funds registered NGOs to run these centres, so the exact services, capacity and admission process depend on the specific DDRS-funded organisation operating near you rather than a single government office.",
+    "source_url": "https://depwd.gov.in/en/ddrs/",
+    "review_date": "2026-09-12",
+    "exclusions": [
+      "Services are available only where a DDRS-funded NGO project exists near you",
+      "Not a cash-transfer scheme; support is delivered as in-kind services rather than direct payments"
+    ],
+    "criteria": {
+      "requires_disability": true,
+      "match_reason": "You reported a disability and a need for rehabilitation, therapy or special education: DDRS-funded NGO centres near you provide these services free or at low cost."
+    }
+  },
+  {
+    "id": "eps-95",
+    "name": "Employees' Pension Scheme, 1995 (EPS-95)",
+    "authority": "Employees' Provident Fund Organisation (EPFO), Ministry of Labour and Employment",
+    "benefit": "Provides a monthly pension (minimum ₹1,000 per month) to EPF members after retirement at age 58, calculated as (Pensionable Salary x Pensionable Service)/70, with an early pension option from age 50 at a reduced rate.",
+    "category_domain": "pensions",
+    "documents": [
+      "Universal Account Number (UAN)",
+      "Aadhaar card",
+      "Bank account passbook",
+      "Form 10D (pension claim form)",
+      "Scheme certificate/PPO if transferring service"
+    ],
+    "official_note": "A minimum of 10 years of eligible service is required to draw the monthly pension; members with less than 10 years' service instead get a one-time EPS withdrawal benefit rather than a pension.",
+    "source_url": "https://www.epfindia.gov.in/site_docs/PDFs/EPFO_Rules-Regulations_PDFs/Handbook_EPS1995.pdf",
+    "review_date": "2026-09-12",
+    "exclusions": [
+      "Members with less than 10 years of eligible service do not get a monthly pension, only a lump-sum withdrawal benefit",
+      "Only applicable to organised-sector employees who are EPFO members"
+    ],
+    "criteria": {
+      "min_age": 50,
+      "occupations": [
+        "salaried"
+      ],
+      "match_reason": "You're a salaried EPFO member with 10+ years of service: EPS-95 gives you a guaranteed monthly pension starting at age 58, or a reduced early pension from age 50."
+    }
+  },
+  {
+    "id": "edli-epfo",
+    "name": "Employees' Deposit Linked Insurance Scheme (EDLI)",
+    "authority": "Employees' Provident Fund Organisation (EPFO), Ministry of Labour and Employment",
+    "benefit": "Pays a lump-sum insurance benefit of up to ₹7,00,000 (minimum ₹2,50,000) to the nominee or family of an EPF member who dies while in service, based on the member's average PF balance and salary.",
+    "category_domain": "pensions",
+    "documents": [
+      "Death certificate of the member",
+      "Succession certificate or EPF nomination (Form 2)",
+      "Aadhaar card of nominee/claimant",
+      "Bank account details of claimant",
+      "Form 5-IF (EDLI claim form)"
+    ],
+    "official_note": "The benefit applies only if death occurs while the employee is an active, contributing EPF member; the entire premium (0.5% of wages) is funded by the employer, so there is no cost to the employee.",
+    "source_url": "https://pmvbry.epfindia.gov.in/insurance-scheme-edli/",
+    "review_date": "2026-09-12",
+    "exclusions": [
+      "Not payable if the member had already left EPF service and was not an active contributor at the time of death",
+      "Coverage ceases once EPF membership lapses"
+    ],
+    "criteria": {
+      "occupations": [
+        "salaried"
+      ],
+      "match_reason": "You're an active EPFO member: EDLI automatically covers your family with a life insurance payout of up to ₹7 lakh if something happens to you while employed, at no cost to you.",
+      "max_annual_income": 216000
+    }
+  },
+  {
+    "id": "nps-vatsalya",
+    "name": "NPS Vatsalya",
+    "authority": "Pension Fund Regulatory and Development Authority (PFRDA), Ministry of Finance",
+    "benefit": "Lets parents or guardians open a pension account for a minor (below 18) with a minimum contribution of ₹250, building a long-term retirement corpus that converts into a regular NPS account in the minor's own name once they turn 18.",
+    "category_domain": "pensions",
+    "documents": [
+      "Minor's birth proof (birth certificate/school certificate/PAN/passport)",
+      "Guardian's Aadhaar",
+      "Guardian's PAN or Form 60 declaration",
+      "Guardian's identity proof (Driving Licence/Passport/Voter ID/NREGA job card)",
+      "Bank account details"
+    ],
+    "official_note": "Partial withdrawals are capped at 25% of contributions (excluding investment returns) and are allowed only after a 3-year lock-in, mainly for the minor's education, medical treatment or disability.",
+    "source_url": "https://pfrda.org.in/schemes/national-pension-system/nps-vatsalya",
+    "review_date": "2026-09-12",
+    "exclusions": [
+      "Not available for individuals aged 18 or above, who must instead open a regular NPS account",
+      "The account remains guardian-operated until the minor turns 18"
+    ],
+    "criteria": {
+      "max_age": 17,
+      "is_student": true,
+      "match_reason": "You have a child under 18: NPS Vatsalya lets you start a retirement savings account in their name for as little as ₹250, giving them a pension corpus head start."
+    }
+  },
+  {
+    "id": "nps-all-citizen",
+    "name": "National Pension System (NPS), All Citizen Model",
+    "authority": "Pension Fund Regulatory and Development Authority (PFRDA), Ministry of Finance",
+    "benefit": "A voluntary, market-linked retirement savings account open to any Indian citizen aged 18 to 70, where contributions build a pension corpus that provides a lump sum plus a monthly annuity pension after age 60.",
+    "category_domain": "pensions",
+    "documents": [
+      "PAN card",
+      "Aadhaar card",
+      "Bank account details/cancelled cheque",
+      "Passport-size photograph",
+      "KYC documents as prescribed in the NPS subscriber application form"
+    ],
+    "official_note": "At exit, at least 40% of the accumulated corpus must be used to buy an annuity for a regular pension, while the remaining amount can be withdrawn as a lump sum.",
+    "source_url": "https://pfrda.org.in/schemes/national-pension-system/nps-for-all-citizen-models",
+    "review_date": "2026-09-12",
+    "exclusions": [
+      "Hindu Undivided Families (HUFs) and Persons of Indian Origin (PIOs) are not eligible to subscribe",
+      "Cannot be opened jointly or operated on behalf of another person"
+    ],
+    "criteria": {
+      "min_age": 18,
+      "max_age": 70,
+      "match_reason": "You're an Indian citizen between 18 and 70: NPS lets you voluntarily build a market-linked pension corpus for a regular income after you retire."
+    }
+  },
+  {
+    "id": "esic-dependants-benefit",
+    "name": "Employees' State Insurance (ESI) Dependants' Benefit",
+    "authority": "Employees' State Insurance Corporation (ESIC), Ministry of Labour and Employment",
+    "benefit": "Pays a monthly pension equal to 90% of the deceased insured person's average daily wage (minimum ₹1,200/month) to eligible family dependants when death occurs due to an employment injury or occupational disease, plus ₹15,000 for funeral expenses.",
+    "category_domain": "pensions",
+    "documents": [
+      "Insured Person's ESI/Aadhaar-linked identity card",
+      "Death certificate",
+      "Employment injury/accident report from employer",
+      "Proof of relationship (marriage/birth certificate) for dependants",
+      "Bank account details of claimant"
+    ],
+    "official_note": "The widow receives the benefit for life or until remarriage, while dependent children receive it only until age 25; benefit applies from day one of insurable employment if death is due to an employment injury.",
+    "source_url": "https://esic.gov.in/dependants-benefit",
+    "review_date": "2026-09-12",
+    "exclusions": [
+      "Only applicable when death results from an employment injury or occupational disease, not natural causes",
+      "Only families of ESI-covered (insured) employees qualify"
+    ],
+    "criteria": {
+      "occupations": [
+        "salaried"
+      ],
+      "match_reason": "You're the family of an ESI-insured worker who died due to a workplace injury: Dependants' Benefit gives you a monthly pension worth 90% of their wage, for life for the widow.",
+      "max_annual_income": 216000
+    }
+  },
+  {
+    "id": "epf-scheme-1952",
+    "name": "Employees' Provident Fund (EPF) Scheme, 1952",
+    "authority": "Employees' Provident Fund Organisation (EPFO), Ministry of Labour and Employment",
+    "benefit": "Builds a retirement corpus through mandatory 12% employee and 12% employer contributions on wages, for employees earning up to ₹15,000/month in covered establishments, which can be withdrawn as a lump sum with accumulated interest at retirement or after two months of continuous unemployment.",
+    "category_domain": "pensions",
+    "documents": [
+      "Universal Account Number (UAN)",
+      "Aadhaar card",
+      "Bank account passbook/cancelled cheque",
+      "Form 19 (PF final settlement)",
+      "Form 31 (partial withdrawal, if applicable)"
+    ],
+    "official_note": "Employees drawing basic wages above ₹15,000 per month are not compulsorily covered but can still join voluntarily with employer consent.",
+    "source_url": "https://www.epfindia.gov.in/site_docs/PDFs/Downloads_PDFs/EPFScheme.pdf",
+    "review_date": "2026-09-12",
+    "exclusions": [
+      "Applies only to establishments covered under the EPF & MP Act, 1952 (factories/establishments with 20 or more employees, or as notified)",
+      "Full withdrawal before retirement is allowed only after two months of continuous unemployment"
+    ],
+    "criteria": {
+      "occupations": [
+        "salaried"
+      ],
+      "match_reason": "You're a salaried employee in a covered establishment: EPF is your mandatory retirement savings account, funded by equal 12% contributions from you and your employer, that you can withdraw as a lump sum with interest.",
+      "max_annual_income": 216000
+    }
+  },
+  {
+    "id": "pmay-arhc",
+    "name": "Affordable Rental Housing Complexes (ARHC)",
+    "authority": "Ministry of Housing and Urban Affairs (MoHUA)",
+    "benefit": "Provides ready-to-live rental housing units at affordable rents to urban migrant workers and the urban poor, created either by converting existing government-funded vacant houses or through new construction by public/private entities on their own land with government incentives.",
+    "category_domain": "housing",
+    "documents": [
+      "Aadhaar card",
+      "Proof of employment/migrant worker status (employer certificate)",
+      "Income proof for EWS/LIG category",
+      "Photograph",
+      "Application via ARHC portal or Urban Local Body"
+    ],
+    "official_note": "Beneficiaries include industrial workers, street vendors, construction workers, students and other EWS/LIG urban migrants; a beneficiary must not already own a pucca house anywhere in India.",
+    "source_url": "https://arhc.mohua.gov.in/",
+    "review_date": "2026-09-12",
+    "exclusions": [
+      "Not available to households that already own a pucca house in any city in India",
+      "Priority is given to migrant/urban poor workers near their workplace, not general housing seekers"
+    ],
+    "criteria": {
+      "occupations": [
+        "laborer",
+        "self_employed"
+      ],
+      "area_type": "urban",
+      "match_reason": "You're an urban migrant worker or EWS/LIG urban resident without a house of your own: ARHC gives you access to a ready-to-live rental home near your workplace at an affordable rent."
+    }
+  },
+  {
+    "id": "crgftlih-housing-credit-guarantee",
+    "name": "Credit Risk Guarantee Fund Trust for Low Income Housing (CRGFTLIH)",
+    "authority": "National Housing Bank (NHB), Ministry of Finance",
+    "benefit": "Enables EWS/LIG borrowers in urban areas to get collateral-free, third-party-guarantee-free home loans of up to ₹5,00,000 to buy, build, extend or improve a small dwelling of up to 430 sq. ft. carpet area, by having the government guarantee 85-90% of the loan to the lender.",
+    "category_domain": "housing",
+    "documents": [
+      "Income proof/certificate for EWS/LIG category",
+      "Identity and address proof (Aadhaar)",
+      "Property/land documents",
+      "Loan application form with a participating bank/HFC/MFI/co-operative bank",
+      "Bank account details"
+    ],
+    "official_note": "The guarantee cover is availed by the lending bank or housing finance institution rather than the borrower directly, so it only works through participating lenders such as scheduled commercial banks, RRBs, urban co-operative banks, NBFC-MFIs, or NHB-registered housing finance institutions.",
+    "source_url": "https://www.nhb.org.in/credit-risk-guarantee-fund-trust-for-low-income-housing/",
+    "review_date": "2026-09-12",
+    "exclusions": [
+      "Applies only to urban EWS/LIG housing loans, not rural or higher-income borrowers",
+      "The dwelling financed must not exceed 430 sq. ft. carpet area"
+    ],
+    "criteria": {
+      "max_annual_income": 600000,
+      "area_type": "urban",
+      "match_reason": "You're an EWS/LIG urban household needing a home loan: CRGFTLIH backs your lender with a government guarantee so you can get a collateral-free loan of up to ₹5 lakh for your first home."
+    }
+  },
+  {
+    "id": "sakhi-niwas-working-women-hostel",
+    "name": "Sakhi Niwas (Working Women Hostel Scheme)",
+    "authority": "Ministry of Women and Child Development",
+    "benefit": "Provides subsidized hostel accommodation, run in rented premises, with a day-care facility for children, for working women and women undergoing job training in urban, semi-urban, and rural areas with employment opportunities.",
+    "category_domain": "women_child",
+    "documents": [
+      "Aadhaar Card",
+      "Proof of employment or job-training enrollment",
+      "Income proof or salary certificate",
+      "Age proof",
+      "Passport-size photographs"
+    ],
+    "official_note": "Eligibility is capped by gross monthly income ceilings, currently ₹50,000 in metropolitan cities and ₹35,000 in other places (relaxable by the District Magistrate), and a resident whose income later exceeds the ceiling must vacate within 6 months.",
+    "source_url": "https://wcd.gov.in/offerings/sakhi--niwas---working--women--hostel",
+    "review_date": "2026-09-12",
+    "exclusions": [
+      "Married women whose husband or immediate family resides in the same area are not eligible unless they are undergoing job training",
+      "Residents must vacate within 6 months once their income exceeds the prescribed ceiling"
+    ],
+    "criteria": {
+      "max_annual_income": 600000,
+      "occupations": [
+        "salaried"
+      ],
+      "gender": "female",
+      "match_reason": "You're a working woman, or training for a job, away from your family: Sakhi Niwas offers subsidized hostel accommodation with childcare support so you have a safe place to stay."
+    }
+  },
+  {
+    "id": "palna-creche-scheme",
+    "name": "Palna (National Creche Scheme)",
+    "authority": "Ministry of Women and Child Development",
+    "benefit": "Provides day-care crèche services for children aged 6 months to 6 years at Anganwadi-cum-Crèche Centres for a nominal fee of ₹20 per day, fully waived for BPL/Antyodaya Anna Yojana families, including nutrition, health monitoring, and early learning activities.",
+    "category_domain": "women_child",
+    "documents": [
+      "Aadhaar Card of parent or guardian",
+      "Birth certificate of the child",
+      "BPL or AAY ration card, for the fee waiver",
+      "Proof of residence"
+    ],
+    "official_note": "The daily fee is waived entirely for BPL/AAY card holders, and while the scheme especially targets children of working mothers, crèche facilities under Palna are open to all mothers regardless of employment status.",
+    "source_url": "https://wcd.gov.in/offerings/palna",
+    "review_date": "2026-09-12",
+    "exclusions": [
+      "Children older than 6 years are not eligible for Palna crèche services"
+    ],
+    "criteria": {
+      "min_age": 0,
+      "max_age": 6,
+      "occupations": [
+        "salaried",
+        "self_employed",
+        "laborer",
+        "homemaker"
+      ],
+      "match_reason": "You have a young child between 6 months and 6 years old: Palna provides safe, affordable day-care with nutrition and early learning support, for just ₹20 a day and free if your family holds a BPL or AAY card."
+    }
+  },
+  {
+    "id": "women-helpline-181",
+    "name": "Women Helpline Scheme (181)",
+    "authority": "Ministry of Women and Child Development",
+    "benefit": "Provides a toll-free, 24x7x365 emergency and non-emergency telephone helpline (dial 181) that connects women in distress to police, One Stop Centres, hospitals, and legal aid, and gives information on women welfare schemes.",
+    "category_domain": "women_child",
+    "documents": [
+      "None required; the helpline is accessed by dialing 181 directly, and callers may remain anonymous"
+    ],
+    "official_note": "The Women Helpline is a free, confidential service open to any woman in distress or anyone calling on her behalf, and is currently operational in all States and UTs except West Bengal.",
+    "source_url": "https://wcd.gov.in/offerings/women--helpline--scheme",
+    "review_date": "2026-09-12",
+    "exclusions": [
+      "Not yet operational in West Bengal as per the latest coverage update"
+    ],
+    "criteria": {
+      "gender": "female",
+      "match_reason": "You're a woman facing violence, distress, or in need of safety information: dial 181 any time, free of charge, to be connected with police, One Stop Centres, hospitals, and legal aid."
+    }
+  },
+  {
+    "id": "shakti-sadan-integrated-rehabilitation",
+    "name": "Shakti Sadan (Integrated Relief and Rehabilitation Home)",
+    "authority": "Ministry of Women and Child Development",
+    "benefit": "Provides free shelter, food, clothing, counselling, primary health care, legal aid, and vocational training to women and girls in distress, including trafficking survivors, domestic violence survivors, and destitute women, for stays of up to 3 years.",
+    "category_domain": "women_child",
+    "documents": [
+      "Referral from a One Stop Centre, police station, court, or Child Welfare Committee",
+      "Aadhaar Card, where available",
+      "Any available identity or residence proof"
+    ],
+    "official_note": "Shakti Sadan was formed in 2021-22 by merging the earlier Swadhar Greh and Ujjawala (anti-trafficking) schemes into a single integrated home under the Samarthya component of Mission Shakti, and admission is usually through referral rather than direct walk-in.",
+    "source_url": "https://wcd.gov.in/offerings/shakti-sadan",
+    "review_date": "2026-09-12",
+    "exclusions": [
+      "Not intended for women who already have independent means of safe support and shelter"
+    ],
+    "criteria": {
+      "gender": "female",
+      "match_reason": "You're a woman facing domestic violence, trafficking, or destitution with nowhere safe to go: Shakti Sadan offers free shelter, food, counselling, and vocational training while you rebuild your life."
+    }
+  },
+  {
+    "id": "one-stop-centre-sakhi",
+    "name": "One Stop Centre Scheme (Sakhi)",
+    "authority": "Ministry of Women and Child Development",
+    "benefit": "Gives women survivors of violence and abuse integrated access to medical aid, police assistance, legal aid, psychosocial counselling, and temporary shelter of up to 5 days, all under one roof at a district-level One Stop Centre.",
+    "category_domain": "women_child",
+    "documents": [
+      "Any available identity proof, Aadhaar Card preferred",
+      "Police complaint or FIR copy, if already filed (not mandatory to access the centre)"
+    ],
+    "official_note": "OSCs accept women facing any form of violence irrespective of age, class, caste, education, marital status, religion, or region, but on-site shelter is capped at 5 days per stay, with longer-term cases referred to a Shakti Sadan.",
+    "source_url": "https://wcd.gov.in/offerings/one-stop-centre-scheme",
+    "review_date": "2026-09-12",
+    "exclusions": [
+      "On-site shelter is short-term only, up to 5 days; longer-term rehabilitation is referred elsewhere, such as to Shakti Sadan"
+    ],
+    "criteria": {
+      "gender": "female",
+      "match_reason": "You've experienced violence or abuse of any kind: your nearest One Stop Centre (Sakhi) gives you free medical, legal, police, and counselling support together in one place."
+    }
+  },
+  {
+    "id": "scheme-for-adolescent-girls-sag",
+    "name": "Scheme for Adolescent Girls (SAG)",
+    "authority": "Ministry of Women and Child Development",
+    "benefit": "Provides nutritional support (take-home ration or hot cooked meal), iron-folic acid supplementation, health check-ups, and skilling to adolescent girls aged 14 to 18 years in Aspirational Districts and North Eastern States, under Mission Saksham Anganwadi and Poshan 2.0.",
+    "category_domain": "women_child",
+    "documents": [
+      "Aadhaar Card",
+      "Birth certificate or age proof",
+      "School enrollment or dropout status proof, if applicable"
+    ],
+    "official_note": "The earlier SAG for 11-14 year olds was discontinued on 31 March 2022; the revised scheme now covers 14-18 year olds but only in Aspirational Districts and the North Eastern States/UTs, so girls elsewhere are not currently covered.",
+    "source_url": "https://www.pib.gov.in/PressReleaseIframePage.aspx?PRID=1846145",
+    "review_date": "2026-09-12",
+    "exclusions": [
+      "Girls aged 14 to 18 outside Aspirational Districts and the North Eastern States are not covered under the revised scheme"
+    ],
+    "criteria": {
+      "min_age": 14,
+      "max_age": 18,
+      "gender": "female",
+      "match_reason": "You're an adolescent girl aged 14 to 18 living in an Aspirational District or a North Eastern State: SAG gives you nutritional support, health check-ups, and skill training to help you stay healthy and build livelihood skills."
+    }
+  },
+  {
+    "id": "mission-vatsalya-sponsorship-foster-care",
+    "name": "Mission Vatsalya (Sponsorship and Foster Care)",
+    "authority": "Ministry of Women and Child Development",
+    "benefit": "Provides a monthly financial grant of ₹4,000 per child for sponsorship, foster care, or after-care support to children in difficult circumstances, enabling family-based, non-institutional care instead of placement in a childcare institution.",
+    "category_domain": "women_child",
+    "documents": [
+      "Child's birth certificate",
+      "Family income certificate for the last year",
+      "Aadhaar Card or residence proof of the family or prospective foster parents",
+      "Medical fitness certificate of foster parents, for foster care",
+      "Two character references, for foster care",
+      "Recommendation or order of the Child Welfare Committee"
+    ],
+    "official_note": "For the sponsorship component, the child's family income must not exceed ₹72,000 per year in rural areas or ₹96,000 per year in urban areas, and support is sanctioned only after review by the district's Sponsorship and Foster Care Approval Committee.",
+    "source_url": "https://missionvatsalya.wcd.gov.in/foster-care",
+    "review_date": "2026-09-12",
+    "exclusions": [
+      "Families whose income exceeds the prescribed rural or urban ceiling are not eligible for the sponsorship component",
+      "Institutional childcare is used only as a last resort once family-based options are ruled out"
+    ],
+    "criteria": {
+      "min_age": 0,
+      "max_age": 18,
+      "max_annual_income": 96000,
+      "match_reason": "You're caring for a child under 18 in difficult circumstances and your family income is modest: Mission Vatsalya can provide ₹4,000 a month to support the child's care, nutrition, and education."
     }
   }
 ]
