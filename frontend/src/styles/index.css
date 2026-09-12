@@ -28,18 +28,25 @@ body {
    expands from the click point) or "shrink" (switching to the darker
    theme, circle contracts to the click point) on <html>, drives the
    clip-path itself via Element.animate(), and clears the attribute when
-   done. The default UA crossfade animation is turned off on whichever
-   pseudo-element is being driven manually, and z-index is flipped per
-   direction so the animated snapshot is the one layered on top. */
+   done. Both pseudo-elements need their default UA crossfade turned off
+   here, not just the one being driven manually -- leaving it on the other
+   one meant it was *also* fading its own opacity on its own ~250ms clock
+   at the same time the clip-path was animating on its own 550ms clock,
+   which read as a jittery double-transition rather than a clean reveal.
+   z-index is flipped per direction so the animated snapshot is the one
+   layered on top. */
+:root[data-iris-transition]::view-transition-old(root),
+:root[data-iris-transition]::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
 :root[data-iris-transition="grow"]::view-transition-old(root) {
   z-index: 1;
 }
 :root[data-iris-transition="grow"]::view-transition-new(root) {
-  animation: none;
   z-index: 2;
 }
 :root[data-iris-transition="shrink"]::view-transition-old(root) {
-  animation: none;
   z-index: 2;
 }
 :root[data-iris-transition="shrink"]::view-transition-new(root) {

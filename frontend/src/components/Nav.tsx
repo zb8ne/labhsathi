@@ -55,8 +55,12 @@ function ThemeToggle() {
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     const next = isDark ? "light" : "dark";
-    const x = event.clientX;
-    const y = event.clientY;
+    // The button's own center, not event.clientX/Y -- a click near the
+    // edge of the (deliberately small) hit target would otherwise offset
+    // the iris origin from the icon itself instead of the icon's center.
+    const rect = event.currentTarget.getBoundingClientRect();
+    const x = rect.left + rect.width / 2;
+    const y = rect.top + rect.height / 2;
     withIrisTransition(() => setTheme(next), x, y, next === "light");
   };
 
