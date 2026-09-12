@@ -47,13 +47,19 @@ export default defineRailway(() => {
   // opposite of why Redis/Kafka were pinned to no-persistence. Railway's
   // managed Postgres gives real backups for free instead of hand-rolling
   // a volume the way postgres-deployment.yaml has to for kind.
-  const postgresDb = postgres("postgres");
+  // Named "Postgres" (capital P) to match Railway's own default template
+  // name -- it was provisioned imperatively via `railway add --database
+  // postgres` (the declarative `config apply` was silently blocked by a
+  // free-plan resource limit at the time, with no clear error surfaced),
+  // so this declaration exists to bring it under the same IaC file the
+  // rest of the project uses, not to create it fresh.
+  const postgresDb = postgres("Postgres");
 
   const catalogService = service("catalog-service", {
     source: github("zb8ne/labhsathi", { rootDirectory: "/", branch: "main" }),
     build: { builder: "DOCKERFILE", dockerfilePath: "services/catalog-service/Dockerfile" },
     env: {
-      DATABASE_URL: "${{postgres.DATABASE_URL}}",
+      DATABASE_URL: "${{Postgres.DATABASE_URL}}",
       PORT: "8090",
     },
     // No public domain -- api-gateway is the only consumer, reached over
