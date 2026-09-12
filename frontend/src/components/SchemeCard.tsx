@@ -63,9 +63,15 @@ export function SchemeCard({ scheme }: { scheme: SchemeMatch }) {
       {/* GitHub issue #3: a long benefit string (e.g. "₹5,00,000/family/year
           cashless health insurance") with a nowrap badge in a row that
           never wraps forced horizontal overflow on phone widths. Stacks
-          below sm; the badge itself is also allowed to wrap once stacked. */}
+          below sm; the badge itself is also allowed to wrap once stacked.
+          The 43-scheme catalog reintroduced this at desktop widths too --
+          some benefit strings (PMKSY, KCC) run 100+ characters, and
+          `sm:whitespace-nowrap` forced a badge wider than the card,
+          pushing the whole page into horizontal scroll. Badges now always
+          wrap; `min-w-0` on both flex children is required for a flex row
+          to actually let its children shrink/wrap instead of overflowing. */}
       <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
-        <div>
+        <div className="min-w-0">
           <div className="mb-1.5 flex flex-wrap items-center gap-2">
             <span className="text-[11px] font-bold uppercase tracking-wide text-terracotta dark:text-amber-orange">
               {localized.authority}
@@ -78,7 +84,7 @@ export function SchemeCard({ scheme }: { scheme: SchemeMatch }) {
           </div>
           <div className="font-serif text-lg font-semibold">{localized.name}</div>
         </div>
-        <div className="rounded-full border border-success-border bg-success-bg px-3 py-1.5 text-xs font-semibold text-success-text dark:border-success-border/30 dark:bg-success-bg/10 dark:text-success-accent sm:whitespace-nowrap">
+        <div className="min-w-0 rounded-full border border-success-border bg-success-bg px-3 py-1.5 text-xs font-semibold text-success-text dark:border-success-border/30 dark:bg-success-bg/10 dark:text-success-accent sm:max-w-[60%]">
           {localized.benefit}
         </div>
       </div>
