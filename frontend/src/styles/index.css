@@ -24,17 +24,39 @@ body {
 }
 
 /* Theme toggle "iris" transition: JS (src/lib/viewTransition.ts) sets
-   data-iris-transition to "grow" (switching to the lighter theme, circle
-   expands from the click point) or "shrink" (switching to the darker
-   theme, circle contracts to the click point) on <html>, drives the
-   clip-path itself via Element.animate(), and clears the attribute when
-   done. Both pseudo-elements need their default UA crossfade turned off
-   here, not just the one being driven manually -- leaving it on the other
-   one meant it was *also* fading its own opacity on its own ~250ms clock
-   at the same time the clip-path was animating on its own 550ms clock,
-   which read as a jittery double-transition rather than a clean reveal.
-   z-index is flipped per direction so the animated snapshot is the one
-   layered on top. */
+   --iris-x/--iris-y/--iris-radius and data-iris-transition ("grow" when
+   switching to the lighter theme, circle expands from the click point;
+   "shrink" when switching to the darker theme, circle contracts to the
+   click point) on <html> synchronously, then starts the View Transition.
+   The clip-path animation itself is the plain @keyframes below, not a JS
+   Element.animate() call made after awaiting transition.ready -- that gap
+   let the browser paint at least one unclipped frame before the animation
+   attached, which is what read as a flash from an arbitrary point rather
+   than a clean reveal from the click. A CSS animation declared ahead of
+   time starts the instant the pseudo-element exists, no gap.
+
+   Both pseudo-elements need their default UA crossfade turned off, not
+   just the one carrying the iris animation -- leaving it on the other one
+   meant it was *also* fading its own opacity on its own ~250ms clock at
+   the same time the clip-path was animating on its own 550ms clock, which
+   read as a jittery double-transition rather than a clean reveal. z-index
+   is flipped per direction so the animated snapshot is the one on top. */
+@keyframes iris-reveal {
+  from {
+    clip-path: circle(0px at var(--iris-x) var(--iris-y));
+  }
+  to {
+    clip-path: circle(var(--iris-radius) at var(--iris-x) var(--iris-y));
+  }
+}
+@keyframes iris-conceal {
+  from {
+    clip-path: circle(var(--iris-radius) at var(--iris-x) var(--iris-y));
+  }
+  to {
+    clip-path: circle(0px at var(--iris-x) var(--iris-y));
+  }
+}
 :root[data-iris-transition]::view-transition-old(root),
 :root[data-iris-transition]::view-transition-new(root) {
   animation: none;
@@ -45,9 +67,11 @@ body {
 }
 :root[data-iris-transition="grow"]::view-transition-new(root) {
   z-index: 2;
+  animation: iris-reveal 550ms ease-in-out;
 }
 :root[data-iris-transition="shrink"]::view-transition-old(root) {
   z-index: 2;
+  animation: iris-conceal 550ms ease-in-out;
 }
 :root[data-iris-transition="shrink"]::view-transition-new(root) {
   z-index: 1;

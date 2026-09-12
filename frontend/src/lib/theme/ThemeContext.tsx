@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useContext, useLayoutEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 
 export type Theme = "light" | "dark";
@@ -34,8 +34,16 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   // index.html has a small blocking inline script that sets this same
   // class before first paint (avoids a flash of the wrong theme); this
-  // effect keeps it in sync on every change after that.
-  useEffect(() => {
+  // effect keeps it in sync on every change after that. Deliberately
+  // useLayoutEffect, not useEffect: the theme toggle wraps setTheme in
+  // flushSync (see src/lib/viewTransition.ts) so the View Transitions API
+  // can snapshot the "after" state the instant its callback returns, but
+  // flushSync only forces layout effects to run synchronously as part of
+  // that commit -- a passive useEffect here would still run on its usual
+  // post-paint schedule, so the class wouldn't actually be toggled yet
+  // when the snapshot is taken. That's what caused the theme transition
+  // to flash: the "after" snapshot was really still the "before" state.
+  useLayoutEffect(() => {
     document.documentElement.classList.toggle("dark", theme === "dark");
   }, [theme]);
 
