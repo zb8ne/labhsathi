@@ -1,16 +1,19 @@
 import { flushSync } from "react-dom";
 
-/** True when the browser supports the View Transitions API and the user
- * hasn't asked for reduced motion -- the only conditions under which any of
- * the helpers below actually animate rather than applying the DOM update
- * directly. */
-function canAnimate(): boolean {
-  if (typeof document === "undefined" || !("startViewTransition" in document)) return false;
+function prefersReducedMotion(): boolean {
   try {
-    return !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   } catch {
-    return true;
+    return false;
   }
+}
+
+/** True when the browser supports the View Transitions API and the user
+ * hasn't asked for reduced motion -- the only conditions under which
+ * withViewTransition actually animates rather than applying the DOM
+ * update directly. */
+function canUseViewTransitions(): boolean {
+  return typeof document !== "undefined" && "startViewTransition" in document && !prefersReducedMotion();
 }
 
 /** Runs `update` inside a View Transition so the DOM change (e.g. swapping
@@ -19,61 +22,76 @@ function canAnimate(): boolean {
  * supported or the user prefers reduced motion -- an instant swap there is
  * correct, not degraded.
  *
- * `update` is wrapped in `flushSync`: React state setters don't commit to
- * the DOM synchronously on their own (React 18 batches them into a
- * microtask), but the View Transition API needs the "after" DOM in place
- * the instant this callback returns so it can capture the right snapshot.
- * Without flushSync it captures a stale "after" frame, the transition
- * plays against that stale frame, and then React's real (unanimated)
- * commit lands right after and snaps the page the rest of the way --
- * which reads as a flash/flicker layered on top of the intended
- * animation, not a clean transition. */
+ * `update` is wrapped in `flushSync` so the DOM is actually updated by the
+ * time this callback returns, which is what the View Transition API needs
+ * to capture the right "after" snapshot -- React state setters don't
+ * commit synchronously on their own. */
 export function withViewTransition(update: () => void): void {
-  if (!canAnimate()) {
+  if (!canUseViewTransitions()) {
     update();
     return;
   }
   document.startViewTransition(() => flushSync(update));
 }
 
-/** Runs `update` inside a View Transition, then reveals or conceals a
- * circle clipped to the *new* or *old* page snapshot, originating at
- * `(x, y)` -- the classic "iris" theme toggle. `growing` true means the
- * incoming view floods outward from the origin (used for switching to the
- * brighter theme); false means the outgoing view collapses inward to the
- * origin, uncovering the new view everywhere else (used for switching to
- * the darker theme). Falls back to a plain `update` call under the same
- * conditions as `withViewTransition`.
+const LIGHT_BG = "#faf7f2"; // tailwind.config.ts `cream`
+const DARK_BG = "#1c1917"; // tailwind.config.ts `dark-bg`
+
+/** Theme toggle "iris": an opaque overlay in the *outgoing* theme's flat
+ * background color, clipped to a circle centered at `(x, y)`, that shrinks
+ * from covering the whole viewport down to nothing right at that point --
+ * revealing the already-switched theme underneath as it recedes. `growing`
+ * true means switching to the lighter theme (the overlay is the dark
+ * color receding); false means switching to the darker theme (the overlay
+ * is the light color receding). Falls back to an instant `update()` call
+ * when the user prefers reduced motion.
  *
- * The actual clip-path animation is a plain CSS `@keyframes` (see
- * index.css) driven by CSS custom properties set synchronously below,
- * not a JS `Element.animate()` call made inside `transition.ready.then()`.
- * That async gap was the real bug behind the flicker/flash reports: the
- * pseudo-element tree can paint at least one unclipped frame (the new
- * theme shown fully, full-bleed) before the `.then()` microtask gets a
- * chance to attach the animation, and that stray frame is what reads as
- * a flash originating from wherever the browser happens to paint first,
- * not from the click point. A CSS animation declared ahead of time in the
- * stylesheet starts the instant the pseudo-element exists, with no gap. */
+ * Deliberately NOT the View Transitions API. Three attempts at that
+ * (JS Element.animate() after transition.ready, then a CSS @keyframes
+ * animation, then flushSync/useLayoutEffect to fix snapshot timing) never
+ * visibly fixed the reported flicker -- and this automation environment
+ * can't run View Transitions at all to verify further (Chrome aborts them
+ * on a backgrounded tab, which every tab this tool drives is). Rather than
+ * keep shipping unverified fixes against a browser API with that much
+ * snapshot-timing subtlety, this reimplements the same visual effect with
+ * a plain DOM element and Element.animate() on a real (non-pseudo)
+ * element -- fully within our control, and actually testable via
+ * screenshots regardless of tab visibility. */
 export function withIrisTransition(update: () => void, x: number, y: number, growing: boolean): void {
-  if (!canAnimate()) {
+  if (prefersReducedMotion()) {
     update();
     return;
   }
 
-  const root = document.documentElement;
-  const radius = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
-  root.style.setProperty("--iris-x", `${x}px`);
-  root.style.setProperty("--iris-y", `${y}px`);
-  root.style.setProperty("--iris-radius", `${radius}px`);
-  root.dataset.irisTransition = growing ? "grow" : "shrink";
+  // The real theme swap happens immediately -- it's invisible under the
+  // opaque overlay until the overlay recedes past it, so there's no flash
+  // waiting on it; and not gating it behind any animation lifecycle event
+  // removes the exact class of timing bug the View Transitions attempts
+  // kept running into.
+  update();
 
-  const transition = document.startViewTransition(() => flushSync(update));
-
-  transition.finished.finally(() => {
-    delete root.dataset.irisTransition;
-    root.style.removeProperty("--iris-x");
-    root.style.removeProperty("--iris-y");
-    root.style.removeProperty("--iris-radius");
+  const overlay = document.createElement("div");
+  overlay.setAttribute("aria-hidden", "true");
+  Object.assign(overlay.style, {
+    position: "fixed",
+    inset: "0",
+    zIndex: "2147483647",
+    pointerEvents: "none",
+    background: growing ? DARK_BG : LIGHT_BG,
   });
+  document.body.appendChild(overlay);
+
+  const radius = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
+
+  const animation = overlay.animate(
+    [{ clipPath: `circle(${radius}px at ${x}px ${y}px)` }, { clipPath: `circle(0px at ${x}px ${y}px)` }],
+    { duration: 550, easing: "ease-in-out", fill: "forwards" },
+  );
+
+  animation.finished
+    .catch(() => {
+      // Rejects if the animation was cancelled rather than completing --
+      // the overlay still needs removing either way.
+    })
+    .finally(() => overlay.remove());
 }
