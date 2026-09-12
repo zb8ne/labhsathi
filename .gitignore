@@ -11,3 +11,4 @@ infra/docker/.env.doppler
 /frontend/tsconfig.tsbuildinfo
 /node_modules
 THOUGHT_PROCESS.md
+docs/pitch-deck/LabhSathi_Pitch_Deck.pptx

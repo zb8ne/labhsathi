@@ -1,10 +1,10 @@
-# LabhSathi — 3-Minute Video Pitch Script & Production Brief
+# LabhSathi: 3-Minute Video Pitch Script & Production Brief
 **Track 3: Jan Jeevan (Agriculture • Healthcare • Financial Inclusion)**
 **Pacing:** 24–30 fps, calm tech launch aesthetic, ~130 words per minute narration, intentional silence, burned-in subtitles.
 
 ---
 
-## 🎯 The Strategic Reframe (Why This Pitch Wins Track 3)
+## The strategic reframe: why this pitch answers Track 3
 
 > **The Judge's Potential Concern:**
 > *"Track 3 lists smart irrigation, remote diagnostics, and micro-credit scoring. LabhSathi is a welfare eligibility engine. Did they deviate?"*
@@ -14,7 +14,7 @@
 
 ---
 
-## ⏱️ Master Timetable & Shot-by-Shot Script
+## Master timetable and shot-by-shot script
 
 | Timecode | Section | Visual Scene & Action | Spoken Voiceover (Read Exactly) | On-Screen Text / Subtitles |
 | :--- | :--- | :--- | :--- | :--- |
@@ -25,8 +25,8 @@
 | **0:42 – 0:54** | **Step 1: Document Scan** | Live recording on `labhsathi.info`. Cursor clicks **Scan Document**. Uploads sample income certificate. Subtle scan chime. | "Instead of filling dozens of forms across government portals, Meena simply scans one document." | *Document Scan • Optical Character Extraction* |
 | **0:54 – 1:08** | **Step 2: Instant Extraction** | Input fields animate and populate cleanly with green indicators: Age 34, Occupation: Laborer, Income: ₹1,40,000, State: Bihar, Family: 2. | "Six fields populate automatically in under three seconds. No re-typing. No confusion." | *6 Fields Auto-Populated*<br>Age • Income • Occupation • State • Family Size |
 | **1:08 – 1:22** | **Step 3: Missing Nuance** | Cursor scrolls to two unchecked items: *"Lives in a kutcha house"* and *"No bank account"*. Cursor checks both. Selects Area: *Rural*. | "She simply confirms the two things a piece of paper cannot tell us: her housing condition, and that she has no bank account." | *Human in the loop: 2 questions answered* |
-| **1:22 – 1:35** | **Step 4: The Match** | Cursor clicks **Find My Schemes**. Restrained completion tone. Instant switch to Results screen: **18 Schemes Matched**. Background music swells slightly. | "With one click, LabhSathi evaluates hundreds of central welfare rules in under one second. Eighteen schemes matched." | **18 Verified Schemes Found**<br>Matched in < 250ms |
-| **1:35 – 1:52** | **Domain 1 & 2: Agriculture & Healthcare** | Smooth camera push into: <br>1. **MGNREGA / Agriculture Livelihood**<br>2. **Ayushman Bharat PM-JAY** card. Expands card: shows *"Worth Checking"* badge and criteria explanation. | "Every match covers her life. Under Healthcare: Ayushman Bharat provides five lakh rupees in cashless hospital cover. Not a black-box guess—LabhSathi tells her exactly why she qualifies." | **Healthcare Domain**<br>Ayushman Bharat PM-JAY • ₹5,00,000 Cover<br>Transparent match criteria |
+| **1:22 – 1:35** | **Step 4: The Match** | Cursor clicks **Find My Schemes**. Restrained completion tone. Instant switch to Results screen: **18 Schemes Matched**. Background music swells slightly. | "With one click, LabhSathi evaluates dozens of central welfare rules in under two seconds. Eighteen schemes matched." | **18 Verified Schemes Found**<br>Matched in under 2 seconds |
+| **1:35 – 1:52** | **Domain 1 & 2: Agriculture & Healthcare** | Smooth camera push into: <br>1. **MGNREGA / Agriculture Livelihood**<br>2. **Ayushman Bharat PM-JAY** card. Expands card: shows *"Worth Checking"* badge and criteria explanation. | "Every match covers her life. Under Healthcare: Ayushman Bharat provides five lakh rupees in cashless hospital cover. Not a black-box guess: LabhSathi tells her exactly why she qualifies." | **Healthcare Domain**<br>Ayushman Bharat PM-JAY • ₹5,00,000 Cover<br>Transparent match criteria |
 | **1:52 – 2:06** | **Domain 3: Financial Inclusion** | Camera pans to **PM Jan Dhan Yojana** and **Atal Pension Yojana / PM-SYM** cards. Shows checklist of required documents: Aadhaar, 2 photos. | "Under Financial Inclusion: Jan Dhan Yojana and PM-SYM give her an immediate path to open her first bank account and secure pension benefits. Complete with an exact document checklist." | **Financial Inclusion Domain**<br>PM Jan Dhan Yojana • Zero-Balance Account<br>Actionable Document Checklist |
 | **2:06 – 2:16** | **Official Links & Verification** | Cursor hovers over **Official Source** link (`pmjay.gov.in`). Clicks **Print / Save Checklist**. | "Direct links to verified government portals. One printable checklist for every department." | *100% Sourced from Official Portals*<br>Downloadable Action Checklist |
 | **2:16 – 2:32** | **Privacy & Architecture Proof** | Transition to clean dark architecture view. Highlight Kafka topic `document.jobs.completed`. Show event schema JSON with tag: `image: never a field`. Show Redis ephemeral handoff. | "Behind this is an event-driven architecture in Rust and Kafka. Privacy is structural: the document image is held ephemerally in Redis, processed, and discarded immediately. In our Kafka schemas, the raw image field does not even exist." | **Privacy by Architecture**<br>Raw image absent from Kafka schemas<br>Zero-persistence Redis handoff |
@@ -36,7 +36,7 @@
 
 ---
 
-## 🎙️ Spoken Narration Script Only (For Voiceover Recording)
+## Spoken narration script only (for voiceover recording)
 
 Use this clean script for reading into the microphone. Read at a measured, calm, confident pace:
 
@@ -55,9 +55,9 @@ Use this clean script for reading into the microphone. Read at a measured, calm,
 >
 > *She simply confirms the two things a piece of paper cannot tell us: her housing condition, and that she has no bank account.*
 >
-> *With one click, LabhSathi evaluates hundreds of central welfare rules in under one second. Eighteen schemes matched.*
+> *With one click, LabhSathi evaluates dozens of central welfare rules in under two seconds. Eighteen schemes matched.*
 >
-> *Every match covers her life. Under Healthcare: Ayushman Bharat provides five lakh rupees in cashless hospital cover. Not a black-box guess—LabhSathi tells her exactly why she qualifies.*
+> *Every match covers her life. Under Healthcare: Ayushman Bharat provides five lakh rupees in cashless hospital cover. Not a black-box guess: LabhSathi tells her exactly why she qualifies.*
 >
 > *Under Financial Inclusion: Jan Dhan Yojana and PM-SYM give her an immediate path to open her first bank account and secure pension benefits. Complete with an exact document checklist.*
 >
@@ -76,7 +76,7 @@ Use this clean script for reading into the microphone. Read at a measured, calm,
 
 ---
 
-## 🎬 Video Recording & Screen Capture Checklist
+## Video recording and screen capture checklist
 
 1. **Browser State:**
    - Open Chrome at `https://labhsathi.info` (1920x1080 resolution, 100% zoom).

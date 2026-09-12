@@ -4,7 +4,7 @@
 **Hackathon:** Bit N Build Hackathon 2026  
 **Know what you're entitled to.**  
 **Live Production App:** [labhsathi.info](https://labhsathi.info)  
-**Pitch Deck:** [`docs/pitch-deck/LabhSathi_Pitch_Deck.pptx`](docs/pitch-deck/LabhSathi_Pitch_Deck.pptx) · [HTML Deck](docs/pitch-deck/index.html)  
+**Pitch Deck:** [HTML Deck](docs/pitch-deck/index.html)  
 **Video Pitch Script:** [`docs/demo/video-pitch-script.md`](docs/demo/video-pitch-script.md)  
 **Core Architectural Rationale:** [`THOUGHT_PROCESS.md`](THOUGHT_PROCESS.md)  
 
@@ -72,10 +72,10 @@ An event-driven system, not a single request/response call, because the privacy 
 - **labhsathi-core**: the shared Rust domain crate: the eligibility rule engine and the Kafka event schemas. The event schemas have no field capable of holding image bytes, enforced by the struct definitions themselves; see [`docs/adr/0001-event-driven-document-pipeline.md`](docs/adr/0001-event-driven-document-pipeline.md) for the full reasoning, including the honest limits on that claim.
 - **Kafka** (single-broker KRaft) and **Redis** (ephemeral handoff cache, persistence off even in dev) connect the two services.
 
-### Concurrency & Capacity Benchmarks
-- **5,000 to 10,000 Active Concurrent Users:** Rust's Tokio async runtime easily handles 300–450 requests per second with sub-50ms latency on a single lightweight 1 vCPU cloud container.
-- **500+ Simultaneous Document Uploads/sec:** Kafka acts as an infinite shock absorber, queuing bulk uploads during peak village camps without throwing `504 Gateway Timeout`.
-- **Graceful Degradation:** `/api/match` operates independently from the vision worker. If OCR workers or external vision APIs go offline, scheme discovery remains 100% operational.
+### Scale: architectural reasoning, not a benchmark
+No load test has been run against this deployment, so the numbers below describe design intent, not a measurement, on purpose: a stateless, horizontally-scaled api-gateway on Rust's Tokio async runtime and a Kafka layer between upload and OCR are exactly the shape you'd reach for to keep a burst of uploads (a village camp registering dozens of people at once) from turning into `504 Gateway Timeout`, but "should handle X" and "handled X" are different claims and only the second one belongs on an evidence slide.
+- **Graceful degradation:** `/api/match` has zero dependency on the OCR pipeline. If OCR workers or the external vision API go offline, scheme discovery keeps working, unaffected.
+- The one number actually measured: eligibility matching over HTTP, end to end against the live deployment, returns in under 2 seconds.
 
 See [`docs/CONVENTIONS.md`](docs/CONVENTIONS.md) for naming rules and [`infra/k8s/labhsathi/README.md`](infra/k8s/labhsathi/README.md) for the Helm chart / Kubernetes deployment. The Helm chart has been deployed and verified for real, including watching its `ocr-worker` HPA scale under real vision-API load, and three further reproducible reliability checks (OCR outage doesn't block matching, a real failure reaches a terminal state, replica count vs. throughput); see [`docs/engineering/reliability-proof.md`](docs/engineering/reliability-proof.md).
 
@@ -89,13 +89,11 @@ Direct answer, asked plainly during this build: **the *content* is hardcoded: cu
 
 Every catalog entry states the date it was last checked and links to its real source where one exists, so the app never claims to *be* the authority; it points at one. What this doesn't buy: nothing here is verified against the live government portals on any kind of schedule. Before trusting a specific number for anything real, follow the `source_url`.
 
-## 100+ Curated Dataset & Web-Safe Verification Pipeline
+## In progress: expanding to 100+ schemes
 
-While shipping with an audited baseline of central government schemes in PostgreSQL, LabhSathi is scaling to an expanded **100+ custom curated scheme dataset** ([`~/labhsathi-schemes-candidate.parquet`](/home/zbone/labhsathi-schemes-candidate.parquet)):
+The 43-scheme catalog above is what's live in production. A candidate expansion to 106 schemes (43 existing + 63 newly researched, each cross-checked against a real official `.gov.in`/`.nic.in` source before inclusion, none fabricated) exists as a staged dataset, not yet integrated into the running app. Each candidate entry already carries a full `criteria` block in the same shape the matching engine expects, so integrating it is a data-loading change, not a rule-engine change.
 
-* **Web-Safe Site Ingestion:** Government schemes are scouted and indexed across agriculture, health, education, disability, pensions, and artisan livelihood portals.
-* **Production-Safe Packet & Credential Verification:** Links and endpoints are vetted using a safe verification layer that cryptographically confirms TLS certificates, performs non-intrusive liveness checks (HTTP 200 validation), and verifies portal authenticity against legitimate government domains (`.gov.in`, `.nic.in`, and verified statutory boards) before insertion into the catalog.
-* **Deterministic Matching Rules:** Every entry contains a full `criteria` schema (income caps, landholding limits, age ranges, gender and caste carve-outs), making every new scheme immediately executable by the Rust engine.
+Live-link verification for the expanded set (confirming each `source_url` still resolves) is a plain HTTP status check, not a novel system: fetch the URL, confirm 200. Worth stating plainly rather than dressing up.
 
 ## Tech stack
 
