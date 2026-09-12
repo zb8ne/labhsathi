@@ -31,8 +31,8 @@ export function HowItWorksScreen() {
 
         <JourneyStep
           number={1}
-          title="Scan a document, or just answer six questions"
-          body="Upload an income certificate, a ration card, an ID -- anything with your age, income, occupation, state and family details on it. LabhSathi reads it once, fills the form, and forgets the image existed. No account, no login, nothing saved."
+          title="Scan a document to auto-fill six fields, or just type them"
+          body="Upload an income certificate, a ration card, an ID -- anything with your age, income, occupation, state, category and land holding on it. LabhSathi reads those six fields once, fills them in, and forgets the image existed. The rest of the form (family size and a few household questions a document can't answer) still needs a direct answer either way. No account, no login, nothing saved."
           image="/how-it-works/step-1-form.jpg"
           imageAlt="LabhSathi's main form, pre-filled with a sample household's details"
         />
@@ -93,8 +93,8 @@ export function HowItWorksScreen() {
 
         <div className="mt-8 grid gap-x-8 gap-y-6 sm:grid-cols-2">
           <ServiceNote name="frontend" tag="labhsathi.info">
-            The React app itself. Talks to nothing but api-gateway -- every claim on this page is
-            visible from that one HTTP boundary.
+            The React app itself. Talks to api-gateway for every scheme-related call, plus Google Fonts
+            for the two typefaces on this page -- no other third party sees a request from this app.
           </ServiceNote>
           <ServiceNote name="api-gateway" tag="Rust / Axum">
             The only entry point. Accepts uploads, serves{" "}
@@ -151,10 +151,11 @@ export function HowItWorksScreen() {
             failure case, not corruption.
           </ArchNote>
           <ArchNote title="Matching never depends on the vision pipeline">
-            <span className="font-mono text-[13px]">/api/match</span> is pure, fast, in-memory Rust --
-            it doesn't know or care whether a profile came from a scan or from typing. If ocr-worker is
-            completely down, the manual form still works, because the two were never the same code
-            path to begin with.
+            <span className="font-mono text-[13px]">/api/match</span> is fast, in-memory Rust with one
+            cached network hop to catalog-service (30-second TTL, stale-fallback on error) -- it doesn't
+            know or care whether a profile came from a scan or from typing. If ocr-worker is completely
+            down, the manual form still works, because the two were never the same code path to begin
+            with.
           </ArchNote>
         </div>
 

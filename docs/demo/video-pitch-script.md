@@ -1,99 +1,101 @@
-# LabhSathi: 3-Minute Video Pitch Script & Production Brief
-**Track 3: Jan Jeevan (Agriculture • Healthcare • Financial Inclusion)**
-**Pacing:** 24–30 fps, calm tech launch aesthetic, ~130 words per minute narration, intentional silence, burned-in subtitles.
+# LabhSathi: 3-minute video pitch script and production brief
+
+**Track 3: Jan Jeevan (Agriculture, Healthcare, Financial Inclusion)**
+**Pacing:** 24-30 fps, calm tech launch aesthetic, roughly 110 words per minute narration (deliberately slower than average, this is a spoken-word-light cut), intentional silence, burned-in subtitles.
 
 ---
 
 ## The strategic reframe: why this pitch answers Track 3
 
-> **The Judge's Potential Concern:**
-> *"Track 3 lists smart irrigation, remote diagnostics, and micro-credit scoring. LabhSathi is a welfare eligibility engine. Did they deviate?"*
->
-> **Our Winning Answer (Delivered in first 40s):**
-> *"Point solutions fail when citizens can't afford or access them. A farmer cannot adopt smart drip irrigation without the PM Krishi Sinchayee capital subsidy. A rural family cannot benefit from remote healthcare if a single hospitalization bankrupts them without Ayushman Bharat. An unbanked laborer cannot use micro-credit or digital payments without a Jan Dhan zero-balance account. **LabhSathi is the foundational access layer underneath all three Jan Jeevan pillars.**"*
+Track 3's brief names smart irrigation, remote diagnostics, and micro-credit scoring as its example problems. LabhSathi doesn't build any of those three things directly. What it does is make sure the people who need them actually find and qualify for them: PM Krishi Sinchayee Yojana already funds irrigation subsidies, Ayushman Bharat already provides five lakh rupees of health cover, Jan Dhan already gives a first bank account. The barrier was never that these didn't exist. It was that nobody found them. LabhSathi is the access layer underneath all three Jan Jeevan pillars, addressed directly in the first 30 seconds so a judge never has to ask.
+
+Look closer at the brief's own three examples and they share one unstated assumption: that the beneficiary already knows what's available and how to claim it. Smart irrigation, remote diagnostics, and micro-credit scoring are three separate technical builds for three separate pillars, but the actual bottleneck sits underneath all three, at the same layer, for the same reason. That reframes the problem itself: it's not three disconnected verticals needing three disconnected products. It's one unified access problem wearing three different department names. A twenty-thousand-rupee medicine bill can bankrupt a family that has never heard a five-lakh-rupee grant already covers it. The technology to cover that bill existed the entire time. The gap was never engineering. It was that nobody told her.
 
 ---
 
 ## Master timetable and shot-by-shot script
 
-| Timecode | Section | Visual Scene & Action | Spoken Voiceover (Read Exactly) | On-Screen Text / Subtitles |
+| Timecode | Section | Visual scene and action | Spoken voiceover (read exactly) | On-screen text / subtitles |
 | :--- | :--- | :--- | :--- | :--- |
-| **0:00 – 0:08** | **Hook** | Pure black. Clean serif typography fades in. Soft, warm ambient piano pluck. | *(Silence for 2s)*<br>"This is Meena. She is thirty-four, an agricultural wage worker in rural Bihar, raising a young daughter in a kutcha home." | **Meena, 34**<br>Agricultural worker • ₹1.4L income • Unbanked |
-| **0:08 – 0:18** | **The Reality** | Fade into 3 quick, authentic stills (1.5s each): a complex 40-page gazette PDF, a dense portal captcha, a long physical queue outside a block office. | "She earns ₹1.4 lakh a year, and she has no bank account. Meena needs support from multiple departments. But she only gets to explain her life once." | *Scattered portals. Legal jargon. Missing documents.* |
-| **0:18 – 0:28** | **The Track 3 Bridge** | Minimal slide showing the 3 Track 3 pillars: **Agriculture**, **Healthcare**, **Financial Inclusion**. Subtle highlight wipes across them. | "Track 3 asks how technology solves everyday human needs across agriculture, healthcare, and finance. Often, tech builds isolated point solutions." | **Jan Jeevan Track**<br>Agriculture • Healthcare • Financial Inclusion |
-| **0:28 – 0:42** | **The 3-Domain Reframe** | Fast, clean 3-part card wipe showing real existing schemes: <br>1. PM Krishi Sinchayee Yojana (Irrigation)<br>2. Ayushman Bharat PM-JAY (Health)<br>3. PM Jan Dhan Yojana (Finance) | "An irrigation subsidy already exists.<br>Five lakh rupees of cashless health cover already exists.<br>A zero-balance bank account already exists.<br>The gap isn't building these. The gap is knowing you qualify. LabhSathi is that missing layer." | **The Missing Foundation**<br>From disconnected schemes to guaranteed access. |
-| **0:42 – 0:54** | **Step 1: Document Scan** | Live recording on `labhsathi.info`. Cursor clicks **Scan Document**. Uploads sample income certificate. Subtle scan chime. | "Instead of filling dozens of forms across government portals, Meena simply scans one document." | *Document Scan • Optical Character Extraction* |
-| **0:54 – 1:08** | **Step 2: Instant Extraction** | Input fields animate and populate cleanly with green indicators: Age 34, Occupation: Laborer, Income: ₹1,40,000, State: Bihar, Family: 2. | "Six fields populate automatically in under three seconds. No re-typing. No confusion." | *6 Fields Auto-Populated*<br>Age • Income • Occupation • State • Family Size |
-| **1:08 – 1:22** | **Step 3: Missing Nuance** | Cursor scrolls to two unchecked items: *"Lives in a kutcha house"* and *"No bank account"*. Cursor checks both. Selects Area: *Rural*. | "She simply confirms the two things a piece of paper cannot tell us: her housing condition, and that she has no bank account." | *Human in the loop: 2 questions answered* |
-| **1:22 – 1:35** | **Step 4: The Match** | Cursor clicks **Find My Schemes**. Restrained completion tone. Instant switch to Results screen: **18 Schemes Matched**. Background music swells slightly. | "With one click, LabhSathi evaluates dozens of central welfare rules in under two seconds. Eighteen schemes matched." | **18 Verified Schemes Found**<br>Matched in under 2 seconds |
-| **1:35 – 1:52** | **Domain 1 & 2: Agriculture & Healthcare** | Smooth camera push into: <br>1. **MGNREGA / Agriculture Livelihood**<br>2. **Ayushman Bharat PM-JAY** card. Expands card: shows *"Worth Checking"* badge and criteria explanation. | "Every match covers her life. Under Healthcare: Ayushman Bharat provides five lakh rupees in cashless hospital cover. Not a black-box guess: LabhSathi tells her exactly why she qualifies." | **Healthcare Domain**<br>Ayushman Bharat PM-JAY • ₹5,00,000 Cover<br>Transparent match criteria |
-| **1:52 – 2:06** | **Domain 3: Financial Inclusion** | Camera pans to **PM Jan Dhan Yojana** and **Atal Pension Yojana / PM-SYM** cards. Shows checklist of required documents: Aadhaar, 2 photos. | "Under Financial Inclusion: Jan Dhan Yojana and PM-SYM give her an immediate path to open her first bank account and secure pension benefits. Complete with an exact document checklist." | **Financial Inclusion Domain**<br>PM Jan Dhan Yojana • Zero-Balance Account<br>Actionable Document Checklist |
-| **2:06 – 2:16** | **Official Links & Verification** | Cursor hovers over **Official Source** link (`pmjay.gov.in`). Clicks **Print / Save Checklist**. | "Direct links to verified government portals. One printable checklist for every department." | *100% Sourced from Official Portals*<br>Downloadable Action Checklist |
-| **2:16 – 2:32** | **Privacy & Architecture Proof** | Transition to clean dark architecture view. Highlight Kafka topic `document.jobs.completed`. Show event schema JSON with tag: `image: never a field`. Show Redis ephemeral handoff. | "Behind this is an event-driven architecture in Rust and Kafka. Privacy is structural: the document image is held ephemerally in Redis, processed, and discarded immediately. In our Kafka schemas, the raw image field does not even exist." | **Privacy by Architecture**<br>Raw image absent from Kafka schemas<br>Zero-persistence Redis handoff |
-| **2:32 – 2:44** | **Graceful Failure & Scalability** | Architecture diagram shows OCR Worker decoupled from Matcher. | "Our OCR workers scale independently from eligibility matching. And if the vision pipeline ever goes offline, scheme discovery never stops. Graceful degradation by design." | **Resilient Engineering**<br>Independent HPA scaling • Graceful failure mode |
-| **2:44 – 2:54** | **Scale & Grassroots Impact** | Pull back visual from phone screen to CSC (Common Service Centre) village kiosk operator and grassroots NGO worker using the tool. | "Designed not just for smartphones, but for village CSC operators and NGO field workers helping thousands of Meenas every day." | **Grassroots Scale**<br>Common Service Centres (CSC) • Village Kiosks • NGOs |
-| **2:54 – 3:00** | **Closing Reveal** | Minimal brand screen: LabhSathi logo, tagline, live domain, and GitHub repository. Music resolves on a clean acoustic chord. Hold for 3 seconds. | "LabhSathi. From document to benefit checklist." *(Hold music to end)* | **LabhSathi**<br>`labhsathi.info` • `github.com/zb8ne/labhsathi` |
+| **0:00-0:08** | Hook | Pure black. Clean serif type fades in. One soft piano note. | *(silence, 2s)* "This is Meena. Thirty-four. An agricultural wage worker in rural Bihar." | **Meena, 34**<br>Agricultural worker · ₹1.4L income · Unbanked |
+| **0:08-0:18** | The reality | Three quick stills, 1.5s each: a dense scheme PDF, a portal login screen, a queue outside a block office. | "No bank account. Raising her daughter in a kutcha home. She needs three departments. She only gets to explain her life once." | *Scattered portals. Buried eligibility rules.* |
+| **0:18-0:26** | The Track 3 bridge | Minimal slide, three pillars: Agriculture, Healthcare, Financial Inclusion. Subtle highlight wipe. | "Track 3 asks how technology reaches everyday needs in agriculture, health, and finance." | **Jan Jeevan Track**<br>Agriculture · Healthcare · Financial Inclusion |
+| **0:26-0:36** | The shared assumption | Same three-pillar slide, but each pillar's brief phrase (smart irrigation / remote diagnostics / micro-credit scoring) fades in under its label, then all three dim except one shared underline. | "Smart irrigation. Remote diagnostics. Micro-credit scoring. Three different builds. One shared assumption: that she already knows what exists, and how to claim it." | **One hidden assumption**<br>She already knows it exists |
+| **0:36-0:48** | The reframe | Three-card wipe, one real scheme per card: PM Krishi Sinchayee Yojana, Ayushman Bharat PM-JAY, PM Jan Dhan Yojana. | "A fifty-five percent subsidy on drip irrigation. Five lakh rupees of cashless health cover. A zero-balance bank account. All three, already funded." | **Already funded**<br>PMKSY · PM-JAY · Jan Dhan |
+| **0:48-1:00** | The stakes | Cut to a single stark card: a medicine strip and a price tag, ₹20,000, dissolving into the PM-JAY logo and ₹5,00,000. | "A twenty-thousand-rupee medicine bankrupts a family that never heard a five-lakh grant exists. The technology was never the gap. The awareness was." | **The real gap**<br>Not engineering. Awareness. |
+| **1:00-1:08** | The resolution | Meena persona card returns, now with a single connecting line drawn under all three pillar icons. | "LabhSathi is that missing layer. One layer, under agriculture, health, and finance." | **LabhSathi**<br>One access layer, three departments |
+| **1:08-1:18** | Step 1: scan | Live on `labhsathi.info`. Click Scan. Upload a specimen document. Soft chime. | "Meena scans one document instead of filling out ten." | *Scan once, then discarded* |
+| **1:18-1:30** | Step 2: extraction | Fields populate one by one, green highlight: age, income, occupation, state, family size. | "Six fields, extracted in seconds. No retyping." | **6 fields auto-filled** |
+| **1:30-1:42** | Step 3: the two questions | Cursor checks "Lives in a kutcha house" and "No bank account". Selects Rural. | "She confirms two things a document can't tell us. Her housing. Her banking." | *Human confirms what a scan can't know* |
+| **1:42-1:53** | Step 4: the match | Click Find My Schemes. Brief pause, then Results: 28 Schemes Matched. | "One click. Over a hundred welfare rules checked. Twenty-eight schemes matched." | **28 schemes matched**<br>Under 2 seconds |
+| **1:53-2:07** | Healthcare, explained | Push into the Ayushman Bharat PM-JAY card. Highlight the reason text. | "Every match tells her why. Ayushman Bharat: five lakh rupees, cashless. Not a guess. A reason." | **Health cover, explained**<br>₹5,00,000 · Ayushman Bharat PM-JAY |
+| **2:07-2:19** | Financial inclusion, explained | Pan to Jan Dhan Yojana and PM-SYM cards. Show the document checklist. | "Jan Dhan and PM-SYM: her first bank account, and a path to a pension." | **Financial inclusion**<br>Jan Dhan · PM-SYM · Document checklist |
+| **2:19-2:27** | Official links | Hover the Official Source link. Click Print. | "Verified links. One checklist. Every department." | *Every match links to a real .gov.in source* |
+| **2:27-2:41** | Privacy, by architecture | Dark architecture view. `document.jobs.completed` schema, tag: image never a field. | "Underneath: Kafka, Redis, Rust. The image is read once and discarded, before the result comes back. There's no field for it to leak into." | **Structural privacy**<br>No image field in either Kafka schema |
+| **2:41-2:51** | Graceful failure | Diagram: ocr-worker decoupled from the matcher. | "If the vision pipeline goes down, matching doesn't stop. They're built apart, on purpose." | **Decoupled by design** |
+| **2:51-2:57** | Scale | Pull back from a phone to a CSC kiosk operator and an NGO field worker. | "For a phone. For a village kiosk. For an NGO worker helping fifty people a day." | **Same flow. More desks.** |
+| **2:57-3:00** | Close | Logo, tagline, live link, GitHub. Hold. | "LabhSathi. From document to benefit checklist." | **LabhSathi**<br>`labhsathi.info` · `github.com/zb8ne/labhsathi` |
+
+*Timecodes past 0:18 are re-derived below (word count and measured audio length), not hand-guessed — see the pacing note after the narration block. Treat every boundary as provisional until checked against the actual recorded voiceover length in the edit.*
 
 ---
 
-## Spoken narration script only (for voiceover recording)
+## Spoken narration only (for the ElevenLabs read)
 
-Use this clean script for reading into the microphone. Read at a measured, calm, confident pace:
+Read at a measured, confident pace. Indian English accent, professional register, not a hard sell.
 
-> *"This is Meena. She is thirty-four, an agricultural wage worker in rural Bihar, raising a young daughter in a kutcha home. She earns ₹1.4 lakh a year, and she has no bank account. Meena needs support from multiple departments. But she only gets to explain her life once.*
->
-> *Track 3 asks how technology solves everyday human needs across agriculture, healthcare, and finance. Often, tech builds isolated point solutions.*
->
-> *An irrigation subsidy already exists.*
-> *Five lakh rupees of cashless health cover already exists.*
-> *A zero-balance bank account already exists.*
-> *The gap isn't building these. The gap is knowing you qualify. LabhSathi is that missing layer.*
->
-> *Instead of filling dozens of forms across government portals, Meena simply scans one document.*
->
-> *Six fields populate automatically in under three seconds. No re-typing. No confusion.*
->
-> *She simply confirms the two things a piece of paper cannot tell us: her housing condition, and that she has no bank account.*
->
-> *With one click, LabhSathi evaluates dozens of central welfare rules in under two seconds. Eighteen schemes matched.*
->
-> *Every match covers her life. Under Healthcare: Ayushman Bharat provides five lakh rupees in cashless hospital cover. Not a black-box guess: LabhSathi tells her exactly why she qualifies.*
->
-> *Under Financial Inclusion: Jan Dhan Yojana and PM-SYM give her an immediate path to open her first bank account and secure pension benefits. Complete with an exact document checklist.*
->
-> *Direct links to verified government portals. One printable checklist for every department.*
->
-> *Behind this is an event-driven architecture in Rust and Kafka. Privacy is structural: the document image is held ephemerally in Redis, processed, and discarded immediately. In our Kafka schemas, the raw image field does not even exist.*
->
-> *Our OCR workers scale independently from eligibility matching. And if the vision pipeline ever goes offline, scheme discovery never stops. Graceful degradation by design.*
->
-> *Designed not just for smartphones, but for village CSC operators and NGO field workers helping thousands of Meenas every day.*
->
-> *LabhSathi. From document to benefit checklist."*
+This is Meena. Thirty-four. An agricultural wage worker in rural Bihar. No bank account. Raising her daughter in a kutcha home.
 
-**Total Word Count:** 328 words  
-**Pacing:** Exactly ~2 minutes 25 seconds of speech across a 3-minute video (leaves ~35 seconds of intentional silence, visual pacing, and sound cues).
+She needs three departments. She only gets to explain her life once.
+
+Track 3 asks how technology reaches everyday needs in agriculture, health, and finance.
+
+Smart irrigation. Remote diagnostics. Micro-credit scoring. Three different builds. One shared assumption: that she already knows what exists, and how to claim it.
+
+A fifty-five percent subsidy on drip irrigation. Five lakh rupees of cashless health cover. A zero-balance bank account. All three, already funded.
+
+A twenty-thousand-rupee medicine bankrupts a family that never heard a five-lakh grant exists. The technology was never the gap. The awareness was.
+
+LabhSathi is that missing layer. One layer, under agriculture, health, and finance.
+
+Meena scans one document instead of filling out ten.
+
+Six fields, extracted in seconds. No retyping.
+
+She confirms two things a document can't tell us. Her housing. Her banking.
+
+One click. Over a hundred welfare rules checked. Twenty-eight schemes matched.
+
+Every match tells her why. Ayushman Bharat: five lakh rupees, cashless. Not a guess. A reason.
+
+Jan Dhan and PM-SYM: her first bank account, and a path to a pension.
+
+Verified links. One checklist. Every department.
+
+Underneath: Kafka, Redis, Rust. The image is read once and discarded, before the result comes back. There's no field for it to leak into.
+
+If the vision pipeline goes down, matching doesn't stop. They're built apart, on purpose.
+
+For a phone. For a village kiosk. For an NGO worker helping fifty people a day.
+
+LabhSathi. From document to benefit checklist.
+
+**Word count:** 261 words.
+**Recorded length (measured, Raj voice):** 2:08. That leaves 52 seconds of pure visual/silence room across the 3:00 video for the scan demo, the 28-schemes scroll, and the closing hold -- less slack than the earlier cut had, since this version now carries the full Track 3 justification (the shared-assumption argument and the bankruptcy stakes line) instead of skimming past it, but still comfortably under the runway. The master table's timecodes above were estimated at 110wpm before recording; Raj's actual pace runs closer to 122wpm, so treat the table's boundaries as directional and re-time each cut against `voiceover-raj.mp3` directly in the edit.
 
 ---
 
 ## Video recording and screen capture checklist
 
-1. **Browser State:**
-   - Open Chrome at `https://labhsathi.info` (1920x1080 resolution, 100% zoom).
-   - Test in Incognito / Private window with clean local storage.
-2. **Demo Data for Meena:**
-   - **Age:** 34
-   - **Gender:** Female
-   - **Occupation:** Laborer / unorganised worker (Agricultural wage worker)
-   - **Household Income:** ₹1,40,000
-   - **State:** Bihar
-   - **Family Size:** 2 (includes 1 daughter, age 6)
-   - **Checkboxes:** Check *"Lives in a kutcha house"*, check *"No bank account"*.
-   - **Area:** Rural
-3. **Audio Track Style:**
-   - Warm, ambient minimal electronic or gentle piano plucks (85–95 BPM).
-   - Sidechain ducking: -12 dB to -15 dB whenever voiceover is active.
-   - Boost volume by +4 dB during the 1:22–1:35 match reveal.
+1. **Browser state:**
+   - Chrome at `https://labhsathi.info`, 1920x1080, 100% zoom.
+   - Private/incognito window with clean localStorage, so every take starts from the same blank form.
+2. **Meena's profile:**
+   - Age 34, Female, Occupation: Laborer / unorganised worker
+   - Household income: ₹140,000, State: Bihar, Family size: 2, daughter's age 6
+   - Check "Lives in a kutcha house" and "No bank account", Area: Rural
+3. **Audio:**
+   - Warm ambient synth or gentle piano, 85-95 BPM, no lyrics.
+   - Duck the music 10-15dB under narration; let it play solo during the opening 8s, the 28-schemes reveal, and the closing hold.
 4. **Subtitles:**
-   - Font: Inter or Roboto, medium weight, clean dark translucent background pill or crisp drop shadow.
-   - Centered lower third.
+   - Medium-weight sans (Inter or the system font already used in the product), centered lower third, burned in for every line.
