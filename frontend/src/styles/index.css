@@ -12,3 +12,36 @@
 body {
   @apply bg-cream text-ink font-sans dark:bg-dark-bg dark:text-dark-text;
 }
+
+/* Language toggle: a plain View Transition with no clip-path override
+   below just gets the browser's default root crossfade -- stretched
+   slightly past the ~250ms default so the text swap reads as a fade,
+   not a flicker. The theme toggle's iris transition (below) overrides
+   this per-element, so it isn't affected. */
+::view-transition-group(root) {
+  animation-duration: 320ms;
+  animation-timing-function: ease;
+}
+
+/* Theme toggle "iris" transition: JS (src/lib/viewTransition.ts) sets
+   data-iris-transition to "grow" (switching to the lighter theme, circle
+   expands from the click point) or "shrink" (switching to the darker
+   theme, circle contracts to the click point) on <html>, drives the
+   clip-path itself via Element.animate(), and clears the attribute when
+   done. The default UA crossfade animation is turned off on whichever
+   pseudo-element is being driven manually, and z-index is flipped per
+   direction so the animated snapshot is the one layered on top. */
+:root[data-iris-transition="grow"]::view-transition-old(root) {
+  z-index: 1;
+}
+:root[data-iris-transition="grow"]::view-transition-new(root) {
+  animation: none;
+  z-index: 2;
+}
+:root[data-iris-transition="shrink"]::view-transition-old(root) {
+  animation: none;
+  z-index: 2;
+}
+:root[data-iris-transition="shrink"]::view-transition-new(root) {
+  z-index: 1;
+}

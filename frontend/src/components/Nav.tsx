@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Logo } from "./Logo";
 import { useLanguage } from "../lib/i18n/LanguageContext";
 import { useTheme } from "../lib/theme/ThemeContext";
+import { withIrisTransition, withViewTransition } from "../lib/viewTransition";
 import type { Lang } from "../lib/i18n/translations";
 
 interface NavProps {
@@ -41,14 +42,28 @@ export function Nav({ right }: NavProps) {
 
 /** Subtle icon-only toggle -- shows the icon for the theme you're currently
  * in (sun while light, moon while dark), same as the trust pill/language
- * toggle's understated pill styling rather than a loud switch control. */
+ * toggle's understated pill styling rather than a loud switch control.
+ *
+ * Clicking animates an "iris" out of the icon: switching to light grows a
+ * circle outward from the click point (the moon icon, since that's what's
+ * showing in dark mode) flooding the screen with the new theme; switching
+ * to dark shrinks a circle inward onto the click point (the sun icon),
+ * collapsing the light theme down to nothing. See src/lib/viewTransition.ts. */
 function ThemeToggle() {
-  const { theme, toggleTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
   const isDark = theme === "dark";
+
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    const next = isDark ? "light" : "dark";
+    const x = event.clientX;
+    const y = event.clientY;
+    withIrisTransition(() => setTheme(next), x, y, next === "light");
+  };
+
   return (
     <button
       type="button"
-      onClick={toggleTheme}
+      onClick={handleClick}
       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
       title={isDark ? "Switch to light mode" : "Switch to dark mode"}
       className="flex h-7 w-7 items-center justify-center rounded-full border border-border text-ink-tertiary transition-colors hover:text-ink dark:border-dark-border dark:text-dark-secondary dark:hover:text-dark-text"
@@ -82,12 +97,19 @@ function LanguageToggle({ lang, setLang }: { lang: Lang; setLang: (lang: Lang) =
 
   const cls = (isActive: boolean) => `${base} ${isActive ? active : inactive}`;
 
+  // Crossfades every piece of translated text on the page instead of
+  // popping straight from English to Hindi -- see src/lib/viewTransition.ts.
+  const changeLang = (next: Lang) => {
+    if (next === lang) return;
+    withViewTransition(() => setLang(next));
+  };
+
   return (
     <div className="flex items-center gap-0.5 rounded-full border border-border px-0.5 py-0.5 dark:border-dark-border">
-      <button type="button" onClick={() => setLang("en")} className={cls(lang === "en")} aria-pressed={lang === "en"}>
+      <button type="button" onClick={() => changeLang("en")} className={cls(lang === "en")} aria-pressed={lang === "en"}>
         EN
       </button>
-      <button type="button" onClick={() => setLang("hi")} className={cls(lang === "hi")} aria-pressed={lang === "hi"}>
+      <button type="button" onClick={() => changeLang("hi")} className={cls(lang === "hi")} aria-pressed={lang === "hi"}>
         हिं
       </button>
     </div>

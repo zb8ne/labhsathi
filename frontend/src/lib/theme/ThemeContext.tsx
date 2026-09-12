@@ -25,7 +25,6 @@ function initialTheme(): Theme {
 interface ThemeContextValue {
   theme: Theme;
   setTheme: (theme: Theme) => void;
-  toggleTheme: () => void;
 }
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
@@ -50,9 +49,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const toggleTheme = () => setTheme(theme === "dark" ? "light" : "dark");
-
-  const value = useMemo<ThemeContextValue>(() => ({ theme, setTheme, toggleTheme }), [theme]);
+  const value = useMemo<ThemeContextValue>(() => ({ theme, setTheme }), [theme]);
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
