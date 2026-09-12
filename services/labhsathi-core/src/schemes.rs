@@ -51,34 +51,91 @@ pub struct SchemeMatch {
     pub documents: Vec<String>,
     pub official_note: String,
     pub source_url: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub category_domain: Option<String>,
 }
 
-/// The catalog half of the scheme-data split: everything here is a fact
-/// (name, benefit, documents, citation, review metadata) that changes
-/// without touching eligibility logic -- edited in data/schemes.json, not
-/// in Rust. `evaluate_rule` below is the other half: deterministic
-/// eligibility logic that stays compiled and testable.
-#[derive(Debug, Deserialize, Clone)]
-struct SchemeFacts {
-    id: String,
-    name: String,
-    authority: String,
-    benefit: String,
-    documents: Vec<String>,
-    official_note: String,
-    source_url: Option<String>,
-    #[allow(dead_code)] // catalog metadata -- not yet surfaced in the API response
-    review_date: String,
-    #[allow(dead_code)]
-    exclusions: Vec<String>,
+/// Declarative eligibility criteria that can be specified directly in `data/schemes.json`
+/// without requiring compiled Rust code changes for new schemes. Serialize is needed here
+/// (not just Deserialize) because catalog-service re-emits this same struct as its HTTP
+/// response body -- it reads the row out of Postgres and hands it back out verbatim.
+#[derive(Debug, Deserialize, Serialize, Clone, Default)]
+pub struct SchemeCriteria {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub min_age: Option<u32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub max_age: Option<u32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub max_annual_income: Option<u64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub min_annual_income: Option<u64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub occupations: Option<Vec<String>>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub categories: Option<Vec<String>>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub gender: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub requires_disability: Option<bool>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub min_disability_percentage: Option<u8>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub requires_land: Option<bool>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub is_widow: Option<bool>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub is_student: Option<bool>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub requires_no_bank_account: Option<bool>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub requires_kutcha_house: Option<bool>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub is_pregnant_or_lactating: Option<bool>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub max_daughter_age: Option<u32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub area_type: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub states: Option<Vec<String>>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub match_reason: Option<String>,
 }
 
-const SCHEMES_JSON: &str = include_str!("../data/schemes.json");
-
-fn load_facts() -> Vec<SchemeFacts> {
-    serde_json::from_str(SCHEMES_JSON).expect("data/schemes.json is checked in and must parse")
+/// The catalog half of the scheme-data split: facts, documentation,
+/// citation links, category domains, and optional declarative criteria.
+/// This is the exact shape catalog-service stores in Postgres (as a single
+/// JSONB column per row, keyed by `id`) and serves back over HTTP -- both
+/// it and api-gateway depend on this crate specifically so there's one
+/// definition of "what a scheme is," not a hand-kept-in-sync copy on each
+/// side of the wire.
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct SchemeFacts {
+    pub id: String,
+    pub name: String,
+    pub authority: String,
+    pub benefit: String,
+    pub documents: Vec<String>,
+    pub official_note: String,
+    pub source_url: Option<String>,
+    #[serde(default)]
+    pub category_domain: Option<String>,
+    #[serde(default)]
+    pub criteria: Option<SchemeCriteria>,
+    pub review_date: String,
+    pub exclusions: Vec<String>,
 }
 
+/// The originally-embedded catalog -- now used as catalog-service's one-time
+/// seed source for Postgres (see services/catalog-service) and as the fixture
+/// this crate's own tests run against, rather than as the runtime data path.
+/// api-gateway no longer reads this directly; it fetches from catalog-service.
+const SEED_SCHEMES_JSON: &str = include_str!("../data/schemes.json");
+
+pub fn seed_facts() -> Vec<SchemeFacts> {
+    serde_json::from_str(SEED_SCHEMES_JSON).expect("data/schemes.json is checked in and must parse")
+}
+
+#[derive(Debug, PartialEq, Eq)]
 enum RawStatus {
     Match,
     NeedsInfo,
@@ -101,12 +158,169 @@ fn needs_info(reason: impl Into<String>, field: &'static str) -> RuleOutcome {
     RuleOutcome { status: RawStatus::NeedsInfo, reason: reason.into(), missing_field: Some(field) }
 }
 
+/// Evaluates declarative criteria from data/schemes.json against a UserProfile.
+fn evaluate_criteria(f: &SchemeFacts, c: &SchemeCriteria, p: &UserProfile) -> RuleOutcome {
+    // 1. Gender check
+    if let Some(ref g) = c.gender {
+        if &p.gender != g {
+            return not_matched(format!("Requires applicant gender '{g}'."));
+        }
+    }
+
+    // 2. First pregnancy / lactation check
+    if let Some(req) = c.is_pregnant_or_lactating {
+        if req && !p.is_pregnant_or_lactating_first_child {
+            return not_matched("Requires first pregnancy or lactation.");
+        }
+    }
+
+    // 3. Widow check
+    if let Some(req) = c.is_widow {
+        if req && !p.is_widow {
+            return not_matched("Applies specifically to widows.");
+        }
+    }
+
+    // 4. Student check
+    if let Some(req) = c.is_student {
+        if req && !p.is_student {
+            return not_matched("Requires enrolled student status.");
+        }
+    }
+
+    // 5. Bank account check
+    if let Some(req_no_bank) = c.requires_no_bank_account {
+        if req_no_bank && p.has_bank_account {
+            return not_matched("Already reported having a bank account.");
+        }
+    }
+
+    // 6. Occupations check
+    if let Some(ref occs) = c.occupations {
+        if !occs.iter().any(|o| o == &p.occupation) {
+            return not_matched(format!("Occupation '{}' does not match eligible occupations.", p.occupation));
+        }
+    }
+
+    // 7. Social categories check
+    if let Some(ref cats) = c.categories {
+        if !cats.iter().any(|cat| cat == &p.category) {
+            return not_matched(format!("Category '{}' is not among eligible categories.", p.category));
+        }
+    }
+
+    // 8. Age check (inclusive)
+    if let Some(min) = c.min_age {
+        if p.age < min {
+            return not_matched(format!("Age {} is below minimum age threshold of {}.", p.age, min));
+        }
+    }
+    if let Some(max) = c.max_age {
+        if p.age > max {
+            return not_matched(format!("Age {} is above maximum age limit of {}.", p.age, max));
+        }
+    }
+
+    // 9. Income check
+    if let Some(max_inc) = c.max_annual_income {
+        if p.annual_income >= max_inc {
+            return not_matched(format!("Household income ₹{} is at or above the cap of ₹{}.", p.annual_income, max_inc));
+        }
+    }
+    if let Some(min_inc) = c.min_annual_income {
+        if p.annual_income < min_inc {
+            return not_matched(format!("Income ₹{} is below minimum threshold of ₹{}.", p.annual_income, min_inc));
+        }
+    }
+
+    // 10. Land holding check (with NeedsInfo)
+    if let Some(req_land) = c.requires_land {
+        if req_land {
+            match p.land_holding_acres {
+                None => {
+                    return needs_info(
+                        "You reported farming as your occupation — tell us your land holding to check eligibility.",
+                        "land_holding_acres",
+                    );
+                }
+                Some(acres) if acres > 0.0 => {}
+                Some(_) => return not_matched("Reported land holding is zero."),
+            }
+        }
+    }
+
+    // 11. Disability check (with NeedsInfo)
+    if let Some(req_disability) = c.requires_disability {
+        if req_disability && !p.has_disability {
+            return not_matched("No disability reported.");
+        }
+    }
+    if let Some(min_pct) = c.min_disability_percentage {
+        if !p.has_disability {
+            return not_matched("No disability reported.");
+        }
+        match p.disability_percentage {
+            None => {
+                return needs_info(
+                    "You reported a disability — tell us the certified percentage to check eligibility.",
+                    "disability_percentage",
+                );
+            }
+            Some(pct) if pct >= min_pct => {}
+            Some(pct) => return not_matched(format!("Certified disability ({}%) is below the required {}%.", pct, min_pct)),
+        }
+    }
+
+    // 12. Kutcha house & area type check (with NeedsInfo)
+    if let Some(req_kutcha) = c.requires_kutcha_house {
+        if req_kutcha && !p.has_kutcha_house {
+            return not_matched("Does not report a kutcha/temporary house.");
+        }
+    }
+    if let Some(ref target_area) = c.area_type {
+        if p.has_kutcha_house {
+            match p.area_type.as_deref() {
+                None => {
+                    return needs_info(
+                        "Tell us whether your residence is in an urban or rural area to route you to the right program.",
+                        "area_type",
+                    );
+                }
+                Some(a) if a == target_area => {}
+                Some(_) => return not_matched(format!("Reported area type does not match {target_area}.")),
+            }
+        }
+    }
+
+    // 13. Daughter age check
+    if let Some(max_daughter_age) = c.max_daughter_age {
+        match p.girl_child_age {
+            Some(age) if age < max_daughter_age => {}
+            _ => return not_matched(format!("Requires a daughter under age {max_daughter_age}.")),
+        }
+    }
+
+    // 14. State check
+    if let Some(ref states) = c.states {
+        if !states.is_empty() && !states.iter().any(|s| s.eq_ignore_ascii_case(&p.state)) {
+            return not_matched(format!("Scheme applies to {} rather than {}.", states.join(", "), p.state));
+        }
+    }
+
+    let reason = c.match_reason.clone().unwrap_or_else(|| {
+        format!("Your reported profile matches the eligibility criteria for {}.", f.name)
+    });
+
+    matched(reason)
+}
+
 // NOTE ON ACCURACY: Eligibility rules below are simplified approximations of
 // real central-government scheme criteria for prototype/demo purposes. Exact
 // eligibility always depends on the latest official notification — the app
 // surfaces these schemes as *candidates worth checking*, not a final
 // determination. See README for sources used to build this table.
-fn evaluate_rule(id: &str, p: &UserProfile) -> RuleOutcome {
+fn evaluate_rule(f: &SchemeFacts, p: &UserProfile) -> RuleOutcome {
+    let id = f.id.as_str();
     match id {
         "pm-kisan" => {
             if p.occupation != "farmer" {
@@ -233,17 +447,30 @@ fn evaluate_rule(id: &str, p: &UserProfile) -> RuleOutcome {
             }
         }
 
-        other => unreachable!("data/schemes.json declares scheme id `{other}` with no matching rule arm in evaluate_rule"),
+        // For any other scheme in data/schemes.json, evaluate declarative criteria:
+        _ => {
+            if let Some(ref c) = f.criteria {
+                evaluate_criteria(f, c, p)
+            } else {
+                unreachable!("data/schemes.json declares scheme id `{id}` with neither a compiled rule arm nor declarative criteria")
+            }
+        }
     }
 }
 
-pub fn match_schemes(profile: &UserProfile) -> Vec<SchemeMatch> {
+/// `facts` is supplied by the caller rather than loaded internally -- this
+/// crate has no reqwest/sqlx/axum dependency (see docs/CONVENTIONS.md) and
+/// deliberately doesn't know or care whether the caller got its catalog
+/// from an embedded JSON file (tests, catalog-service's own seed step) or
+/// a live HTTP call to catalog-service (api-gateway, production). The
+/// matching logic itself is identical either way.
+pub fn match_schemes(profile: &UserProfile, facts: &[SchemeFacts]) -> Vec<SchemeMatch> {
     let mut seen_missing_fields: HashSet<&'static str> = HashSet::new();
 
-    load_facts()
-        .into_iter()
+    facts
+        .iter()
         .filter_map(|f| {
-            let outcome = evaluate_rule(&f.id, profile);
+            let outcome = evaluate_rule(f, profile);
             let status = match outcome.status {
                 RawStatus::Match => MatchStatus::Match,
                 RawStatus::NeedsInfo => {
@@ -260,16 +487,17 @@ pub fn match_schemes(profile: &UserProfile) -> Vec<SchemeMatch> {
                 RawStatus::NoMatch => return None,
             };
             Some(SchemeMatch {
-                id: f.id,
-                name: f.name,
-                authority: f.authority,
-                benefit: f.benefit,
+                id: f.id.clone(),
+                name: f.name.clone(),
+                authority: f.authority.clone(),
+                benefit: f.benefit.clone(),
                 status,
                 reason: outcome.reason,
                 missing_field: outcome.missing_field,
-                documents: f.documents,
-                official_note: f.official_note,
-                source_url: f.source_url,
+                documents: f.documents.clone(),
+                official_note: f.official_note.clone(),
+                source_url: f.source_url.clone(),
+                category_domain: f.category_domain.clone(),
             })
         })
         .collect()
@@ -304,8 +532,14 @@ mod tests {
         }
     }
 
+    // Parsed once for the whole test run -- match_schemes takes facts by
+    // reference now (it no longer loads them itself), so every test needs
+    // a catalog to hand it; this is the same seed data catalog-service
+    // loads into Postgres on first boot.
+    static TEST_FACTS: std::sync::LazyLock<Vec<SchemeFacts>> = std::sync::LazyLock::new(seed_facts);
+
     fn matches(p: &UserProfile) -> Vec<SchemeMatch> {
-        match_schemes(p)
+        match_schemes(p, &TEST_FACTS)
     }
 
     fn has(matches: &[SchemeMatch], id: &str) -> bool {
@@ -539,14 +773,67 @@ mod tests {
 
     #[test]
     fn every_catalog_entry_has_a_rule_arm() {
-        // evaluate_rule panics on an unknown id -- this test forces the
+        // evaluate_rule panics on an unknown id with no criteria -- this test forces the
         // panic to surface at test time (for every entry, not just
         // whichever ones happen to match a specific test's profile)
         // instead of a live 500 the first time someone adds a scheme to
-        // schemes.json without a matching Rust arm.
+        // schemes.json without a matching Rust arm or declarative criteria.
         let p = base_profile();
-        for f in load_facts() {
-            let _ = evaluate_rule(&f.id, &p);
+        for f in TEST_FACTS.iter() {
+            let _ = evaluate_rule(f, &p);
         }
     }
+
+    #[test]
+    fn declarative_criteria_matches_profile() {
+        let facts = SchemeFacts {
+            id: "test-scheme".into(),
+            name: "Test Scheme".into(),
+            authority: "Ministry of Test".into(),
+            benefit: "₹10,000 grant".into(),
+            documents: vec!["Aadhaar".into()],
+            official_note: "Note".into(),
+            source_url: None,
+            category_domain: Some("employment".into()),
+            criteria: Some(SchemeCriteria {
+                min_age: Some(18),
+                max_age: Some(35),
+                max_annual_income: Some(200_000),
+                occupations: Some(vec!["unemployed".into()]),
+                categories: Some(vec!["sc".into(), "st".into(), "obc".into()]),
+                gender: None,
+                requires_disability: None,
+                min_disability_percentage: None,
+                requires_land: None,
+                is_widow: None,
+                is_student: None,
+                requires_no_bank_account: None,
+                requires_kutcha_house: None,
+                is_pregnant_or_lactating: None,
+                max_daughter_age: None,
+                area_type: None,
+                states: None,
+                match_reason: Some("You match the youth skill training criteria.".into()),
+                ..Default::default()
+            }),
+            review_date: "2026-09-12".into(),
+            exclusions: vec![],
+        };
+
+        let mut p = base_profile();
+        p.age = 22;
+        p.occupation = "unemployed".into();
+        p.category = "obc".into();
+        p.annual_income = 150_000;
+
+        let outcome = evaluate_rule(&facts, &p);
+        assert_eq!(outcome.status, RawStatus::Match);
+        assert_eq!(outcome.reason, "You match the youth skill training criteria.");
+
+        // Boundary: age exceeds limit
+        p.age = 36;
+        let outcome2 = evaluate_rule(&facts, &p);
+        assert_eq!(outcome2.status, RawStatus::NoMatch);
+    }
 }
+

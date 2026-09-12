@@ -4,13 +4,16 @@ Namespace `labhsathi`. `values.yaml` is the hackathon-scope default (single-brok
 
 ## Prerequisites
 
-This chart never templates a Secret from values -- the `ANTHROPIC_API_KEY` Secret must already exist in the namespace before `helm install`, referenced by name (`secretName` in `values.yaml`, default `labhsathi-anthropic-secret`):
+This chart never templates a Secret from values -- two Secrets must already exist in the namespace before `helm install`, each referenced by name (`secretName` / `postgres.secretName` in `values.yaml`):
 
 ```bash
 kubectl create namespace labhsathi
 kubectl create secret generic labhsathi-anthropic-secret \
   --namespace labhsathi \
   --from-literal=ANTHROPIC_API_KEY="$ANTHROPIC_API_KEY"
+kubectl create secret generic labhsathi-postgres-secret \
+  --namespace labhsathi \
+  --from-literal=POSTGRES_PASSWORD="$(openssl rand -hex 20)"
 ```
 
 (Or, if Doppler is wired up: `doppler secrets download --no-file --format env | kubectl create secret generic labhsathi-anthropic-secret -n labhsathi --from-env-file=/dev/stdin`.)
@@ -22,6 +25,7 @@ kind create cluster --name labhsathi
 # build + load images (see repo root Dockerfiles under services/*/Dockerfile and frontend/Dockerfile)
 kind load docker-image labhsathi/api-gateway:latest --name labhsathi
 kind load docker-image labhsathi/ocr-worker:latest --name labhsathi
+kind load docker-image labhsathi/catalog-service:latest --name labhsathi
 kind load docker-image labhsathi/frontend:latest --name labhsathi
 
 helm install labhsathi . -f values-kind.yaml

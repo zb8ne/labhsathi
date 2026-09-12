@@ -11,4 +11,9 @@ use tokio::sync::Mutex;
 pub struct AppState {
     pub kafka_producer: Arc<FutureProducer>,
     pub redis: Arc<Mutex<ConnectionManager>>,
+    /// Reused across requests -- reqwest::Client holds its own connection
+    /// pool internally, building a fresh one per request would throw that
+    /// away and pay a new TCP/TLS handshake to catalog-service every time.
+    pub http_client: reqwest::Client,
+    pub catalog_service_url: String,
 }

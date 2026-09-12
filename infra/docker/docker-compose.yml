@@ -44,6 +44,37 @@ services:
       timeout: 3s
       retries: 10
 
+  postgres:
+    image: postgres:16-alpine
+    container_name: labhsathi-postgres
+    environment:
+      POSTGRES_DB: labhsathi_catalog
+      POSTGRES_USER: labhsathi
+      POSTGRES_PASSWORD: labhsathi_dev_only
+    # Unlike Redis, this one *should* persist -- it's a curated scheme
+    # catalog, not a document that must never outlive a request. A named
+    # volume, not a bind mount, so `docker compose down -v` is the
+    # explicit way to wipe it.
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U labhsathi -d labhsathi_catalog"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  catalog-service:
+    build:
+      context: ../..
+      dockerfile: services/catalog-service/Dockerfile
+    container_name: labhsathi-catalog-service
+    environment:
+      DATABASE_URL: postgres://labhsathi:labhsathi_dev_only@postgres:5432/labhsathi_catalog
+      PORT: "8090"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
   api-gateway:
     build:
       context: ../..
@@ -52,6 +83,7 @@ services:
     environment:
       KAFKA_BROKERS: kafka:9092
       REDIS_URL: redis://redis:6379
+      CATALOG_SERVICE_URL: http://catalog-service:8090
       PORT: "8080"
     ports:
       - "8080:8080"
@@ -60,6 +92,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      catalog-service:
+        condition: service_started
 
   ocr-worker:
     build:
@@ -90,3 +124,6 @@ services:
       - "5173:80"
     depends_on:
       - api-gateway
+
+volumes:
+  postgres_data:

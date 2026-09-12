@@ -23,6 +23,8 @@ spec:
               value: "{{ include "labhsathi.name" (dict "service" "kafka" "kind" "svc") }}:9092"
             - name: REDIS_URL
               value: "redis://{{ include "labhsathi.name" (dict "service" "redis" "kind" "svc") }}:6379"
+            - name: CATALOG_SERVICE_URL
+              value: "http://{{ include "labhsathi.name" (dict "service" "catalog-service" "kind" "svc") }}:{{ .Values.catalogService.port }}"
             - name: PORT
               value: "{{ .Values.apiGateway.port }}"
             - name: UPLOAD_RATE_LIMIT_BURST

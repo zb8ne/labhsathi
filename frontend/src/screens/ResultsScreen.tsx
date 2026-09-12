@@ -1,16 +1,18 @@
-import { useEffect } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { GradientBar } from "../components/GradientBar";
 import { Nav } from "../components/Nav";
 import { SchemeCard } from "../components/SchemeCard";
 import { useLanguage, resultsHeading, needsInfoNote } from "../lib/i18n/LanguageContext";
 import type { MatchResponse } from "../lib/types";
+import { CATEGORY_LABELS } from "../lib/types";
 
 export function ResultsScreen() {
   const { t } = useLanguage();
   const location = useLocation();
   const navigate = useNavigate();
   const result = location.state as MatchResponse | undefined;
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
   // Direct navigation with no match result (refresh, deep link, back button
   // after clearing state) -- send back to the form rather than rendering a
@@ -21,6 +23,21 @@ export function ResultsScreen() {
     if (!result) navigate("/", { replace: true });
   }, [result, navigate]);
 
+  const categories = useMemo(() => {
+    if (!result) return [];
+    const counts = new Map<string, number>();
+    for (const s of result.schemes) {
+      if (s.category_domain) {
+        counts.set(s.category_domain, (counts.get(s.category_domain) ?? 0) + 1);
+      }
+    }
+    return Array.from(counts.entries()).map(([cat, count]) => ({
+      key: cat,
+      label: CATEGORY_LABELS[cat] ?? cat,
+      count,
+    }));
+  }, [result]);
+
   if (!result) return null;
 
   // matched_count from the API is the *total* rows returned, which now
@@ -29,6 +46,11 @@ export function ResultsScreen() {
   // isn't a known eligibility yet, just an open question).
   const matchCount = result.schemes.filter((s) => s.status === "match").length;
   const needsInfoCount = result.schemes.filter((s) => s.status === "needs_info").length;
+
+  const displayedSchemes =
+    selectedCategory === "all"
+      ? result.schemes
+      : result.schemes.filter((s) => s.category_domain === selectedCategory);
 
   return (
     <div className="flex min-h-screen flex-col bg-cream text-ink dark:bg-dark-bg dark:text-dark-text">
@@ -59,12 +81,42 @@ export function ResultsScreen() {
           )}
         </div>
 
-        {result.schemes.length === 0 ? (
+        {categories.length > 1 && (
+          <div className="mb-6 flex flex-wrap items-center gap-2 print:hidden">
+            <button
+              type="button"
+              onClick={() => setSelectedCategory("all")}
+              className={`rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors ${
+                selectedCategory === "all"
+                  ? "bg-ink text-cream dark:bg-dark-text dark:text-dark-bg"
+                  : "border border-border bg-white text-ink-secondary hover:bg-input-bg dark:border-dark-border dark:bg-dark-card dark:text-dark-secondary"
+              }`}
+            >
+              All ({result.schemes.length})
+            </button>
+            {categories.map((c) => (
+              <button
+                key={c.key}
+                type="button"
+                onClick={() => setSelectedCategory(c.key)}
+                className={`rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors ${
+                  selectedCategory === c.key
+                    ? "bg-ink text-cream dark:bg-dark-text dark:text-dark-bg"
+                    : "border border-border bg-white text-ink-secondary hover:bg-input-bg dark:border-dark-border dark:bg-dark-card dark:text-dark-secondary"
+                }`}
+              >
+                {c.label} ({c.count})
+              </button>
+            ))}
+          </div>
+        )}
+
+        {displayedSchemes.length === 0 ? (
           <p className="text-ink-secondary dark:text-dark-secondary">{t.results.noMatches}</p>
         ) : (
           <>
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 print:grid-cols-1">
-              {result.schemes.map((scheme) => (
+              {displayedSchemes.map((scheme) => (
                 <SchemeCard key={scheme.id} scheme={scheme} />
               ))}
             </div>
