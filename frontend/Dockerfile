@@ -1,8 +1,15 @@
 # --- build stage ---
 FROM node:20-alpine AS build
 WORKDIR /app
-COPY package.json ./
-RUN npm install
+# GitHub issue #16 (product review): `npm install` without the lockfile
+# copied alongside it means every image build resolves dependency versions
+# fresh against whatever's newest on npm at build time -- not reproducible,
+# and a transitive dependency bump between two builds of the *same commit*
+# could ship different code. `npm ci` requires and respects
+# package-lock.json exactly, refusing to run if it's missing or out of
+# sync with package.json, which is the guarantee this build actually wants.
+COPY package.json package-lock.json ./
+RUN npm ci
 COPY . .
 RUN npm run build
 

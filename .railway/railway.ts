@@ -24,6 +24,27 @@ export default defineRailway(() => {
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: "1",
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: "1",
       CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk",
+      // GitHub issue #8 (product review): infra/docker/docker-compose.yml
+      // has always set this to 3 (see its own comment: a single partition
+      // means only one consumer in a group can ever be active regardless
+      // of ocr-worker replica count), but this file never matched it --
+      // the public deployment's broker has run on the implicit default of
+      // 1 partition. IMPORTANT: this line alone does not fix production.
+      // `num.partitions` only sets the partition count for topics created
+      // *after* a broker picks up the new value; document.jobs.submitted
+      // and document.jobs.completed already exist live with 1 partition
+      // each (auto-created by the first publish, months ago). Increasing
+      // an existing topic's partition count needs an explicit
+      // `kafka-topics.sh --alter --topic ... --partitions 3` run against
+      // the live broker (partition count can only go up, never down, and
+      // messages already on partition 0 will not rebalance across new
+      // partitions retroactively) -- a live-production Kafka topology
+      // change, deliberately left for a human to run and watch, not
+      // something to script blind against the one Kafka the public demo
+      // depends on. This declaration is here so a *fresh* deploy (a new
+      // environment, or this topic recreated) gets it right from the
+      // start; it's not, by itself, the fix for the currently-running one.
+      KAFKA_NUM_PARTITIONS: "3",
     },
   });
 

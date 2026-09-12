@@ -4,6 +4,33 @@ server {
     root /usr/share/nginx/html;
     index index.html;
 
+    # GitHub issue #15 (product review): labhsathi.info sent none of these.
+    # Kept deliberately conservative rather than a maximally strict policy
+    # -- this templates the same one nginx.conf across Compose/kind/Railway
+    # (see docker-entrypoint.sh), and the live site can't be iterated on
+    # live tonight if a stricter policy turned out to break something.
+    #   - nosniff / frame-options / referrer-policy: zero behavioral risk,
+    #     no reason not to have them.
+    #   - HSTS: Railway already terminates TLS in front of this container
+    #     (nginx itself still just serves plain HTTP internally, unchanged)
+    #     -- a short max-age rather than a long one with preload, since
+    #     that's much easier to walk back if it ever needs to be.
+    #   - CSP: script-src needs 'unsafe-inline' for the two inline
+    #     <script> blocks in index.html (the runtime __LABHSATHI_CONFIG__
+    #     fallback and the pre-hydration dark-mode-flash guard) -- a
+    #     stricter nonce/hash-based policy is real future work, not
+    #     something to get right unverified in one pass. connect-src stays
+    #     permissive-on-https rather than pinned to one Railway hostname,
+    #     since API_BASE_URL is a runtime value (env.js, written by
+    #     docker-entrypoint.sh) this template has no build-time knowledge
+    #     of. Still meaningfully tightens the default-src/object-src/
+    #     frame-ancestors surface either way.
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-Frame-Options "DENY" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    add_header Strict-Transport-Security "max-age=86400" always;
+    add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'" always;
+
     # GitHub issue #2: the kind demo runs with ingress disabled and the
     # frontend defaulting to same-origin /api (see api-gateway Helm
     # values), but nothing was actually proxying /api anywhere -- every

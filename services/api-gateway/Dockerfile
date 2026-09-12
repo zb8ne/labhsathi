@@ -14,6 +14,13 @@ FROM debian:bookworm-slim
 RUN apt-get update && apt-get install -y --no-install-recommends \
     librdkafka1 ca-certificates \
     && rm -rf /var/lib/apt/lists/*
+# GitHub issue #16 (product review): ran as root with no user directive at
+# all. Listens on 8080 (already an unprivileged port, no change needed
+# there) -- a dedicated non-root user is a pure hardening step: a bug in
+# this binary or its dependencies gets a compromised-container blast radius
+# of "this one unprivileged user," not root inside the container.
+RUN useradd --system --no-create-home --uid 10001 labhsathi
 COPY --from=builder /app/target/release/api-gateway /usr/local/bin/api-gateway
+USER labhsathi
 EXPOSE 8080
 CMD ["api-gateway"]

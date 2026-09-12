@@ -14,5 +14,11 @@ FROM debian:bookworm-slim
 RUN apt-get update && apt-get install -y --no-install-recommends \
     librdkafka1 ca-certificates \
     && rm -rf /var/lib/apt/lists/*
+# GitHub issue #16 (product review): see api-gateway/Dockerfile's comment --
+# same fix, same reasoning. This is the service that calls out to the
+# vision API with real user documents; running it as non-root is worth
+# doing here if anywhere.
+RUN useradd --system --no-create-home --uid 10001 labhsathi
 COPY --from=builder /app/target/release/ocr-worker /usr/local/bin/ocr-worker
+USER labhsathi
 CMD ["ocr-worker"]

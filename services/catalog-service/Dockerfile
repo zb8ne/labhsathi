@@ -14,6 +14,10 @@ FROM debian:bookworm-slim
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
+# GitHub issue #16 (product review): see api-gateway/Dockerfile's comment --
+# same fix, same reasoning.
+RUN useradd --system --no-create-home --uid 10001 labhsathi
 COPY --from=builder /app/target/release/catalog-service /usr/local/bin/catalog-service
+USER labhsathi
 EXPOSE 8090
 CMD ["catalog-service"]
