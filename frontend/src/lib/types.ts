@@ -70,7 +70,7 @@ export const CATEGORY_LABELS: Record<string, string> = {
   education: "Education & Scholarships",
   business: "Business & Artisans",
   housing: "Housing & Shelter",
-  women_and_child: "Women & Child",
+  women_child: "Women & Child",
   employment: "Employment & Livelihood",
   disability: "Disability Support",
   financial_inclusion: "Financial Inclusion",

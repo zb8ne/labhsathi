@@ -88,7 +88,7 @@ export function ResultsScreen() {
               onClick={() => setSelectedCategory("all")}
               className={`rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors ${
                 selectedCategory === "all"
-                  ? "bg-forest text-white dark:bg-forest-light dark:text-dark-bg"
+                  ? "bg-ink text-cream dark:bg-dark-text dark:text-dark-bg"
                   : "border border-border bg-white text-ink-secondary hover:bg-input-bg dark:border-dark-border dark:bg-dark-card dark:text-dark-secondary"
               }`}
             >
@@ -101,7 +101,7 @@ export function ResultsScreen() {
                 onClick={() => setSelectedCategory(c.key)}
                 className={`rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors ${
                   selectedCategory === c.key
-                    ? "bg-forest text-white dark:bg-forest-light dark:text-dark-bg"
+                    ? "bg-ink text-cream dark:bg-dark-text dark:text-dark-bg"
                     : "border border-border bg-white text-ink-secondary hover:bg-input-bg dark:border-dark-border dark:bg-dark-card dark:text-dark-secondary"
                 }`}
               >
