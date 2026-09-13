@@ -4,7 +4,8 @@
 **Hackathon:** Bit N Build Hackathon 2026  
 **Know what you're entitled to.**  
 **Live Production App:** [labhsathi.info](https://labhsathi.info)  
-**Pitch Deck:** [HTML Deck](docs/pitch-deck/index.html)  
+**Demo Video:** [Watch on Google Drive](https://drive.google.com/file/d/1cONiWuX_YZGkYKGiDb0E1q0FzAqmbWIx/view)  
+**Pitch Deck:** [HTML Deck](docs/pitch-deck/index.html) · [PPTX](docs/pitch-deck/LabhSathi_Pitch_Deck.pptx)  
 **Video Pitch Script:** [`docs/demo/video-pitch-script.md`](docs/demo/video-pitch-script.md)  
 **Core Architectural Rationale:** [`THOUGHT_PROCESS.md`](THOUGHT_PROCESS.md)  
 
