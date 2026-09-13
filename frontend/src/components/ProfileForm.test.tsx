@@ -166,6 +166,76 @@ describe("ProfileForm OCR normalization", () => {
     expect(screen.getByLabelText("Occupation")).toHaveValue(before);
   });
 
+  it("suggests exactly the 36 states and union territories", () => {
+    renderForm();
+    expect(document.querySelectorAll("#state-options option")).toHaveLength(36);
+    expect(screen.getByLabelText("State")).toHaveValue("");
+  });
+
+  it("blocks typed text that isn't a real state, and clears the block once it is", () => {
+    renderForm();
+    const state = screen.getByLabelText("State") as HTMLInputElement;
+
+    fireEvent.change(state, { target: { value: "Atlantis" } });
+    expect(state.validity.customError).toBe(true);
+
+    fireEvent.change(state, { target: { value: "bihar" } });
+    expect(state.validity.customError).toBe(false);
+  });
+
+  it("submits the canonical state name whatever case or script it was typed in", () => {
+    const onSubmit = vi.fn();
+    renderForm({ onSubmit });
+    const state = screen.getByLabelText("State") as HTMLInputElement;
+
+    fireEvent.change(state, { target: { value: "बिहार" } });
+    fireEvent.submit(state.closest("form")!);
+
+    expect(onSubmit.mock.calls[0][0].state).toBe("Bihar");
+  });
+
+  it("leaves State blank rather than filling in a place it doesn't recognize", () => {
+    const { rerender } = renderForm();
+
+    rerender(
+      <LanguageProvider>
+        <ProfileForm
+          extractedFields={{ ...EXTRACTED, state: "Atlantis" }}
+          sampleTrigger={0}
+          onSubmit={vi.fn()}
+          submitting={false}
+        />
+      </LanguageProvider>,
+    );
+
+    expect(screen.getByLabelText("State")).toHaveValue("");
+  });
+
+  it("maps an old or differently-cased state name from a scan onto the list", () => {
+    const { rerender } = renderForm();
+
+    rerender(
+      <LanguageProvider>
+        <ProfileForm
+          extractedFields={{ ...EXTRACTED, state: "ORISSA" }}
+          sampleTrigger={0}
+          onSubmit={vi.fn()}
+          submitting={false}
+        />
+      </LanguageProvider>,
+    );
+
+    expect(screen.getByLabelText("State")).toHaveValue("Odisha");
+  });
+
+  it("drops a free-text state saved by an earlier session instead of submitting it", () => {
+    sessionStorage.setItem("labhsathi:profile", JSON.stringify({ age: 30, state: "Atlantis" }));
+    renderForm();
+
+    expect(screen.getByLabelText("State")).toHaveValue("");
+    expect(screen.getByLabelText("Age")).toHaveValue(30);
+  });
+
   it("marks a scan-filled field visually, then clears that mark the moment the user edits it", () => {
     const { rerender } = renderForm();
 

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import type { ExtractedFields, UserProfile } from "../lib/types";
 import { useLanguage } from "../lib/i18n/LanguageContext";
 import { normalizeCategory, normalizeOccupation } from "../lib/normalizeExtracted";
+import { INDIAN_STATES, normalizeState } from "../lib/indianStates";
 
 const STORAGE_KEY = "labhsathi:profile";
 
@@ -57,7 +58,11 @@ const SAMPLE_PROFILE: UserProfile = {
 function loadPersistedProfile(): UserProfile {
   try {
     const raw = sessionStorage.getItem(STORAGE_KEY);
-    if (raw) return { ...DEFAULT_PROFILE, ...JSON.parse(raw) };
+    if (raw) {
+      const saved: UserProfile = { ...DEFAULT_PROFILE, ...JSON.parse(raw) };
+      // A session saved while State was still free text can hold anything.
+      return { ...saved, state: normalizeState(saved.state) ?? "" };
+    }
   } catch {
     // corrupt/blocked storage -- fall through to defaults rather than crash
   }
@@ -79,7 +84,7 @@ interface ProfileFormProps {
 }
 
 export function ProfileForm({ extractedFields, sampleTrigger, focusField, onSubmit, submitting }: ProfileFormProps) {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const [profile, setProfile] = useState<UserProfile>(loadPersistedProfile);
   // Fields the user has actually typed into -- auto-fill only ever writes
   // into fields NOT in this set, so a scan can never clobber what someone
@@ -92,6 +97,24 @@ export function ProfileForm({ extractedFields, sampleTrigger, focusField, onSubm
   // (which never un-marks, since its whole job is permanent protection).
   const [scannedFields, setScannedFields] = useState<Set<keyof UserProfile>>(new Set());
   const [highlightField, setHighlightField] = useState<string | null>(focusField ?? null);
+
+  // State is typed with suggestions, but only a recognized state ever
+  // reaches profile.state: stateText is what's in the box, profile.state is
+  // the canonical name (or "" while the text doesn't match one).
+  const stateInput = useRef<HTMLInputElement>(null);
+  const [stateText, setStateText] = useState(() => stateLabel(profile.state, lang));
+
+  // A scan, the sample household, or a language switch changed the state:
+  // show its label, unless the person is mid-typing in the box.
+  useEffect(() => {
+    if (document.activeElement === stateInput.current) return;
+    if (profile.state) setStateText(stateLabel(profile.state, lang));
+  }, [profile.state, lang]);
+
+  // Unrecognized text blocks submit with a message instead of being sent.
+  useEffect(() => {
+    stateInput.current?.setCustomValidity(stateText.trim() && !profile.state ? t.form.stateInvalid : "");
+  }, [stateText, profile.state, t]);
 
   // Persisted to sessionStorage (not lifted to MainScreen/localStorage) --
   // fixes a real bug from this session's product review: "Editing
@@ -123,8 +146,12 @@ export function ProfileForm({ extractedFields, sampleTrigger, focusField, onSubm
         fromScan.push("annual_income");
       }
       if (!touched.current.has("state") && extractedFields.state) {
-        next.state = extractedFields.state;
-        fromScan.push("state");
+        // Same closed-set rule as category/occupation below.
+        const normalized = normalizeState(extractedFields.state);
+        if (normalized) {
+          next.state = normalized;
+          fromScan.push("state");
+        }
       }
       if (!touched.current.has("category") && extractedFields.category) {
         // Model wording normalized into the closed dropdown set -- an
@@ -235,14 +262,28 @@ export function ProfileForm({ extractedFields, sampleTrigger, focusField, onSubm
         </Field>
         <Field label={t.form.state} id="state">
           <input
+            ref={stateInput}
             id="field-state"
             type="text"
             required
+            list="state-options"
+            autoComplete="off"
             placeholder={t.form.statePlaceholder}
-            value={profile.state}
-            onChange={(e) => set("state", e.target.value)}
+            value={stateText}
+            onChange={(e) => {
+              setStateText(e.target.value);
+              set("state", normalizeState(e.target.value) ?? "");
+            }}
+            onBlur={() => {
+              if (profile.state) setStateText(stateLabel(profile.state, lang));
+            }}
             className={inputClass(scannedFields.has("state"), highlightField === "state")}
           />
+          <datalist id="state-options">
+            {INDIAN_STATES.map((s) => (
+              <option key={s.value} value={lang === "hi" ? s.hi : s.value} />
+            ))}
+          </datalist>
         </Field>
         <Field label={t.form.category} id="category">
           <select
@@ -387,6 +428,12 @@ export function ProfileForm({ extractedFields, sampleTrigger, focusField, onSubm
       </button>
     </form>
   );
+}
+
+function stateLabel(value: string, lang: string): string {
+  const s = INDIAN_STATES.find((x) => x.value === value);
+  if (!s) return "";
+  return lang === "hi" ? s.hi : s.value;
 }
 
 function inputClass(fromScan: boolean, highlighted: boolean): string {

@@ -57,7 +57,8 @@ export const translations = {
         retired: "Retired",
       },
       state: "State",
-      statePlaceholder: "e.g. Goa",
+      statePlaceholder: "Type or pick your state",
+      stateInvalid: "Pick a state from the list",
       category: "Category",
       categoryOptions: {
         general: "General",
@@ -175,7 +176,8 @@ export const translations = {
         retired: "सेवानिवृत्त",
       },
       state: "राज्य",
-      statePlaceholder: "जैसे गोवा",
+      statePlaceholder: "राज्य लिखें या सूची से चुनें",
+      stateInvalid: "सूची में से कोई राज्य चुनें",
       category: "श्रेणी",
       categoryOptions: {
         general: "सामान्य",
