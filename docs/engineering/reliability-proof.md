@@ -8,6 +8,26 @@ Every command below is copy-pasteable and was actually run against
 directory (or repo root, adjusted below) with the stack already up
 (`docker compose -f infra/docker/docker-compose.yml up -d`).
 
+**Scope note, added after a later production review (see `THOUGHT_PROCESS.md`
+Section 5) -- read before treating anything below as current-state:**
+- This proof predates a later expansion of the scheme catalog to its current
+  100+ entries. Demonstration 1's specific "2-scheme match" result reflects
+  an earlier, smaller version of the catalog; the mechanism it proves
+  (matching keeps working with `ocr-worker` fully stopped) still holds
+  today, but re-running that exact curl against the current catalog could
+  legitimately return more matches for the same profile. Not re-run here to
+  avoid rewriting a real, timestamped result after the fact.
+- The Kafka-partition fix below covers `docker-compose.yml` and the `kind`
+  Helm template only, both dev/demo targets. It does **not** cover Railway,
+  which is the actual production deploy target: `.railway/railway.ts` had no
+  `KAFKA_NUM_PARTITIONS` setting at all until the later review above added
+  it, and even now that setting only takes effect for a topic Kafka creates
+  fresh -- it was deliberately not applied retroactively to the live
+  `document.jobs.submitted`/`document.jobs.completed` topics, which remain
+  at 1 partition in production today. Everything demonstrated below is real
+  and reproducible, but it's proof against the local/kind stack, not a claim
+  about labhsathi.info's current partition count.
+
 ## Prerequisite: Kafka partitions
 
 Kafka topics in this stack are auto-created on first use. The broker's
@@ -152,6 +172,58 @@ concurrent jobs would be needed to see a multi-replica throughput
 difference directly in this test's terms; not run here to keep real
 API spend in check (see below) -- a reasonable next increment if this
 proof gets extended.
+
+## Demonstration 4: catalog source-link integrity, checked for real
+
+The README claims every scheme's `source_url` points at a real official
+source and is checked, not just typed in and trusted. Built and actually
+run rather than left as a claim: [`scripts/verify-source-links.sh`](../../scripts/verify-source-links.sh),
+using a committed domain allowlist ([`scripts/trusted-source-domains.txt`](../../scripts/trusted-source-domains.txt))
+so a typo'd or spoofed domain in a future data edit fails closed instead of
+silently passing a bare `.gov.in`/`.nic.in` wildcard check.
+
+```
+$ scripts/verify-source-links.sh
+...
+checked 100 schemes: 72 OK, 28 bad status, 0 domain not allowlisted, 0 redirected off allowlist, 0 network errors
+```
+
+**Honest interpretation, not just the number:** 0 domains fell outside the
+allowlist -- the check that actually guards against a fraudulent or
+typo'd source is a clean pass. The 28 non-200s are a mix, verified
+individually rather than assumed:
+
+- Most are network-level failures from *this* machine, not evidence the
+  links are dead. `curl -v` against a sample showed `pmjay.gov.in`
+  resolving fine and then timing out on connect, and `nsap.nic.in` failing
+  DNS resolution outright -- both consistent with these specific
+  government sites blocking traffic from cloud/datacenter IP ranges or
+  this sandbox's DNS resolver, not with the sites being down. `cgss-startups`
+  and `mission-vatsalya-sponsorship-foster-care` came back `403`, which
+  reads the same way (a WAF blocking automated/non-browser requests) rather
+  than "page removed."
+- A smaller number are genuine, worth a manual look regardless of network
+  conditions: `nf-sc-fellowship`, `eps-95`, and `epf-scheme-1952` all
+  resolved past the domain-allowlist and TLS layer fine, then got a real
+  `404` at the specific path in `data/schemes.json` -- the domain is alive,
+  the exact page isn't. These three are flagged here as a genuine
+  follow-up, not swept into the same bucket as the network noise above.
+
+The honest takeaway: the tool and the allowlist are the durable, real
+artifact here -- re-run `scripts/verify-source-links.sh` from a normal
+residential connection (not a cloud sandbox) for a trustworthy per-link
+read, and treat the 3 named 404s above as an actual to-do, independent of
+which network runs the check.
+
+**Wired into CI, deliberately non-blocking on the network-flakiness axis:**
+`.github/workflows/ci.yml`'s `scheme-source-links` job runs this script on
+every push. A domain-allowlist violation (a fraudulent or typo'd
+`source_url`) fails the build -- that check has no network-flakiness excuse,
+it's a local file comparison. A non-200 HTTP result does not fail the build,
+for exactly the reason above: GitHub-hosted runners are cloud IPs too, and
+would hit the same government-side blocking this section documents. The job
+still runs and reports every time; it just doesn't cry wolf on infrastructure
+noise it can't control.
 
 ## Real API spend
 

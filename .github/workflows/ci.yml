@@ -111,3 +111,37 @@ jobs:
 
       - name: Test
         run: npx vitest run
+
+  scheme-source-links:
+    name: Scheme catalog source-link integrity (non-blocking)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends jq
+
+      # Deliberately continue-on-error: this hits ~100 real external
+      # .gov.in/.nic.in (and equivalent) government sites live. A meaningful
+      # chunk of those are known to reject requests from cloud/datacenter IP
+      # ranges (GitHub-hosted runners included) with timeouts or connection
+      # resets that have nothing to do with whether the link is actually
+      # good -- confirmed by hand with `curl -v` against several of them
+      # (see docs/engineering/reliability-proof.md, Demonstration 4). Failing
+      # the whole build on that would make CI red for reasons unrelated to
+      # a real bug. The domain-allowlist check inside the script (a fraudulent
+      # or typo'd source_url) is the part with zero false-positive risk, and
+      # its result is called out separately in the summary below so it's
+      # never silently lost inside a step GitHub already marked "failed."
+      - name: Run scripts/verify-source-links.sh
+        id: verify
+        continue-on-error: true
+        run: scripts/verify-source-links.sh | tee link-check-output.txt
+
+      - name: Fail only on a real domain-allowlist violation
+        run: |
+          if grep -q "DOMAIN_NOT_ALLOWLISTED\|REDIRECTED_OFF_ALLOWLIST" link-check-output.txt; then
+            echo "::error::A scheme's source_url resolved to a domain outside scripts/trusted-source-domains.txt -- this is the one failure mode this job treats as a real bug, not network noise."
+            exit 1
+          fi
+          echo "No domain-allowlist violations. Remaining non-200s (if any, see the job summary above) are HTTP-liveness noise, not gated here -- see docs/engineering/reliability-proof.md, Demonstration 4."

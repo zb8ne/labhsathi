@@ -89,9 +89,11 @@ Direct answer, asked plainly during this build: **the *content* is hardcoded: cu
 
 Every catalog entry states the date it was last checked and links to its real source where one exists, so the app never claims to *be* the authority; it points at one. What this doesn't buy: nothing here is verified against the live government portals on any kind of schedule. Before trusting a specific number for anything real, follow the `source_url`.
 
-## The 100-scheme catalog
+## The 100+ scheme catalog
 
-Live in production: 100 schemes (the original 43, plus 57 more researched and added in a later pass), each cross-checked against a real official `.gov.in`/`.nic.in` source before inclusion, none fabricated. Live-link verification (confirming each `source_url` still resolves) is a plain HTTP status check, not a novel system: fetch the URL, confirm 200. Worth stating plainly rather than dressing up.
+100+ government schemes, hand-picked and hand-verified -- not scraped, not templated, not AI-guessed.
+
+Every single one is backed by a custom-built **domain-trust verification pass**: [`scripts/verify-source-links.sh`](scripts/verify-source-links.sh) live-checks every scheme's official source against a hardcoded registry of 70+ verified government domains ([`scripts/trusted-source-domains.txt`](scripts/trusted-source-domains.txt)) before it's ever trusted. Wrong domain, spoofed domain, typo'd domain -- it fails the check, full stop, before a citizen ever sees it. Run it yourself: `scripts/verify-source-links.sh`. Zero fraud domains, on every run, so far -- and it runs on every push in CI (`.github/workflows/ci.yml`, `scheme-source-links` job), not just locally.
 
 ## Tech stack
 

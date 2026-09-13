@@ -1,0 +1,93 @@
+# Domains this project's `source_url` fields are allowed to point at.
+#
+# This is the actual, complete list of domains present in
+# services/labhsathi-core/data/schemes.json today -- not every .gov.in/.nic.in
+# domain that exists, and deliberately not a wildcard match on those TLDs,
+# because several legitimate schemes here point at real government-affiliated
+# bodies that aren't under those TLDs at all (licindia.in, pfrda.org.in,
+# www.mudra.org.in, www.standupmitra.in, and a few more below).
+#
+# The point of a fixed, committed list rather than a wildcard: a future
+# schemes.json edit that introduces a typosquatted or otherwise wrong domain
+# (e.g. a look-alike for pmkisan.gov.in) fails this check by simply not being
+# on this list, and a human has to deliberately add it here -- which is a much
+# stronger guard than "matches *.gov.in", since a convincing fraud domain
+# could easily also end in .gov.in-looking text without being real.
+#
+# Adding a new domain here should only happen after manually confirming it's
+# the scheme's real, official source -- see scripts/verify-source-links.sh.
+
+aajeevika.gov.in
+adip.depwd.gov.in
+agricoop.nic.in
+agriinfra.dac.gov.in
+agrimachinery.nic.in
+arhc.mohua.gov.in
+dahd.gov.in
+ddugky.gov.in
+depwd.gov.in
+dfpd.gov.in
+dghs.mohfw.gov.in
+esic.gov.in
+jansuraksha.gov.in
+licindia.in
+maandhan.in
+midh.gov.in
+minorityaffairs.gov.in
+missionvatsalya.wcd.gov.in
+mohfw.gov.in
+www.mohfw.gov.in
+nbb.gov.in
+nhm.gov.in
+nrega.nic.in
+nsap.nic.in
+nsfdc.nic.in
+nulm.gov.in
+pfrda.org.in
+pgsindia-ncof.gov.in
+pmayg.nic.in
+pmaymis.gov.in
+pmfby.gov.in
+pmfme.mofpi.gov.in
+pmjay.gov.in
+pmjdy.gov.in
+pmkisan.gov.in
+pmksy.gov.in
+pmmsy.dof.gov.in
+pmmvy.wcd.gov.in
+pmsma.mohfw.gov.in
+pmsvanidhi.mohua.gov.in
+pmvbry.epfindia.gov.in
+pmvishwakarma.gov.in
+poshanabhiyaan.gov.in
+scholarships.gov.in
+socialjustice.gov.in
+soilhealth.dac.gov.in
+swachhbharatmission.ddws.gov.in
+tribal.nic.in
+wcd.gov.in
+wcd.nic.in
+www.aicte.gov.in
+www.apprenticeshipindia.gov.in
+www.cgtmse.in
+www.dcmsme.gov.in
+www.desw.gov.in
+www.dgft.gov.in
+www.epfindia.gov.in
+www.indiapost.gov.in
+www.kviconline.gov.in
+www.msmediagra.gov.in
+www.mudra.org.in
+www.ncs.gov.in
+ncs.gov.in
+www.nhb.org.in
+www.nhfdc.nic.in
+www.npscra.nsdl.co.in
+www.pib.gov.in
+www.pmkvyofficial.org
+www.pmuy.gov.in
+www.rseti.in
+www.standupmitra.in
+www.startupindia.gov.in
+yet.nta.ac.in
+zed.msme.gov.in
