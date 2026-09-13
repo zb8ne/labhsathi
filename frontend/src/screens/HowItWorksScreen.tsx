@@ -33,7 +33,7 @@ export function HowItWorksScreen() {
           number={1}
           title="Scan a document to auto-fill six fields, or just type them"
           body="Upload an income certificate, a ration card, an ID — anything with your age, income, occupation, state, category and land holding on it. LabhSathi reads those six fields once, fills them in, and forgets the image existed. The rest of the form (family size and a few household questions a document can't answer) still needs a direct answer either way. No account, no login, nothing saved."
-          image="/how-it-works/step-1-form.jpg"
+          image="/how-it-works-assets/step-1-form.jpg"
           imageAlt="LabhSathi's main form, pre-filled with a sample household's details"
         />
 
@@ -41,7 +41,7 @@ export function HowItWorksScreen() {
           number={2}
           title="Every scheme worth checking, in under two seconds"
           body="LabhSathi checks your answers against a real, cited catalog of central government schemes — pensions, health cover, housing, agriculture, financial inclusion — and shows exactly which ones are worth pursuing."
-          image="/how-it-works/step-2-results.jpg"
+          image="/how-it-works-assets/step-2-results.jpg"
           imageAlt="Results screen showing 28 matched schemes across multiple categories"
         />
 
@@ -49,7 +49,7 @@ export function HowItWorksScreen() {
           number={3}
           title="Never just a match — always the reason why"
           body="Every card tells you the specific fact about your situation that made it match, so it reads like an explanation, not a lottery ticket. 'Worth checking' is the honest framing: a real signal, not a final determination."
-          image="/how-it-works/step-3-explained.png"
+          image="/how-it-works-assets/step-3-explained.png"
           imageAlt="Ayushman Bharat PM-JAY card showing the reason it matched and documents needed"
         />
 
@@ -85,7 +85,7 @@ export function HowItWorksScreen() {
           the same time — the same seven this page has been describing, wired together exactly like this.
         </p>
         <img
-          src="/how-it-works/architecture-topology.png"
+          src="/how-it-works-assets/architecture-topology.png"
           alt="Railway's live production service graph: Postgres, catalog-service, redis, kafka, ocr-worker, api-gateway, and frontend, all Online, with their real dependency arrows"
           className="w-full rounded-2xl border border-border dark:border-dark-border"
           loading="lazy"
