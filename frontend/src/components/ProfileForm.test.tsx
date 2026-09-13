@@ -21,7 +21,12 @@ const EXTRACTED: ExtractedFields = {
 
 function renderForm(props: Partial<Parameters<typeof ProfileForm>[0]> = {}) {
   return render(
-    <LanguageProvider>
+    // English pinned explicitly: these assertions are written against the
+    // English labels, and the app's real first-load default is Hindi (see
+    // LanguageContext.tsx) -- a product decision unrelated to what this
+    // suite tests. jsdom has no real localStorage to seed instead, so this
+    // suite uses LanguageProvider's test-only override.
+    <LanguageProvider initialLangOverride="en">
       <ProfileForm
         extractedFields={null}
         sampleTrigger={0}

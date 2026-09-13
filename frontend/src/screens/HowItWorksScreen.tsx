@@ -32,7 +32,7 @@ export function HowItWorksScreen() {
         <JourneyStep
           number={1}
           title="Scan a document to auto-fill six fields, or just type them"
-          body="Upload an income certificate, a ration card, an ID -- anything with your age, income, occupation, state, category and land holding on it. LabhSathi reads those six fields once, fills them in, and forgets the image existed. The rest of the form (family size and a few household questions a document can't answer) still needs a direct answer either way. No account, no login, nothing saved."
+          body="Upload an income certificate, a ration card, an ID — anything with your age, income, occupation, state, category and land holding on it. LabhSathi reads those six fields once, fills them in, and forgets the image existed. The rest of the form (family size and a few household questions a document can't answer) still needs a direct answer either way. No account, no login, nothing saved."
           image="/how-it-works/step-1-form.jpg"
           imageAlt="LabhSathi's main form, pre-filled with a sample household's details"
         />
@@ -40,14 +40,14 @@ export function HowItWorksScreen() {
         <JourneyStep
           number={2}
           title="Every scheme worth checking, in under two seconds"
-          body="LabhSathi checks your answers against a real, cited catalog of central government schemes -- pensions, health cover, housing, agriculture, financial inclusion -- and shows exactly which ones are worth pursuing."
+          body="LabhSathi checks your answers against a real, cited catalog of central government schemes — pensions, health cover, housing, agriculture, financial inclusion — and shows exactly which ones are worth pursuing."
           image="/how-it-works/step-2-results.jpg"
           imageAlt="Results screen showing 28 matched schemes across multiple categories"
         />
 
         <JourneyStep
           number={3}
-          title="Never just a match -- always the reason why"
+          title="Never just a match — always the reason why"
           body="Every card tells you the specific fact about your situation that made it match, so it reads like an explanation, not a lottery ticket. 'Worth checking' is the honest framing: a real signal, not a final determination."
           image="/how-it-works/step-3-explained.png"
           imageAlt="Ayushman Bharat PM-JAY card showing the reason it matched and documents needed"
@@ -66,7 +66,7 @@ export function HowItWorksScreen() {
         </h2>
         <p className="mb-10 max-w-[62ch] text-[15px] leading-relaxed text-ink-secondary dark:text-dark-secondary">
           The earlier version of this did exactly that: one request in, one blocking call to a vision
-          model, one response out. Simple, and quietly wrong in three ways -- it ties up a request
+          model, one response out. Simple, and quietly wrong in three ways — it ties up a request
           thread for the slowest thing the system does, it can't scale document extraction without
           scaling the whole API alongside it, and nothing except code discipline stops a future "just
           cache it for a second" shortcut from making an image outlive the request it arrived in. So
@@ -77,12 +77,12 @@ export function HowItWorksScreen() {
         <ArchitectureDiagram />
 
         <h3 className="mb-3 mt-14 font-serif text-lg font-semibold">
-          The actual deployment, right now -- not a mockup
+          The actual deployment, right now — not a mockup
         </h3>
         <p className="mb-6 max-w-[62ch] text-[15px] leading-relaxed text-ink-secondary dark:text-dark-secondary">
           This is Railway's live service graph for production, pulled directly from the running
           deployment. Seven services, all reporting <span className="font-semibold text-success-accent dark:text-success-accent">Online</span> at
-          the same time -- the same seven this page has been describing, wired together exactly like this.
+          the same time — the same seven this page has been describing, wired together exactly like this.
         </p>
         <img
           src="/how-it-works/architecture-topology.png"
@@ -94,7 +94,7 @@ export function HowItWorksScreen() {
         <div className="mt-8 grid gap-x-8 gap-y-6 sm:grid-cols-2">
           <ServiceNote name="frontend" tag="labhsathi.info">
             The React app itself. Talks to api-gateway for every scheme-related call, plus Google Fonts
-            for the two typefaces on this page -- no other third party sees a request from this app.
+            for the two typefaces on this page — no other third party sees a request from this app.
           </ServiceNote>
           <ServiceNote name="api-gateway" tag="Rust / Axum">
             The only entry point. Accepts uploads, serves{" "}
@@ -107,7 +107,7 @@ export function HowItWorksScreen() {
             <span className="font-mono text-[13px]">document.jobs.completed</span>.
           </ServiceNote>
           <ServiceNote name="ocr-worker" tag="Rust, Kafka consumer">
-            Stateless and horizontally scalable -- this is the one thing that actually scales under
+            Stateless and horizontally scalable — this is the one thing that actually scales under
             load. Reads an image exactly once, calls the vision API, forgets the image existed.
           </ServiceNote>
           <ServiceNote name="redis" tag="60s handoff cache">
@@ -121,14 +121,14 @@ export function HowItWorksScreen() {
           </ServiceNote>
           <ServiceNote name="Postgres" tag="one JSONB row per scheme">
             What catalog-service actually persists to. Every entry carries its own{" "}
-            <span className="font-mono text-[13px]">source_url</span> and last-checked date -- the
+            <span className="font-mono text-[13px]">source_url</span> and last-checked date — the
             catalog cites itself.
           </ServiceNote>
         </div>
 
         <div className="mt-10 grid gap-8 sm:grid-cols-2">
           <ArchNote title="Redis is a handoff, not a datastore">
-            The raw image and the job's status live under separate keys with separate TTLs -- 60
+            The raw image and the job's status live under separate keys with separate TTLs — 60
             seconds for the image, 5 minutes for the status. The image key is read with{" "}
             <code className="font-mono text-[13px] text-terracotta dark:text-amber-tan">GETDEL</code>,
             which deletes it in the same atomic step that reads it, so there is no window where it sits
@@ -136,8 +136,8 @@ export function HowItWorksScreen() {
           </ArchNote>
           <ArchNote title="Privacy enforced by the type system, not a promise">
             <span className="font-mono text-[13px]">DocumentJobSubmitted</span> and{" "}
-            <span className="font-mono text-[13px]">DocumentJobCompleted</span> -- the two Kafka event
-            schemas -- have no field capable of holding image bytes anywhere in their definition. Not a
+            <span className="font-mono text-[13px]">DocumentJobCompleted</span> — the two Kafka event
+            schemas — have no field capable of holding image bytes anywhere in their definition. Not a
             rule enforced by a code reviewer; a shape the compiler enforces. See{" "}
             <Link to="/privacy" className="underline decoration-amber-tan decoration-2 underline-offset-4">
               the Privacy page
@@ -145,14 +145,14 @@ export function HowItWorksScreen() {
             for the honest limit on that claim.
           </ArchNote>
           <ArchNote title="A crash never loses or duplicates a job">
-            ocr-worker only commits a Kafka offset after it has published a terminal event -- success
-            or failure -- for that message. Crash before that, and the job redelivers to another
+            ocr-worker only commits a Kafka offset after it has published a terminal event — success
+            or failure — for that message. Crash before that, and the job redelivers to another
             worker. If that redelivery finds the image already consumed, that's a named, expected
             failure case, not corruption.
           </ArchNote>
           <ArchNote title="Matching never depends on the vision pipeline">
             <span className="font-mono text-[13px]">/api/match</span> is fast, in-memory Rust with one
-            cached network hop to catalog-service (30-second TTL, stale-fallback on error) -- it doesn't
+            cached network hop to catalog-service (30-second TTL, stale-fallback on error) — it doesn't
             know or care whether a profile came from a scan or from typing. If ocr-worker is completely
             down, the manual form still works, because the two were never the same code path to begin
             with.
@@ -162,7 +162,7 @@ export function HowItWorksScreen() {
         <div className="mt-14 rounded-2xl border border-border bg-input-bg px-7 py-6 dark:border-dark-border dark:bg-dark-card">
           <h3 className="mb-2 font-serif text-lg font-semibold">The one exception: not everything is a database row</h3>
           <p className="text-[14.5px] leading-relaxed text-ink-secondary dark:text-dark-secondary">
-            Most schemes are matched declaratively straight out of Postgres -- age/income bounds,
+            Most schemes are matched declaratively straight out of Postgres — age/income bounds,
             occupation, category, and similar, no Rust change needed to add one. A handful need a real
             follow-up question instead of a flat match/no-match (PM-KISAN, the NSAP pensions, PMAY's
             urban/rural split), and those still carry a small hand-written rule in{" "}
@@ -175,7 +175,7 @@ export function HowItWorksScreen() {
         <SectionKicker>what this is, and isn't</SectionKicker>
         <p className="mb-2 max-w-[62ch] text-[15px] leading-relaxed text-ink-secondary dark:text-dark-secondary">
           The scheme catalog is curated, central-government-only, and not exhaustive. Eligibility rules
-          are simplified approximations of real criteria -- close enough to tell you what's worth
+          are simplified approximations of real criteria — close enough to tell you what's worth
           checking, not close enough to skip verifying with the official source before you act on it.
           Every match says exactly that: "worth checking," never a final determination.
         </p>
@@ -317,7 +317,7 @@ function ArchitectureDiagram() {
       <div className="mt-3 flex min-w-[820px] justify-center">
         <div className="text-[11px] text-ink-tertiary dark:text-dark-secondary">
           Redis sits between <span className="font-mono">api-gateway</span> and{" "}
-          <span className="font-mono">ocr-worker</span> as a 60-second handoff cache -- never a datastore.
+          <span className="font-mono">ocr-worker</span> as a 60-second handoff cache — never a datastore.
         </div>
       </div>
     </div>

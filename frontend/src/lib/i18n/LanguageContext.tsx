@@ -13,7 +13,11 @@ function initialLang(): Lang {
     // fall through to the default rather than crashing the app over a
     // language-preference convenience.
   }
-  return "en";
+  // Default to Hindi, not English: in India, someone who reads English is
+  // very likely to also read Hindi, but the reverse isn't true. Defaulting
+  // to the language with the larger reachable audience costs the
+  // English-only visitor one tap and costs the Hindi-only visitor nothing.
+  return "hi";
 }
 
 interface LanguageContextValue {
@@ -24,8 +28,17 @@ interface LanguageContextValue {
 
 const LanguageContext = createContext<LanguageContextValue | null>(null);
 
-export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [lang, setLangState] = useState<Lang>(initialLang);
+interface LanguageProviderProps {
+  children: ReactNode;
+  /** Test-only escape hatch: jsdom has no real localStorage, so
+   * initialLang()'s try/catch always falls through to the hard default,
+   * which makes that default untestable from the outside. Production never
+   * passes this. */
+  initialLangOverride?: Lang;
+}
+
+export function LanguageProvider({ children, initialLangOverride }: LanguageProviderProps) {
+  const [lang, setLangState] = useState<Lang>(() => initialLangOverride ?? initialLang());
 
   const setLang = (next: Lang) => {
     setLangState(next);
